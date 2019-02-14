@@ -20,6 +20,8 @@ Quandl.api_key("enter api key")
 Data Collection
 ===============
 
+STILL HAVE TO DOWNLOAD FORWARD RATES TO DO OUT OF SAMPLE PERFORMANCE CHECK
+
 Specify function to get symbols
 ```{r}
 get_Symbols <- function(x){
@@ -45,7 +47,7 @@ FX[[1]] <- 1/FX[[1]]
 
 FX <- do.call(merge, FX)
 
-colnames(FX)[c(1,3)] <- c("EXUKUS","EXCHUS")
+colnames(FX)[c(1,3)] <- c("EX_UKUS", "EX_JPUS","EX_CHUS")
 
 ## notice like that all of the evaluation will be performed compared to the usa. if you want to make smaller bilateral comparison you need to download the other forex.
 ```
@@ -183,42 +185,49 @@ In order to derive meaningful conclusions in the following sections it is necess
 
 Step 1.1: Check for underlying trend in the series. 
 ```{r}
-function(t_series){
+Season <- function(t_series,  idx){
   trend <- ma(na.trim(t_series), order = 12, centre = T)
-  Seasonality <- 
+  Seasonality <- as.ts(na.trim(t_series)) - trend
+  Seasonality <- na.contiguous(Seasonality)
+  if(idx == 1) plot(Seasonality)
+  if(idx == 2) acf(Seasonality)
+  if(idx == 3) pacf(Seasonality)
+  if(idx == 4){
+    converted_ts <- ts(na.trim(t_series), frequency = 12)
+    decompose_ts <- decompose(converted_ts, "additive")
+    adjust_ts <- converted_ts - decompose_ts$seasonal
+    plot(adjust_ts)
+  }
 }
 
-trend_UN <- ma(na.trim(data$UN_US), order = 12, centre = T)
-
-Seasonality <- na.trim(data$UN_US) - trend_UN
-
-Seasonality <- na.contiguous(Seasonality)
-
-plot(Seasonality) ## additive model; make it integrated and graph of four unemployment series.
-
-## check for autocorrelation in the detrended times series
-
-acf(Seasonality, type = "correlation") ## strong evidence for seasonality. 
-
-
-
-
-
-
-ts_beer = ts(na.trim(data$UN_US), frequency = 12)
-decompose_beer = decompose(ts_beer, "additive")
-plot(as.ts(decompose_beer$seasonal))
-plot(as.ts(decompose_beer$trend))
-plot(as.ts(decompose_beer$random))
-plot(decompose_beer)
-
+helper <- c("US", "JP", "CH", "UK")
+par(mfrow=c(2,2))
+for (i in helper){Season(eval(parse(text = paste0("data$UN_", i))), 3)} ##significant autoregressive lags
 ```
 
+Do similar for other functions and incorporate all of the code in one single function if you want to be fancy
+```{r}
+helper <- c("US", "JP", "CH", "UK")
+par(mfrow=c(2,2))
+for (i in helper){Season(eval(parse(text = paste0("data$M1_", i))), 2)} ## also for M1 and M3 profound seasonality
+```
 
+CPI
+```{r}
+helper <- c("US", "JP", "CH", "UK")
+par(mfrow=c(2,2))
+for (i in helper){Season(eval(parse(text = paste0("data$CPI_", i))), 2)} ## also for CPI profound seasonality
+```
 
+Test 
+```{r}
+ts_beer = ts(na.trim(data$UN_US), frequency = 12)
+decompose_beer = decompose(ts_beer, "additive")
+adjust_beer = ts_beer - decompose_beer$seasonal
+plot(adjust_beer)
 
-
-
+plot(decompose_beer$seasonal)
+```
 
 
 
