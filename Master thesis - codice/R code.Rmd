@@ -7,17 +7,28 @@ Libraries used
 ```{r}
 library("Quandl") ##Offers to connect to download various eco and financial datasets avaialable on quandl.com through the Quandl API. !!At the moment not used!!
 library("quantmod") ##same principle as Quandl, not limited by the amount of API calls though and connect to multiple daset providers. In this study we will mainly query the FRED database.
+library(forecast) ## for detrending the times series
 ```
 
 Specify quandl API
 ```{r}
-Quandl.api_key(enter api key)
+Quandl.api_key("enter api key")
 ```
 
 
 ===============
 Data Collection
 ===============
+
+Specify function to get symbols
+```{r}
+get_Symbols <- function(x){
+                           lapply(x, function(sym){getSymbols(sym, src = "FRED",
+                                                              return.class = "xts",
+                                                              auto.assign = F)})
+  ## auto.assign specifies that not the ticker should be passed
+}
+```
 
 ###########
 FX - rates
@@ -27,8 +38,7 @@ Download foreign exchange rates
 ```{r}
 Symbols <- c("EXUSUK", "EXJPUS", "EXSZUS")
 
-FX <-  lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class = "xts", 
-                                                auto.assign = FALSE)}) ## auto.assign specifies that not the ticker should be passed
+FX <-  get_Symbols(Symbols)
 
 ## Invert the USUK rate to UKUS to keep it consistent with the other series
 FX[[1]] <- 1/FX[[1]]
@@ -50,8 +60,7 @@ GDP is an aggregated statistic that is published on a quarterly basis. You can u
 ## use unemployment rate. This approach preferred
 Symbols <- c("LRUN64TTUSM156N", "LRUN64TTJPM156N", "LMUNRRTTCHM156N", "LMUNRRTTGBM156N") #F not seasonally adjusted.
 
-UNply <- lapply(Symbols, function(sym){getSymbols(sym, src ="FRED", retunr.class = "xts",
-                                                  auto.assign = F)})
+UNply <- get_Symbols(Symbols)
 
 UNply <- do.call(merge, UNply) ## notice the unemployment series for UK starts just in the 90s.
 
@@ -70,10 +79,11 @@ Symbols <- c("TB3MS","INTGSTJPM193N","TBDRUKM")
  ## bill for japan; explaination not clear. check at it again to clearly understand what it is precisely.
  ## treasury bill for uk
 
-bills <- lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class = "xts",
-                                                  auto.assign = F)})
+bills <- get_Symbols(Symbols)
 
-bills<- do.call(merge, bills)
+bills<- do.call(merge, bills) 
+
+colnames(bills) <- c("TB_US", "TB_JP", "TB_CH") ## Treasury bills
 
 ## above not available for switzerland. use interbank rate for it.
 ```
@@ -87,14 +97,22 @@ Problem you are taking differentials for all of the above measures. The values s
 ```{r}
 Symbols <- c("MYAGM3USM052N", "MYAGM3JPM189N", "MABMM301GBM189N", "MABMM301CHM189N") #us, jp, uk, not seasonally adjusted. 
 
-M3 <- lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class = "xts",
-                                      auto.assign = F)})
+M3 <- get_Symbols(Symbols)
 
 M3 <- do.call(merge, M3)
 
 colnames(M3) <- c("M3_US", "M3_JP", "M3_UK", "M3_CH")
+```
 
-## all available also for M1. You can decide then in the thesis which one to use.
+Extract M1
+```{r}
+Symbols <- c("M1NS", "MANMM101JPM189N", "MANMM101GBM189N", "MANMM101CHM189N") 
+
+M1 <- get_Symbols(Symbols)
+
+M1 <- do.call(merge, M1)
+
+colnames(M1) <- c("M1_US", "M1_JP", "M1_UK", "M1_CH")
 ```
 
 ###
@@ -105,7 +123,7 @@ CPI
 ## all not seasonally adjusted, all with basis 2015
 Symbols <- c('CHECPIALLMINMEI', 'JPNCPIALLMINMEI', 'GBRCPIALLMINMEI', 'USACPIALLMINMEI')
 
-CPI <- lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class = "xts", auto.assign=FALSE)})
+CPI <- get_Symbols(Symbols)
 
 CPI <- do.call(merge, CPI)
 
@@ -131,16 +149,13 @@ Trade balances
 Symbols <- c("XTNTVA01CHM664N", "XTNTVA01JPM664N", "XTNTVA01USM664N", "XTNTVA01GBM664N")
  ## net trade. monthly not seasonally adjusted. broad proxy for current account balance.
 
-Trade <- lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class = "xts",
-                                                  auto.assign = F)})
+Trade <- get_Symbols(Symbols)
 
 Trade <- do.call(merge, Trade)
 
 colnames(Trade) <- c("T_CH", "T_JP", "T_US", "T_UK")
 
 ## check at the currency.
-
-rm(Symbols)
 ```
 
 
@@ -149,7 +164,7 @@ Merge all of the statistics
 ###########################
 
 ```{r}
-data <- merge.xts(FX, bills, CPI, M3, Trade, UNply) ##dagli anni '90 al 2005 hai tutte le statistiche.
+data <- merge.xts(FX, bills, CPI, M1, M3, Trade, UNply) ##dagli anni '90 al 2005 hai tutte le statistiche.
 
 rm(list=setdiff(ls(), "data")) ## clean the workspace just keeping the data
 ```
@@ -157,8 +172,47 @@ rm(list=setdiff(ls(), "data")) ## clean the workspace just keeping the data
 UK statistics are poor. For the other countries you can run the analysis back to the '70s. For UK because of M3 and especially unemployment rate the comparison is much more limited.
 
 
+======================
+Descriptive Statistics
+======================
+
+This section continues with general descriptive statistics trying to understand the behaviour of the exogenous series and trying to test whether the latter are indeed exogenous.
+
+Step 1: Seasonality
+In order to derive meaningful conclusions in the following sections it is necessary to assure that the series do not display profund autocorrelation. This would in fact inhibit the idependency of the data and would bias all of the resulting statistics.
+
+Step 1.1: Check for underlying trend in the series. 
+```{r}
+function(t_series){
+  trend <- ma(na.trim(t_series), order = 12, centre = T)
+  Seasonality <- 
+}
+
+trend_UN <- ma(na.trim(data$UN_US), order = 12, centre = T)
+
+Seasonality <- na.trim(data$UN_US) - trend_UN
+
+Seasonality <- na.contiguous(Seasonality)
+
+plot(Seasonality) ## additive model; make it integrated and graph of four unemployment series.
+
+## check for autocorrelation in the detrended times series
+
+acf(Seasonality, type = "correlation") ## strong evidence for seasonality. 
 
 
+
+
+
+
+ts_beer = ts(na.trim(data$UN_US), frequency = 12)
+decompose_beer = decompose(ts_beer, "additive")
+plot(as.ts(decompose_beer$seasonal))
+plot(as.ts(decompose_beer$trend))
+plot(as.ts(decompose_beer$random))
+plot(decompose_beer)
+
+```
 
 
 
