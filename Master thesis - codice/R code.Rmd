@@ -44,8 +44,18 @@ colnames(FX)[c(1,3)] <- c("EXUKUS","EXCHUS")
 GDP
 ###
 
+GDP is an aggregated statistic that is published on a quarterly basis. You can use monthly proxies. Electricity consumption? Industrial production? <-> this is normalized to 100. Is that good?
 ```{r}
+## use industrial production? 
+## use unemployment rate. This approach preferred
+Symbols <- c("LRUN64TTUSM156N", "LRUN64TTJPM156N", "LMUNRRTTCHM156N", "LMUNRRTTGBM156N") #F not seasonally adjusted.
 
+UNply <- lapply(Symbols, function(sym){getSymbols(sym, src ="FRED", retunr.class = "xts",
+                                                  auto.assign = F)})
+
+UNply <- do.call(merge, UNply) ## notice the unemployment series for UK starts just in the 90s.
+
+colnames(UNply) <- c("UN_US", "UN_JP", "UN_CH", "UN_UK")
 ```
 
 
@@ -82,7 +92,7 @@ M3 <- lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class =
 
 M3 <- do.call(merge, M3)
 
-colnames(M3) <- c("M_US", "M_JP", "M_UK", "M_CH")
+colnames(M3) <- c("M3_US", "M3_JP", "M3_UK", "M3_CH")
 
 ## all available also for M1. You can decide then in the thesis which one to use.
 ```
@@ -132,6 +142,19 @@ colnames(Trade) <- c("T_CH", "T_JP", "T_US", "T_UK")
 
 rm(Symbols)
 ```
+
+
+###########################
+Merge all of the statistics
+###########################
+
+```{r}
+data <- merge.xts(FX, bills, CPI, M3, Trade, UNply) ##dagli anni '90 al 2005 hai tutte le statistiche.
+
+rm(list=setdiff(ls(), "data")) ## clean the workspace just keeping the data
+```
+
+UK statistics are poor. For the other countries you can run the analysis back to the '70s. For UK because of M3 and especially unemployment rate the comparison is much more limited.
 
 
 
