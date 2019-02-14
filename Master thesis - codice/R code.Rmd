@@ -1,0 +1,183 @@
+---
+title: "Master thesis code - FX rates. A nonlinear evaluation"
+output: html_notebook
+---
+
+Libraries used
+```{r}
+library("Quandl") ##Offers to connect to download various eco and financial datasets avaialable on quandl.com through the Quandl API. !!At the moment not used!!
+library("quantmod") ##same principle as Quandl, not limited by the amount of API calls though and connect to multiple daset providers. In this study we will mainly query the FRED database.
+```
+
+Specify quandl API
+```{r}
+Quandl.api_key(enter api key)
+```
+
+
+===============
+Data Collection
+===============
+
+###########
+FX - rates
+###########
+
+Download foreign exchange rates
+```{r}
+Symbols <- c("EXUSUK", "EXJPUS", "EXSZUS")
+
+FX <-  lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class = "xts", 
+                                                auto.assign = FALSE)}) ## auto.assign specifies that not the ticker should be passed
+
+## Invert the USUK rate to UKUS to keep it consistent with the other series
+FX[[1]] <- 1/FX[[1]]
+
+FX <- do.call(merge, FX)
+
+colnames(FX)[c(1,3)] <- c("EXUKUS","EXCHUS")
+
+## notice like that all of the evaluation will be performed compared to the usa. if you want to make smaller bilateral comparison you need to download the other forex.
+```
+
+###
+GDP
+###
+
+```{r}
+
+```
+
+
+################
+Short term bills
+################
+
+Treasury bills for capturing short term attractiveness of investments
+```{r}
+Symbols <- c("TB3MS","INTGSTJPM193N","TBDRUKM")
+ ## 3 months bill rate usa; secondary market.
+ ## bill for japan; explaination not clear. check at it again to clearly understand what it is precisely.
+ ## treasury bill for uk
+
+bills <- lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class = "xts",
+                                                  auto.assign = F)})
+
+bills<- do.call(merge, bills)
+
+## above not available for switzerland. use interbank rate for it.
+```
+
+
+#############
+Monetary base
+#############
+
+Problem you are taking differentials for all of the above measures. The values should consequently be consistent and comparable. Use M3 for all.
+```{r}
+Symbols <- c("MYAGM3USM052N", "MYAGM3JPM189N", "MABMM301GBM189N", "MABMM301CHM189N") #us, jp, uk, not seasonally adjusted. 
+
+M3 <- lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class = "xts",
+                                      auto.assign = F)})
+
+M3 <- do.call(merge, M3)
+
+colnames(M3) <- c("M_US", "M_JP", "M_UK", "M_CH")
+
+## all available also for M1. You can decide then in the thesis which one to use.
+```
+
+###
+CPI
+###
+
+```{r}
+## all not seasonally adjusted, all with basis 2015
+Symbols <- c('CHECPIALLMINMEI', 'JPNCPIALLMINMEI', 'GBRCPIALLMINMEI', 'USACPIALLMINMEI')
+
+CPI <- lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class = "xts", auto.assign=FALSE)})
+
+CPI <- do.call(merge, CPI)
+
+colnames(CPI) <- c("CPI_CH", "CPI_JP", "CPI_UK", "CPI_US")
+  
+## Important difference, lapply applies a function over a list, do.call calls a function with a list of arguments.
+
+## CHECPIALLMINMEI ## switzerland from FRED; harmonised index; basis 2015
+## JPNCPIALLMINMEI ## japan; basis 2015
+## GBRCPIALLMINMEI ## uk; basis 2015
+## USACPIALLMINMEI ## usa, basis 2015
+```
+
+##############
+Trade balances
+##############
+
+```{r}
+## Current accounts are available just on quartal level. Two options use current accounts and hold it fix for the entire quartal.
+
+## Option two; chosen option, find a proxy for the current account balance.
+
+Symbols <- c("XTNTVA01CHM664N", "XTNTVA01JPM664N", "XTNTVA01USM664N", "XTNTVA01GBM664N")
+ ## net trade. monthly not seasonally adjusted. broad proxy for current account balance.
+
+Trade <- lapply(Symbols, function(sym){getSymbols(sym, src = "FRED", return.class = "xts",
+                                                  auto.assign = F)})
+
+Trade <- do.call(merge, Trade)
+
+colnames(Trade) <- c("T_CH", "T_JP", "T_US", "T_UK")
+
+## check at the currency.
+
+rm(Symbols)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Library
+```{r}
+library(rvest)
+```
+
+## not working for SNB table; does not manage to read the information from the table. This probably because it is a special kind of table. With normal table from of wikipedia works.
+Web scraping to get tables
+```{r}
+url <- "https://en.wikipedia.org/wiki/Economy_of_Italy"
+population <- url %>%
+  read_html() %>%
+  html_nodes(xpath='//*[@id="mw-content-text"]/div/table[2]') %>%
+  html_table()
+population <- population[[1]]
+
+head(population)
+```
+
