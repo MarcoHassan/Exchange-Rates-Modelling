@@ -47,7 +47,7 @@ FX[[1]] <- 1/FX[[1]]
 
 FX <- do.call(merge, FX)
 
-colnames(FX)[c(1,3)] <- c("EX_UKUS", "EX_JPUS","EX_CHUS")
+colnames(FX)[] <- c("EX_UKUS", "EX_JPUS", "EX_CHUS")
 
 ## notice like that all of the evaluation will be performed compared to the usa. if you want to make smaller bilateral comparison you need to download the other forex.
 ```
@@ -221,12 +221,7 @@ for (i in helper){Season(eval(parse(text = paste0("data$CPI_", i))), 2)} ## also
 
 Test 
 ```{r}
-ts_beer = ts(na.trim(data$UN_US), frequency = 12)
-decompose_beer = decompose(ts_beer, "additive")
-adjust_beer = ts_beer - decompose_beer$seasonal
-plot(adjust_beer)
-
-plot(decompose_beer$seasonal)
+acf(na.trim(data$EX_CHUS))
 ```
 
 
