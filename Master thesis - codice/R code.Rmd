@@ -58,6 +58,8 @@ GDP
 ###
 
 GDP is an aggregated statistic that is published on a quarterly basis. You can use monthly proxies. Electricity consumption? Industrial production? <-> this is normalized to 100. Is that good?
+
+Unemployment not good. Does not capture the size of an economy. Here it will be important.
 ```{r}
 ## use industrial production? 
 ## use unemployment rate. This approach preferred
@@ -96,7 +98,7 @@ colnames(bills) <- c("TB_US", "TB_JP", "TB_CH") ## Treasury bills
 Monetary base
 #############
 
-Problem you are taking differentials for all of the above measures. The values should consequently be consistent and comparable. Use M3 for all.
+Problem you are taking differentials for all of the above measures. The values should consequently be consistent and comparable. Use M3 or M1 for all; these should be similarly defined.
 ```{r}
 Symbols <- c("MYAGM3USM052N", "MYAGM3JPM189N", "MABMM301GBM189N", "MABMM301CHM189N") #us, jp, uk, not seasonally adjusted. 
 
@@ -105,6 +107,9 @@ M3 <- get_Symbols(Symbols)
 M3 <- do.call(merge, M3)
 
 colnames(M3) <- c("M3_US", "M3_JP", "M3_UK", "M3_CH")
+
+## all the values in national currency. Will need to transform them at a later period using FX-rate and then take the logarithm.
+
 ```
 
 Extract M1
@@ -116,6 +121,9 @@ M1 <- get_Symbols(Symbols)
 M1 <- do.call(merge, M1)
 
 colnames(M1) <- c("M1_US", "M1_JP", "M1_UK", "M1_CH")
+
+
+## all the values in national currency. Will need to transform them at a later period using FX-rate and then take the logarithm.
 ```
 
 ###
@@ -138,6 +146,8 @@ colnames(CPI) <- c("CPI_CH", "CPI_JP", "CPI_UK", "CPI_US")
 ## JPNCPIALLMINMEI ## japan; basis 2015
 ## GBRCPIALLMINMEI ## uk; basis 2015
 ## USACPIALLMINMEI ## usa, basis 2015
+
+## good all with the same basis
 ```
 
 ##############
@@ -156,9 +166,9 @@ Trade <- get_Symbols(Symbols)
 
 Trade <- do.call(merge, Trade)
 
-colnames(Trade) <- c("T_CH", "T_JP", "T_US", "T_UK")
+colnames(Trade) <- c("T_CH", "T_JP", "T_US", "T_UK") 
 
-## check at the currency.
+## check at the currency. All in national currency! Convert them. 
 ```
 
 
@@ -174,10 +184,63 @@ rm(list=setdiff(ls(), "data")) ## clean the workspace just keeping the data
 data <- data["1990-01-01/2006-02-01"] ## extract a complete dataset without NA; notice if you run the analysis with M1 you have complete data until 2013.
 
 length(data[,1]) ## 194 observations per ts
+
+## Transform all the variables in USD currency
 ```
 
 UK statistics are poor. For the other countries you can run the analysis back to the '70s. For UK because of M3 and especially unemployment rate the comparison is much more limited.
 
+Transform M1, M3 and Trade balance sheets in USD. Compute cumulative Trade balance sheet.
+Transform also the interest rate in USD interest rate. Assume FX-rate martingale. Otherwise you would have to download the forward interest rate. 
+```{r}
+helper1 <- c("M1", "M3", "TB", "T")
+for(j in helper1){
+                  helper2 <- c("JP", "CH", "UK")
+                  help <- function(x){eval(parse(text = x))}
+                  for (i in helper2){
+                       if(paste0(j, "_", i) != "TB_UK")
+                       data[,paste0(j, "_", i)] <-help(paste0("data$", j, "_", i))/help(
+                                                              paste0("data$EX_", i, "US"))
+                       
+                       
+                  }
+}
+rm(helper1)
+rm(list = setdiff(ls(), "data"))
+  
+##Explaination of the code above; a loop in a loop to paste the code the right way and convert all of the variables into USD values. This will facilitate the comparison and the times series analysis at a later step.
+```
+
+Transform Trade to cumulative trade variable
+```{r}
+helper2 <- c("JP", "CH", "UK", "US")
+for(j in helper2){
+    total = 0
+    for(i in 1:length(data$T_CH)){
+      total = total + as.numeric(data[i, paste0("T_", j)])
+      data[i, paste0("T_", j)] <- total
+    }
+    
+}
+rm(list = setdiff(ls(), "data"))
+```
+
+Logarithm transformation
+```{r}
+transformation <- c("M1", "M3", "EX")
+helper2 <- c("JP", "CH", "UK", "US")
+for(j in transformation){
+    for(i in helper2){
+      if(j != "EX"){
+         data[, paste0(j, "_", i)] <- log(data[, paste0(j, "_", i)])
+      }
+      else{if(i != "US") data[, paste0(j, "_", i, "US")] <- log(data[, paste0(j, "_", i,
+                                                                              "US")])}
+    }
+    
+}
+rm(list = setdiff(ls(), "data"))
+```
 
 ======================
 Descriptive Statistics
@@ -207,7 +270,7 @@ Season <- function(t_series,  idx){
 
 helper <- c("US", "JP", "CH", "UK")
 par(mfrow=c(2,2))
-for (i in helper){Season(eval(parse(text = paste0("data$UN_", i))), 3)} ##significant autoregressive lags
+for (i in helper){Season(eval(parse(text = paste0("data$UN_", i))), 2)} ##significant autoregressive lags
 ```
 
 
@@ -239,17 +302,152 @@ rm(list = c("helper", "i"))
 
 ###################################################################################
 
+
+
+
+
+
 Create seasonally adjusted times series
+
+
+Check trend stationary vs difference stationary times series
+
+Trend stationary are not mean stationary but include a trend.
+
+Difference stationary contain a stochastic trend, i.e. are non-stationary in the variance
+component so that with the length of forecasting horizon the uncertainty
+increases to endless.
+
+a time series is called integrated of order d,if after d differencing
+the series follows a stable and invertible ARMA process and thus an
+I????????0???? process; the property of ????????0???? implies stationarity, whereas the reverse
+does not hold.
+
+So try to model SARIMA models and check if after differencitation and integration the series follows a stable and inveritbe ARMA process.
+
+Test for trend stationary times series
 ```{r}
-deseason <- function(x){converted_ts <- ts(x, frequency = 12)
+
+```
+
+
+
+
+### Remember to do chow-test on residuals
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+deseason <- function(x){trend <- ma(na.trim(x), order = 4, centre = T)
+                        detrended <- as.ts(na.trim(x)) - trend
+                        converted_ts <- ts(detrended, frequency = 4)
                         decompose_ts <- decompose(converted_ts, "additive")
                         return(converted_ts - decompose_ts$seasonal)}
 
-data2 <- data
+deseason2 <- function(x){trend <- ma(na.trim(x), order = 4, centre = T)
+                        detrended <- as.ts(na.trim(x)) - trend}
 
+## View(deseason(data$UN_CH)) ## loose some obvservations when taking moving averages.
+
+data2 <- data
 for(i in 1:26){data2[,i] <- deseason(data[,i])}
+
+data2 <- na.contiguous(data2)
+
+data3 <- data
+for(i in 1:26){data3[,i] <- deseason2(data[,i])}
+data3 <- na.contiguous(data3)
+
 ```
+
+Autocorrelation plot of original vs. cleaned times series
+```{r}
+plot(diff(data$M3_US,1)) ### for money stock clear trend. differentiation necessary.
+par(mfrow = c(1,2), mar = c(4,4,4,2))
+acf(data2$M3_US) ## it seams that some seasonality is still present
+acf(data$M3_US)
+acf(data3$M3_US)
+
+Box.test(data2$M3_US, lag = 5, type = "Ljung-Box") ## enough evidence that the series not stationary.
+```
+
+
+Decompose cannot really captures seasonality. probably not on frequency 12. Try to get frequency via FFT
+```{r}
+library(TSA)
+p = periodogram(data$EX_UKUS) ## short lag determinant
+
+dd = data.frame(freq=p$freq, spec=p$spec)
+order = dd[order(-dd$spec),]
+top2 = head(order, 4)
+ 
+# display the 2 highest "power" frequencies
+top2
+
+# convert frequency to time periods
+time = 1/top2$f
+time
+
+## seasonality is not annual but rather trimestral and semestral!!
+```
+
+
+Try with SARIMA, that is try to solve the seasonality problem using differentatiation and ARMA modelling of seasonality.
+This will result in a seasonally integrated non-stationary model.
+```{r}
+# pretty cool code:
+nd_pars<-expand.grid(ar=0:2,diff=0:1,ma=0:2,sar=0:1,sdiff=0:1,sma=0:1)
+nd_aic<-rep(0,nrow(nd_pars))
+for(i in seq(along=nd_aic)){
+                            nd_aic[i]<-AIC(arima(data2$EX_UKUS,unlist(nd_pars[i,1:3]),
+                                                 unlist(nd_pars[i,4:6])
+                                                 ),
+                                           k=log(length(data2$EX_UKUS))
+                                           )
+}
+nd_pars[which.min(nd_aic),]
+# -> should estimate SARIMA(1,0,2)(0,0,1)
+
+UKUS_arima<-arima(data2$EX_UKUS,order=c(1,0,2), seasonal= list(order = c(0,0,1), period = 3))
+UKUS_arima
+par(mar=c(5,4,4,2))
+tsdiag(UKUS_arima) 
+
+## tsdiag to check diagnostic plots of linear models such ARIMA.
+
+## sarima performs well at 
+```
+
+Ma filter
+```{r}
+ma5=stats::filter(data$EX_UKUS, sides=2,2/5)
+plot(ma5)
+View(ma5)
+```
+
 
 ================================
 Univariate times series analysis
 ================================
+
+White noise prediction
+```{r}
+
+```
+
+
+
+
