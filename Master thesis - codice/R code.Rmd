@@ -5,9 +5,10 @@ output: html_notebook
 
 Libraries used
 ```{r}
-library("Quandl") ##Offers to connect to download various eco and financial datasets avaialable on quandl.com through the Quandl API. !!At the moment not used!!
-library("quantmod") ##same principle as Quandl, not limited by the amount of API calls though and connect to multiple daset providers. In this study we will mainly query the FRED database.
-library(forecast) ## for detrending the times series
+## library("Quandl") ##Offers to connect to download various eco and financial datasets avaialable on quandl.com through the Quandl API. !!At the moment not used!!
+library(quantmod) ##same principle as Quandl, not limited by the amount of API calls though and connect to multiple daset providers. In this study we will mainly query the FRED database.
+library(forecast) ## for seasonality adjusting the times series
+## library(dplyr) ## for data wrangling; not used. not applicable to xts objects.
 ```
 
 Specify quandl API
@@ -20,7 +21,7 @@ Quandl.api_key("enter api key")
 Data Collection
 ===============
 
-STILL HAVE TO DOWNLOAD FORWARD RATES TO DO OUT OF SAMPLE PERFORMANCE CHECK
+Meese and Rogoff also used the Forward rates for their estimation.
 
 Specify function to get symbols
 ```{r}
@@ -169,6 +170,10 @@ Merge all of the statistics
 data <- merge.xts(FX, bills, CPI, M1, M3, Trade, UNply) ##dagli anni '90 al 2005 hai tutte le statistiche.
 
 rm(list=setdiff(ls(), "data")) ## clean the workspace just keeping the data
+
+data <- data["1990-01-01/2006-02-01"] ## extract a complete dataset without NA; notice if you run the analysis with M1 you have complete data until 2013.
+
+length(data[,1]) ## 194 observations per ts
 ```
 
 UK statistics are poor. For the other countries you can run the analysis back to the '70s. For UK because of M3 and especially unemployment rate the comparison is much more limited.
@@ -205,60 +210,46 @@ par(mfrow=c(2,2))
 for (i in helper){Season(eval(parse(text = paste0("data$UN_", i))), 3)} ##significant autoregressive lags
 ```
 
+
+######### repetition of code for other random variables BAD ################### 
+
+
 Do similar for other functions and incorporate all of the code in one single function if you want to be fancy
 ```{r}
-helper <- c("US", "JP", "CH", "UK")
 par(mfrow=c(2,2))
 for (i in helper){Season(eval(parse(text = paste0("data$M1_", i))), 2)} ## also for M1 and M3 profound seasonality
 ```
 
 CPI
 ```{r}
-helper <- c("US", "JP", "CH", "UK")
 par(mfrow=c(2,2))
 for (i in helper){Season(eval(parse(text = paste0("data$CPI_", i))), 2)} ## also for CPI profound seasonality
 ```
 
 Test 
 ```{r}
-acf(na.trim(data$EX_CHUS))
+acf(na.trim(data$EX_CHUS)) ## this is in fact the reasoning of the high performance of random walk model. Very big difference between FX-rates and returns in this sense.
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Library
+Remove helper and i
 ```{r}
-library(rvest)
+rm(list = c("helper", "i"))
 ```
 
-## not working for SNB table; does not manage to read the information from the table. This probably because it is a special kind of table. With normal table from of wikipedia works.
-Web scraping to get tables
+
+###################################################################################
+
+Create seasonally adjusted times series
 ```{r}
-url <- "https://en.wikipedia.org/wiki/Economy_of_Italy"
-population <- url %>%
-  read_html() %>%
-  html_nodes(xpath='//*[@id="mw-content-text"]/div/table[2]') %>%
-  html_table()
-population <- population[[1]]
+deseason <- function(x){converted_ts <- ts(x, frequency = 12)
+                        decompose_ts <- decompose(converted_ts, "additive")
+                        return(converted_ts - decompose_ts$seasonal)}
 
-head(population)
+data2 <- data
+
+for(i in 1:26){data2[,i] <- deseason(data[,i])}
 ```
 
+================================
+Univariate times series analysis
+================================
