@@ -9,11 +9,12 @@ Libraries used
 library(quantmod) ##same principle as Quandl, not limited by the amount of API calls though and connect to multiple daset providers. In this study we will mainly query the FRED database.
 library(forecast) ## for seasonality adjusting the times series
 ## library(dplyr) ## for data wrangling; not used. not applicable to xts objects.
+library(tseries)
 ```
 
 Specify quandl API
 ```{r}
-Quandl.api_key("enter api key")
+## Quandl.api_key("enter api key") #not used quandl at the moment
 ```
 
 
@@ -270,25 +271,186 @@ Part 1: Detrending
 
 In a first step I will test the necessity for detrending the series.
 
+Plot the series as a help:
+```{r}
+help <- function(i){
+  plot(i, main = colnames(i))
+}
+lis <- list()
+lis <- lapply(data, help)
+for(i in 1:ncol(data)){
+  if((i == 1) || (i == 4))
+    par(mfrow = c(3,1))
+  else if (((i+1)%%4 == 0) & (i != 3))
+    par(mfrow = c(2,2))
+  plot(lis[[i]])
+}
+```
+
+
+Plot proxy for variance as a help:
+```{r}
+help <- function(i)plot((i- mean(i))**2, main = colnames(i)) ## notice assumes time invariant mean, which is clearly violated in the series.
+lis <- list()
+lis <- lapply(data, help)
+for(i in 1:ncol(data)){
+  if(i == 1)
+    par(mfrow = c(3,1))
+  if(i == 4)
+    par(mfrow = c(3,1))
+  else if (((i+1)%%4 == 0) & (i != 3))
+    par(mfrow = c(2,2))
+  plot(lis[[i]])                  
+}
+```
+
+All the series are clearly not mean stationary. 
+
+Just for the exchange rate it is difficult to judge based on simple plots, these might could appear to be mean stationary but not volatility stationary. 
+```{r}
+help <- cbind(data$EX_UKUS, data$EX_JPUS, data$EX_CHUS)
+
+par(mfrow = c(2,2))
+lapply(help, acf) ## slow decaying autocorrelation points to non-stationarity mean series.
+## The slow decay suggests that the series would be mean varyiant based on time shifts.
+```
+
+
 Step 2: Choose detrending solution
 
-Test whether variance changes in time -> detrending via differenciation
+(i) Detrend via differenciation
 
-Test for 
+(ii) Detrend via linear time trend
 
+(iii) Use a moving average filter, this is a 'low pass' filter since it takes data and removes from it the rapidly fluctuating component  to leave the slowly varying estimated
+trend.
 
-
-
-
-
-
+Linear trend will provide to be ineffective for all of the times series.
 
 
+Perform detrending via differentiation
+```{r}
+data2 <- data ## to play then with original dataset
+data3 <- lapply(data, diff)
+for(i in 1:ncol(data)){data[,i] <- data3[[i]]}
+```
+
+
+Plot new Variables
+```{r}
+help <- function(i){
+  plot(i, main = colnames(i))
+}
+lis <- list()
+lis <- lapply(data, help)
+for(i in 1:ncol(data)){
+  if((i == 1) || (i == 4))
+    par(mfrow = c(3,1))
+  else if (((i+1)%%4 == 0) & (i != 3))
+    par(mfrow = c(2,2))
+  plot(lis[[i]])
+}
+```
+
+Plot proxy for variance for the new variables as a help:
+```{r}
+help <- function(i)plot((i- mean(i, na.rm = T))**2, main = colnames(i)) ## notice assumes time invariant mean, which is clearly violated in the series.
+lis <- list()
+lis <- lapply(data, help)
+for(i in 1:ncol(data)){
+  if(i == 1)
+    par(mfrow = c(3,1))
+  if(i == 4)
+    par(mfrow = c(3,1))
+  else if (((i+1)%%4 == 0) & (i != 3))
+    par(mfrow = c(2,2))
+  plot(lis[[i]])                  
+}
+```
+
+
+Plot autocorrelation functions
+```{r}
+for(i in 1:ncol(data)){
+  if(i == 1)
+    par(mfrow = c(3,1), mar = c(4,4,4,2))
+  if(i == 4)
+    par(mfrow = c(3,1), mar = c(4,4,4,2))
+  else if (((i+1)%%4 == 0) & (i != 3))
+    par(mfrow = c(2,2), mar = c(4,4,4,2))
+  acf(na.trim(data[,i]), main = colnames(data[,i]))                 
+}
+```
+
+
+Result: Trade was a disaster. For the rest good improvement. Some adjustment still needed - see TB_US; possibly double differentiation - and evidence for sesonality. 
+
+Compute moving average smoother for Trade.
+```{r}
+helper1 <- c("JP", "CH", "UK", "US")
+
+for(i in helper1){
+          trend <- ma(data2[, paste0("T_", i)], 
+                                       order = 4, centre = T) ##moving average of quartal
+          data[, paste0("T_", i)] <- as.ts(data2[, paste0("T_", i)]) - trend
+         
+}
+```
+
+
+Idea transform perform ADF to check which of the series are still troublesome. 
+
+These should be able to capture the seasonal tred by seasonal differencing and refine the results above by incorporating higher order differences.
+
+Augmented dickey fuller test
+
+Use moving average smoother for the Trade balance. 
+
+
+```{r}
+nsdiffs(ts(data$UN_US, frequency = 12)) ## has unit root
+acf(na.trim(diff(data$TB_US, 1)))
+acf(data$TB_US)
+adf.test(na.trim(diff(data$TB_US)))
+```
 
 
 
-Step 1: Seasonality
+Step 2: Seasonality
 In order to derive meaningful conclusions in the following sections it is necessary to assure that the series do not display profund autocorrelation. This would in fact inhibit the idependency of the data and would bias all of the resulting statistics.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################### BELOW NOT GOOD ####################################
 
 Step 1.1: Check for underlying trend in the series. 
 ```{r}
