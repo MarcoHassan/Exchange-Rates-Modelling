@@ -1,6 +1,6 @@
 ---
 title: "Master thesis code - FX rates. A nonlinear evaluation"
-output: html_notebook
+output:  rmarkdown::github_document
 ---
 
 Libraries used
@@ -190,6 +190,10 @@ length(data[,1]) ## 194 observations per ts
 
 UK statistics are poor. For the other countries you can run the analysis back to the '70s. For UK because of M3 and especially unemployment rate the comparison is much more limited.
 
+###################
+Data transformation
+###################
+
 Transform M1, M3 and Trade balance sheets in USD. Compute cumulative Trade balance sheet.
 Transform also the interest rate in USD interest rate. Assume FX-rate martingale. Otherwise you would have to download the forward interest rate. 
 ```{r}
@@ -201,8 +205,6 @@ for(j in helper1){
                        if(paste0(j, "_", i) != "TB_UK")
                        data[,paste0(j, "_", i)] <-help(paste0("data$", j, "_", i))/help(
                                                               paste0("data$EX_", i, "US"))
-                       
-                       
                   }
 }
 rm(helper1)
@@ -248,6 +250,43 @@ Descriptive Statistics
 
 This section continues with general descriptive statistics trying to understand the behaviour of the exogenous series and trying to test whether the latter are indeed exogenous.
 
+Before diving into the descriptive analysis of the series, I will try to transform the series into stationary series so that it will possible to analyze the various series throught linear and non-linear times series models.
+
+In order to transform the series into stationary series I will:
+
+    1. Detrend the series.
+
+    2. Remove the seasonal component.
+    
+    3. Test the series for unit roots.
+    
+    4. Perform chow-tests to check for structural breaks in the resulting series.
+    
+    
+    
+##################
+Part 1: Detrending
+##################
+
+In a first step I will test the necessity for detrending the series.
+
+Step 2: Choose detrending solution
+
+Test whether variance changes in time -> detrending via differenciation
+
+Test for 
+
+
+
+
+
+
+
+
+
+
+
+
 Step 1: Seasonality
 In order to derive meaningful conclusions in the following sections it is necessary to assure that the series do not display profund autocorrelation. This would in fact inhibit the idependency of the data and would bias all of the resulting statistics.
 
@@ -258,7 +297,7 @@ Season <- function(t_series,  idx){
   Seasonality <- as.ts(na.trim(t_series)) - trend
   Seasonality <- na.contiguous(Seasonality)
   if(idx == 1) plot(Seasonality)
-  if(idx == 2) acf(Seasonality)
+  if(idx == 2) acf(Seasonality) 
   if(idx == 3) pacf(Seasonality)
   if(idx == 4){
     converted_ts <- ts(na.trim(t_series), frequency = 12)
@@ -270,7 +309,7 @@ Season <- function(t_series,  idx){
 
 helper <- c("US", "JP", "CH", "UK")
 par(mfrow=c(2,2))
-for (i in helper){Season(eval(parse(text = paste0("data$UN_", i))), 2)} ##significant autoregressive lags
+for (i in helper){Season(eval(parse(text = paste0("data$UN_", i))), 3)} ##significant autoregressive lags
 ```
 
 
