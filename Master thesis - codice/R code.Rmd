@@ -73,19 +73,28 @@ Short term bills
 
 Treasury bills for capturing short term attractiveness of investments
 ```{r}
-Symbols <- c("TB3MS","INTGSTJPM193N","TBDRUKM")
+#Symbols <- c("TB3MS","INTGSTJPM193N","TBDRUKM")
  ## 3 months bill rate usa; secondary market.
  ## bill for japan; explaination not clear. check at it again to clearly understand what it is precisely.
  ## treasury bill for uk
 
-bills <- get_Symbols(Symbols)
+#bills <- get_Symbols(Symbols)
 
-bills<- do.call(merge, bills) 
+#bills<- do.call(merge, bills) 
 
-colnames(bills) <- c("TB_US", "TB_JP", "TB_CH") ## Treasury bills
+#colnames(bills) <- c("TB_US", "TB_JP", "TB_CH") ## Treasury bills
 
 ## above not available for switzerland. use interbank rate for it.
 ```
+
+Use interbank for the moment
+```{r}
+IR3TIB01CHM156N
+IR3TIB01USM156N
+IR3TIB01GBM156N
+IR3TIB01JPM156N
+```
+
 
 
 #############
@@ -197,7 +206,7 @@ for(j in helper1){
                   help <- function(x){eval(parse(text = x))}
                   for (i in helper2){
                        if(paste0(j, "_", i) != "TB_UK")
-                       data[,paste0(j, "_", i)] <-help(paste0("data$", j, "_", i))/help(
+                       data[,paste0(j, "_", i)] <- help(paste0("data$", j, "_", i))/help(
                                                               paste0("data$EX_", i, "US"))
                   }
 }
@@ -238,11 +247,60 @@ for(j in transformation){
 rm(list = setdiff(ls(), "data"))
 ```
 
+
+###################################
+Create independent variables series
+###################################
+
+To do that we have to create new series. Convert to data.frame to make this possible vectorizing.
+```{r}
+data2 <- as.data.frame(data)
+```
+
+The series to be created
+
+(i) log(M1_US/M1_Foreign)
+
+(ii) log(M3_US/M3_Foreign)
+
+(iii) UN_US - UN_Foreign
+
+(iv)  TB_US - TB_Foreign
+
+(v)  CPI_US - CPI_Foreign
+```{r}
+## as the series are already in log. just take the difference
+helper1 <- c("TB", "M3", "UN", "M1", "CPI")
+for(i in helper1){
+  helper2 <-  c("CH", "JP", "UK") 
+  for(j in helper2){
+    if((i == "TB") & (j == "UK")) next
+    data2[, paste0(i, "_US",  j)] <- 
+      data2[,paste0(i,"_US")] - data2[,paste0(i, "_", j)]
+  }
+} 
+```
+
+Convert back to xts
+```{r}
+data <- xts(data2, order.by=index(data))
+
+## clean workspace
+rm(list=setdiff(ls(), "data"))
+```
+
+
 ======================
 Descriptive Statistics
 ======================
 
 This section continues with general descriptive statistics trying to understand the behaviour of the exogenous series and trying to test whether the latter are indeed exogenous.
+
+Keep just the series of interes
+```{r}
+data <- cbind(data[,27:ncol(data)], data[,1:3], data[,19:22])
+```
+
 
 Before diving into the descriptive analysis of the series, I will try to transform the series into stationary series so that it will possible to analyze the various series throught linear and non-linear times series models.
 
@@ -272,9 +330,11 @@ help <- function(i){
 lis <- list()
 lis <- lapply(data, help)
 for(i in 1:ncol(data)){
-  if((i == 1) || (i == 4))
+  if(i == 1) 
+    par(mfrow = c(2,1))
+  else if((i%%3 == 0) & !(i %in% c(18, 21)))
     par(mfrow = c(3,1))
-  else if (((i+1)%%4 == 0) & (i != 3))
+  else if (i == ncol(data) -3)
     par(mfrow = c(2,2))
   plot(lis[[i]])
 }
@@ -289,22 +349,32 @@ lis <- lapply(data, help)
 for(i in 1:ncol(data)){
   if(i == 1)
     par(mfrow = c(3,1))
-  if(i == 4)
+  else if((i%%3 == 0) & !(i %in% c(18, 21)))
     par(mfrow = c(3,1))
-  else if (((i+1)%%4 == 0) & (i != 3))
+  else if (i == ncol(data) -3)
     par(mfrow = c(2,2))
   plot(lis[[i]])                  
 }
 ```
 
-All the series are clearly not mean stationary. 
+The majority of the series are clearly not mean stationary. 
 
-Just for the exchange rate it is difficult to judge based on simple plots, these might could appear to be mean stationary but not volatility stationary. 
+For the exchange rate and the money supply it is difficult to judge based on simple plots, these might could appear to be mean stationary but not volatility stationary. 
 ```{r}
-help <- cbind(data$EX_UKUS, data$EX_JPUS, data$EX_CHUS)
+acf_plots <- function(){
+  for(i in 1:ncol(data)){
+    if(i == 1)
+      par(mfrow = c(2,1), mar = c(4,3,4,2))
+    else if((i%%3 == 0) & !(i %in% c(18, 21)))
+      par(mfrow = c(3,1), mar = c(4,3,4,2))
+    else if (i == ncol(data) -3)
+      par(mfrow = c(2,2), mar = c(4,3,4,2))
+    acf(na.trim(data[,i]), main = colnames(data[,i]))                 
+  }
+}
 
-par(mfrow = c(2,2))
-lapply(help, acf) ## slow decaying autocorrelation points to non-stationarity mean series.
+## Plot acf
+acf_plots() ## slow decaying autocorrelation points to non-stationarity mean series.
 ## The slow decay suggests that the series would be mean varyiant based on time shifts.
 ```
 
@@ -337,10 +407,12 @@ help <- function(i){
 lis <- list()
 lis <- lapply(data, help)
 for(i in 1:ncol(data)){
-  if((i == 1) || (i == 4))
-    par(mfrow = c(3,1))
-  else if (((i+1)%%4 == 0) & (i != 3))
-    par(mfrow = c(2,2))
+    if(i == 1)
+      par(mfrow = c(2,1), mar = c(4,3,4,2))
+    else if((i%%3 == 0) & !(i %in% c(18, 21)))
+      par(mfrow = c(3,1), mar = c(4,3,4,2))
+    else if (i == ncol(data) -3)
+      par(mfrow = c(2,2), mar = c(4,3,4,2))
   plot(lis[[i]])
 }
 ```
@@ -351,12 +423,12 @@ help <- function(i)plot((i- mean(i, na.rm = T))**2, main = colnames(i)) ## notic
 lis <- list()
 lis <- lapply(data, help)
 for(i in 1:ncol(data)){
-  if(i == 1)
-    par(mfrow = c(3,1))
-  if(i == 4)
-    par(mfrow = c(3,1))
-  else if (((i+1)%%4 == 0) & (i != 3))
-    par(mfrow = c(2,2))
+    if(i == 1)
+      par(mfrow = c(2,1), mar = c(4,3,4,2))
+    else if((i%%3 == 0) & !(i %in% c(18, 21)))
+      par(mfrow = c(3,1), mar = c(4,3,4,2))
+    else if (i == ncol(data) -3)
+      par(mfrow = c(2,2), mar = c(4,3,4,2))
   plot(lis[[i]])                  
 }
 ```
@@ -364,18 +436,6 @@ for(i in 1:ncol(data)){
 
 Plot autocorrelation functions
 ```{r}
-acf_plots <- function(){
-  for(i in 1:ncol(data)){
-    if(i == 1)
-      par(mfrow = c(3,1), mar = c(4,3,4,2))
-    if(i == 4)
-      par(mfrow = c(3,1), mar = c(4,3,4,2))
-    else if (((i+1)%%4 == 0) & (i != 3))
-      par(mfrow = c(2,2), mar = c(4,3,4,2))
-    acf(na.trim(data[,i]), main = colnames(data[,i]))                 
-  }
-}
-
 ## Plot acf
 acf_plots()
 ```
@@ -411,17 +471,13 @@ suppressWarnings(lapply(data, help)) ## supress warning to ignore message that t
 
 From the above two problematic series:
 
-1. Treasury bills of US.
-
-2. Unemployment rate of UK.
+1. Treasury bills of US - JP
 
 Solution: double differentiate the both
 ```{r}
-data$TB_US <- diff(data$TB_US)
-data$UN_UK <- diff(data$UN_UK)
-acf(na.trim(data$TB_US))
-acf(na.trim(data$UN_UK))
-
+data$TB_USJP <- diff(data$TB_USJP)
+acf(na.trim(data$TB_USJP))
+adf.test(na.trim(data$TB_USJP)) ## good
 ```
 
 Will all of the above corrections the reslut is good and there is strong evidence for stationarity in the series.
@@ -429,7 +485,7 @@ Will all of the above corrections the reslut is good and there is strong evidenc
 Clean workspace and just keep the full dataset
 ```{r}
 data <- na.trim(data)
-rm(list=setdiff(ls(), "data"))
+rm(list=setdiff(ls(), c("data", "acf_plots")))
 ```
 
 
@@ -448,21 +504,21 @@ Checking again at autocorrelation plots
 acf_plots()
 ```
 
-Evidence for strong autocorrelation at yearly lag in the series. Make a quantiative test
+Evidence for strong autocorrelation at yearly lag in the series. Make a quantiative test.
+
+Not good better to differenciate annually. do it tomorrow. If you want to be fancy differenciate according to FFT frequency. Notice calling the decompose function it just demeans the series by averaging the period observations. Test with nsdiffs if there is still seasonality or work with heuristics.
 ```{r}
 seasonality_12 <- function(x){
-               ## test for unit root for given seasonality
-               dat <- ts(x, frequency = 12)
+               dat <- ts(x, frequency = 12) ## frequency specifies seasonality
                
-               # Test for the presence of seasonal patterns at the determined frequency
+               #Test for the presence of seasonal patterns at the determined frequency
                res <- nsdiffs(dat)
                
-               # If the test successful indicating unit root differenciate 
+               #If the test successful indicating unit root differenciate 
                if(res == 1) {
-                 #data[-1:-12,colnames(x)] <- diff(dat, lag = 12)
+                 #data[-1:-12,colnames(x)] <- diff(x, lag = 12)
                  decomposed <- decompose(dat, "additive")
                  data[,colnames(x)] <<- dat - decomposed$seasonal
-                 ## understand online how this decompose function performs seasonal adjustments --> no observation lost!! --> weird
                }
 }
 
@@ -487,7 +543,7 @@ seasonality <- function(x){
                time = round(1/top$f)
                
                ## test for unit root for given seasonality
-               dat <- ts(x, frequency = time[1])
+               dat <- ts(x, frequency = time[1]) ## this not good. seasonality not 
                
                # Test for the presence of seasonal patterns at the determined frequency
                res <- nsdiffs(dat)
@@ -497,19 +553,61 @@ seasonality <- function(x){
                }
 }
 
+### not good frequency is specific and not given in months
+
 lapply(data, seasonality)
 ```
 
+Good. No other seasonal unit roots are displayed.
 
 Clean workspace
 ```{r}
 rm(list = setdiff(ls(), c("acf_plots", "data")))
 ```
 
+Before starting with the implementation of the linear modelling of the series I perform a chow test to understand the possibility of structural breaks in the sample that would suggest prudence when working with the series as a whole.
+```{r}
+# assuming you have a 'ts' object in R 
+
+# 1. install package 'strucchange'
+# 2. Then write down this code:
+
+library(strucchange)
+
+prova <- function(x){
+  # store the breakdates
+  bp_ts <- breakpoints(as.ts(data$EX_UKUS, frequency = 12) ~ 1)
+
+  # this will give you the break dates and their confidence intervals
+  summary(bp_ts) 
+  
+  bp_ts$breakpoints
+
+  # store the confidence intervals
+  ci_ts <- tryCatch(confint(bp_ts), error=function(e) NULL)
+
+  ## to plot the breakpoints with confidence intervals
+  if(ci_ts != NULL){
+      plot(as.ts(x))
+      lines(bp_ts)
+      lines(ci_ts)
+  }
+}
+
+lapply(data, prova)
+
+```
+
 
 ================================
 Univariate times series analysis
 ================================
+
+This section starts with the real analysis of the cleaned dataset.
+
+In a first step I will try to check whether the Meese-Rogoff paradox holds in the analyzed time period. I will work with the USA as the benchmark series and apply the different macroeconomics models to linearly estimate the FX_rates.
+
+
 
 White noise prediction
 ```{r}
