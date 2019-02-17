@@ -73,26 +73,33 @@ Short term bills
 
 Treasury bills for capturing short term attractiveness of investments
 ```{r}
-#Symbols <- c("TB3MS","INTGSTJPM193N","TBDRUKM")
+Symbols <- c("TB3MS","INTGSTJPM193N","TBDRUKM")
  ## 3 months bill rate usa; secondary market.
  ## bill for japan; explaination not clear. check at it again to clearly understand what it is precisely.
  ## treasury bill for uk
 
-#bills <- get_Symbols(Symbols)
+bills <- get_Symbols(Symbols)
 
-#bills<- do.call(merge, bills) 
+bills<- do.call(merge, bills) 
 
-#colnames(bills) <- c("TB_US", "TB_JP", "TB_CH") ## Treasury bills
+colnames(bills) <- c("TB_US", "TB_JP", "TB_CH") ## Treasury bills
 
 ## above not available for switzerland. use interbank rate for it.
 ```
 
 Use interbank for the moment
 ```{r}
-IR3TIB01CHM156N
-IR3TIB01USM156N
-IR3TIB01GBM156N
-IR3TIB01JPM156N
+#Symbols <- c("IR3TIB01CHM156N","IR3TIB01USM156N","IR3TIB01GBM156N", "IR3TIB01JPM156N")
+ ## 3 months bill rate usa; secondary market.
+ ## bill for japan; explaination not clear. check at it again to clearly understand what it is precisely.
+ ## treasury bill for uk
+
+#bills <- get_Symbols(Symbols)
+
+#bills <- do.call(merge, bills) 
+
+#colnames(bills) <- c("TB_US", "TB_JP", "TB_CH") ## Treasury bills
+
 ```
 
 
@@ -504,23 +511,15 @@ Checking again at autocorrelation plots
 acf_plots()
 ```
 
-Evidence for strong autocorrelation at yearly lag in the series. Make a quantiative test.
 
-Not good better to differenciate annually. do it tomorrow. If you want to be fancy differenciate according to FFT frequency. Notice calling the decompose function it just demeans the series by averaging the period observations. Test with nsdiffs if there is still seasonality or work with heuristics.
+Well behaved series; adjust for annual seasonality by block differenciating.
 ```{r}
 seasonality_12 <- function(x){
-               dat <- ts(x, frequency = 12) ## frequency specifies seasonality
-               
-               #Test for the presence of seasonal patterns at the determined frequency
-               res <- nsdiffs(dat)
-               
-               #If the test successful indicating unit root differenciate 
-               if(res == 1) {
-                 #data[-1:-12,colnames(x)] <- diff(x, lag = 12)
-                 decomposed <- decompose(dat, "additive")
-                 data[,colnames(x)] <<- dat - decomposed$seasonal
+                m_series = t(matrix(data = x, nrow = 12))
+                season = colMeans(m_series, na.rm = T)
+                data[,colnames(x)] <<- x - season
                }
-}
+
 
 lapply(data, seasonality_12)
 ```
@@ -528,6 +527,19 @@ lapply(data, seasonality_12)
 Check at new adjusted
 ```{r}
 acf_plots()
+```
+
+Perform test checking for seasonal unit root at monthly, quartarly frequency.
+```{r}
+seasonality <- function(x){
+               ## test for unit root for given seasonality
+               dat <- ts(x, frequency = 4) 
+               
+               # Test for the presence of seasonal patterns at the determined frequency
+               res <- nsdiffs(dat)
+}
+
+lapply(data, seasonality) ## good both quartely and monthly.
 ```
 
 Perform FFT to check for possible other seasonal patterns
@@ -542,20 +554,12 @@ seasonality <- function(x){
                # convert frequency to time periods
                time = round(1/top$f)
                
-               ## test for unit root for given seasonality
-               dat <- ts(x, frequency = time[1]) ## this not good. seasonality not 
-               
-               # Test for the presence of seasonal patterns at the determined frequency
-               res <- nsdiffs(dat)
-               
-               if(res == 1) {
-                 warning( "Seasonality at FFT frequency" )
-               }
+               time[1]
 }
 
-### not good frequency is specific and not given in months
-
 lapply(data, seasonality)
+
+## Trimestral frequency is worth to test.
 ```
 
 Good. No other seasonal unit roots are displayed.
@@ -606,7 +610,6 @@ Univariate times series analysis
 This section starts with the real analysis of the cleaned dataset.
 
 In a first step I will try to check whether the Meese-Rogoff paradox holds in the analyzed time period. I will work with the USA as the benchmark series and apply the different macroeconomics models to linearly estimate the FX_rates.
-
 
 
 White noise prediction
