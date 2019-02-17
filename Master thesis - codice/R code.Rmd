@@ -383,19 +383,119 @@ for(i in 1:ncol(data)){
 ```
 
 
-Result: Trade was a disaster. For the rest good improvement. Some adjustment still needed - see TB_US; possibly double differentiation - and evidence for sesonality. 
+Result: Trade was a disaster. For the rest good improvement. Some adjustment still needed - see TB_US; possibly double differentiation. 
 
 Compute moving average smoother for Trade.
 ```{r}
 helper1 <- c("JP", "CH", "UK", "US")
 
+par(mfrow = c(2,2), mar = c(4,4,4,2))
 for(i in helper1){
           trend <- ma(data2[, paste0("T_", i)], 
                                        order = 4, centre = T) ##moving average of quartal
           data[, paste0("T_", i)] <- as.ts(data2[, paste0("T_", i)]) - trend
+          acf(na.trim(data[,paste0("T_", i)]), main = paste0("T_", i)) 
          
 }
 ```
+
+
+Check for unit roots in the series performing augmented Dickey-Fuller tests
+```{r}
+help <- function(x){
+        dd <- adf.test(na.trim(x))
+        if(dd$p.value >= 0.05) dd
+}
+
+suppressWarnings(lapply(data, help)) ## supress warning to ignore message that true p-value smaller than the one printed
+```
+
+
+From the above two problematic series:
+
+1. Treasury bills of US.
+
+2. Unemployment rate of UK.
+
+Solution: double differentiate the both
+```{r}
+data$TB_US <- diff(data$TB_US)
+data$UN_UK <- diff(data$UN_UK)
+acf(na.trim(data$TB_US))
+acf(na.trim(data$UN_UK))
+
+```
+
+Will all of the above corrections the reslut is good and there is strong evidence for stationarity in the series.
+
+Clean workspace and just keep the full dataset
+```{r}
+data <- na.trim(data)
+rm(list=setdiff(ls(), "data"))
+```
+
+
+Step 3: analyze seasonality and correct for it.
+
+Two possible solutions for adjusting for seasonality after identification of the cyclical frequency:
+
+(i) Seasonal differentiation. Similar idea to the general differentiation of a series.
+
+(ii) Subtract the block average of the series in the cycle. Similar idea to moving average smoothers.
+
+Let's test now for the presence of seasonal patterns and let's try to identify the cyclical frequency. 
+
+Checking again at autocorrelation plots
+```{r}
+
+```
+
+Perform FFT to check at the sesaonality frequency
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Idea transform perform ADF to check which of the series are still troublesome. 
