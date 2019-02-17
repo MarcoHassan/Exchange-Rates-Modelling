@@ -5,18 +5,11 @@ output:  rmarkdown::github_document
 
 Libraries used
 ```{r}
-## library("Quandl") ##Offers to connect to download various eco and financial datasets avaialable on quandl.com through the Quandl API. !!At the moment not used!!
-library(quantmod) ##same principle as Quandl, not limited by the amount of API calls though and connect to multiple daset providers. In this study we will mainly query the FRED database.
+library(quantmod) ##same principle as Quandl, not limited by the amount of API calls though and connect to multiple daset providers. In this study we will mainly query the FRED database and extract data by referring to their API.
 library(forecast) ## for seasonality adjusting the times series
-## library(dplyr) ## for data wrangling; not used. not applicable to xts objects.
-library(tseries)
+library(tseries) ## -> check when used
+library(TSA) ## for applying FFT to get seasonality frequencies
 ```
-
-Specify quandl API
-```{r}
-## Quandl.api_key("enter api key") #not used quandl at the moment
-```
-
 
 ===============
 Data Collection
@@ -371,15 +364,20 @@ for(i in 1:ncol(data)){
 
 Plot autocorrelation functions
 ```{r}
-for(i in 1:ncol(data)){
-  if(i == 1)
-    par(mfrow = c(3,1), mar = c(4,4,4,2))
-  if(i == 4)
-    par(mfrow = c(3,1), mar = c(4,4,4,2))
-  else if (((i+1)%%4 == 0) & (i != 3))
-    par(mfrow = c(2,2), mar = c(4,4,4,2))
-  acf(na.trim(data[,i]), main = colnames(data[,i]))                 
+acf_plots <- function(){
+  for(i in 1:ncol(data)){
+    if(i == 1)
+      par(mfrow = c(3,1), mar = c(4,3,4,2))
+    if(i == 4)
+      par(mfrow = c(3,1), mar = c(4,3,4,2))
+    else if (((i+1)%%4 == 0) & (i != 3))
+      par(mfrow = c(2,2), mar = c(4,3,4,2))
+    acf(na.trim(data[,i]), main = colnames(data[,i]))                 
+  }
 }
+
+## Plot acf
+acf_plots()
 ```
 
 
@@ -447,296 +445,65 @@ Let's test now for the presence of seasonal patterns and let's try to identify t
 
 Checking again at autocorrelation plots
 ```{r}
-
+acf_plots()
 ```
 
-Perform FFT to check at the sesaonality frequency
+Evidence for strong autocorrelation at yearly lag in the series. Make a quantiative test
 ```{r}
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Idea transform perform ADF to check which of the series are still troublesome. 
-
-These should be able to capture the seasonal tred by seasonal differencing and refine the results above by incorporating higher order differences.
-
-Augmented dickey fuller test
-
-Use moving average smoother for the Trade balance. 
-
-
-```{r}
-nsdiffs(ts(data$UN_US, frequency = 12)) ## has unit root
-acf(na.trim(diff(data$TB_US, 1)))
-acf(data$TB_US)
-adf.test(na.trim(diff(data$TB_US)))
-```
-
-
-
-Step 2: Seasonality
-In order to derive meaningful conclusions in the following sections it is necessary to assure that the series do not display profund autocorrelation. This would in fact inhibit the idependency of the data and would bias all of the resulting statistics.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#################### BELOW NOT GOOD ####################################
-
-Step 1.1: Check for underlying trend in the series. 
-```{r}
-Season <- function(t_series,  idx){
-  trend <- ma(na.trim(t_series), order = 12, centre = T)
-  Seasonality <- as.ts(na.trim(t_series)) - trend
-  Seasonality <- na.contiguous(Seasonality)
-  if(idx == 1) plot(Seasonality)
-  if(idx == 2) acf(Seasonality) 
-  if(idx == 3) pacf(Seasonality)
-  if(idx == 4){
-    converted_ts <- ts(na.trim(t_series), frequency = 12)
-    decompose_ts <- decompose(converted_ts, "additive")
-    adjust_ts <- converted_ts - decompose_ts$seasonal
-    plot(adjust_ts)
-  }
+seasonality_12 <- function(x){
+               ## test for unit root for given seasonality
+               dat <- ts(x, frequency = 12)
+               
+               # Test for the presence of seasonal patterns at the determined frequency
+               res <- nsdiffs(dat)
+               
+               # If the test successful indicating unit root differenciate 
+               if(res == 1) {
+                 #data[-1:-12,colnames(x)] <- diff(dat, lag = 12)
+                 decomposed <- decompose(dat, "additive")
+                 data[,colnames(x)] <<- dat - decomposed$seasonal
+                 ## understand online how this decompose function performs seasonal adjustments --> no observation lost!! --> weird
+               }
 }
 
-helper <- c("US", "JP", "CH", "UK")
-par(mfrow=c(2,2))
-for (i in helper){Season(eval(parse(text = paste0("data$UN_", i))), 3)} ##significant autoregressive lags
+lapply(data, seasonality_12)
 ```
 
-
-######### repetition of code for other random variables BAD ################### 
-
-
-Do similar for other functions and incorporate all of the code in one single function if you want to be fancy
+Check at new adjusted
 ```{r}
-par(mfrow=c(2,2))
-for (i in helper){Season(eval(parse(text = paste0("data$M1_", i))), 2)} ## also for M1 and M3 profound seasonality
+acf_plots()
 ```
 
-CPI
+Perform FFT to check for possible other seasonal patterns
 ```{r}
-par(mfrow=c(2,2))
-for (i in helper){Season(eval(parse(text = paste0("data$CPI_", i))), 2)} ## also for CPI profound seasonality
-```
-
-Test 
-```{r}
-acf(na.trim(data$EX_CHUS)) ## this is in fact the reasoning of the high performance of random walk model. Very big difference between FX-rates and returns in this sense.
-```
-
-Remove helper and i
-```{r}
-rm(list = c("helper", "i"))
-```
-
-
-###################################################################################
-
-
-
-
-
-
-Create seasonally adjusted times series
-
-
-Check trend stationary vs difference stationary times series
-
-Trend stationary are not mean stationary but include a trend.
-
-Difference stationary contain a stochastic trend, i.e. are non-stationary in the variance
-component so that with the length of forecasting horizon the uncertainty
-increases to endless.
-
-a time series is called integrated of order d,if after d differencing
-the series follows a stable and invertible ARMA process and thus an
-I????????0???? process; the property of ????????0???? implies stationarity, whereas the reverse
-does not hold.
-
-So try to model SARIMA models and check if after differencitation and integration the series follows a stable and inveritbe ARMA process.
-
-Test for trend stationary times series
-```{r}
-
-```
-
-
-
-
-### Remember to do chow-test on residuals
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-deseason <- function(x){trend <- ma(na.trim(x), order = 4, centre = T)
-                        detrended <- as.ts(na.trim(x)) - trend
-                        converted_ts <- ts(detrended, frequency = 4)
-                        decompose_ts <- decompose(converted_ts, "additive")
-                        return(converted_ts - decompose_ts$seasonal)}
-
-deseason2 <- function(x){trend <- ma(na.trim(x), order = 4, centre = T)
-                        detrended <- as.ts(na.trim(x)) - trend}
-
-## View(deseason(data$UN_CH)) ## loose some obvservations when taking moving averages.
-
-data2 <- data
-for(i in 1:26){data2[,i] <- deseason(data[,i])}
-
-data2 <- na.contiguous(data2)
-
-data3 <- data
-for(i in 1:26){data3[,i] <- deseason2(data[,i])}
-data3 <- na.contiguous(data3)
-
-```
-
-Autocorrelation plot of original vs. cleaned times series
-```{r}
-plot(diff(data$M3_US,1)) ### for money stock clear trend. differentiation necessary.
-par(mfrow = c(1,2), mar = c(4,4,4,2))
-acf(data2$M3_US) ## it seams that some seasonality is still present
-acf(data$M3_US)
-acf(data3$M3_US)
-
-Box.test(data2$M3_US, lag = 5, type = "Ljung-Box") ## enough evidence that the series not stationary.
-```
-
-
-Decompose cannot really captures seasonality. probably not on frequency 12. Try to get frequency via FFT
-```{r}
-library(TSA)
-p = periodogram(data$EX_UKUS) ## short lag determinant
-
-dd = data.frame(freq=p$freq, spec=p$spec)
-order = dd[order(-dd$spec),]
-top2 = head(order, 4)
- 
-# display the 2 highest "power" frequencies
-top2
-
-# convert frequency to time periods
-time = 1/top2$f
-time
-
-## seasonality is not annual but rather trimestral and semestral!!
-```
-
-
-Try with SARIMA, that is try to solve the seasonality problem using differentatiation and ARMA modelling of seasonality.
-This will result in a seasonally integrated non-stationary model.
-```{r}
-# pretty cool code:
-nd_pars<-expand.grid(ar=0:2,diff=0:1,ma=0:2,sar=0:1,sdiff=0:1,sma=0:1)
-nd_aic<-rep(0,nrow(nd_pars))
-for(i in seq(along=nd_aic)){
-                            nd_aic[i]<-AIC(arima(data2$EX_UKUS,unlist(nd_pars[i,1:3]),
-                                                 unlist(nd_pars[i,4:6])
-                                                 ),
-                                           k=log(length(data2$EX_UKUS))
-                                           )
+#data <- data2
+seasonality <- function(x){
+               p = periodogram(x, plot = F) ## short lag determinant
+               dd = data.frame(freq=p$freq, spec=p$spec)
+               order = dd[order(-dd$spec),]
+               top = head(order, 1)
+               
+               # convert frequency to time periods
+               time = round(1/top$f)
+               
+               ## test for unit root for given seasonality
+               dat <- ts(x, frequency = time[1])
+               
+               # Test for the presence of seasonal patterns at the determined frequency
+               res <- nsdiffs(dat)
+               
+               if(res == 1) {
+                 warning( "Seasonality at FFT frequency" )
+               }
 }
-nd_pars[which.min(nd_aic),]
-# -> should estimate SARIMA(1,0,2)(0,0,1)
 
-UKUS_arima<-arima(data2$EX_UKUS,order=c(1,0,2), seasonal= list(order = c(0,0,1), period = 3))
-UKUS_arima
-par(mar=c(5,4,4,2))
-tsdiag(UKUS_arima) 
-
-## tsdiag to check diagnostic plots of linear models such ARIMA.
-
-## sarima performs well at 
+lapply(data, seasonality)
 ```
 
-Ma filter
+
+Clean workspace
 ```{r}
-ma5=stats::filter(data$EX_UKUS, sides=2,2/5)
-plot(ma5)
-View(ma5)
+rm(list = setdiff(ls(), c("acf_plots", "data")))
 ```
 
 
