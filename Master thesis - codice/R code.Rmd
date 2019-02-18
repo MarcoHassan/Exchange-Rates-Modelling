@@ -633,12 +633,25 @@ I will test the different models:
 As in the case of Meese and Rogoff forecasting will be performed at one, three, six and twelwe months.
 
 Cite Meese and Rogoff in the thesis: 
-The purpose of considering multiple forecast horizons in this type of experiment is to see whether the structural models do better than time series models in the long run, when adjustment due to lags and/or a serially correlated error term has taken place. Of course, when lags and serial correlation are fully incorporated into the structural models, a consistentlyestimated true structural model will outpredict a time series model at all
+The purpose of considering multiple forecast horizons in this type of experiment is to see whether the structural models do better than time series models in the long run, when adjustment due to lags and/or a serially correlated error term has taken place. Of course, when lags and serial correlation are fully incorporated into the structural models, a consistently estimated true structural model will outpredict a time series model at all
 horizons in a large sample.
 
-Random walk prediction
+Random walk without drift prediction using rolling series
 ```{r}
-rwf(data$EX_UKUS, h = 1, drift = FALSE, level = 95)
+## In the other models I will use 3/4 of the sample to train the data and the rest to predict. Be consistent to facilitate comaprison at a later stage. 
+data$Pred1_UKUS <- NA 
+for(i in 144:nrow(data)) 
+  { 
+  data$Pred1_UKUS[i] <- data$EX_UKUS[i-1]
+}
+
+data$Pred3_UKUS <- NA 
+for(i in 144:nrow(data)) 
+  { 
+  data$Pred1_UKUS[i+2] <- data$EX_UKUS[i-1]
+}
+
+## wrong then the data for december are added... bla bla bla
 ```
 
 Make cusum test on random walk to check for structural breaks in the series
