@@ -6,10 +6,17 @@ Author: Marco Hassan
 
 Download the data using quantmod. Multiple data provider: OECD, FED, SNB, BJP etc...
 
-Strategy:
+Data cleaning:
 
-Step 0: detrend the data series.
+Step 1: detrend the data series.
 
-Step 0.1: check the seasonality frequency using FFT
+Step 2: check the seasonality frequency using FFT
 
-Step 0.2: remove seasonality
+Step 3: remove seasonality
+
+Step 4: Run unit root tests
+
+Step 5: Perform structural break tests
+
+Linear Modelling:
+
