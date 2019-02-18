@@ -9,6 +9,7 @@ library(quantmod) ##same principle as Quandl, not limited by the amount of API c
 library(forecast) ## for seasonality adjusting the times series
 library(tseries) ## -> check when used
 library(TSA) ## for applying FFT to get seasonality frequencies
+library(strucchange) ## to perform chow test
 ```
 
 ===============
@@ -101,7 +102,6 @@ Use interbank for the moment
 #colnames(bills) <- c("TB_US", "TB_JP", "TB_CH") ## Treasury bills
 
 ```
-
 
 
 #############
@@ -520,8 +520,9 @@ seasonality_12 <- function(x){
                 data[,colnames(x)] <<- x - season
                }
 
+## do an r test of the function tomorrow to check if the syntax is holds for the 13:24 and 25:36 observations.
 
-lapply(data, seasonality_12)
+invisible(suppressWarnings(lapply(data, seasonality_12))) ## invisible does not return the lapply data assignments. The suppressWarnings tells us that for the last period there are not 12 observations and the demeaning is done with the remaining. This is because 190 is not a multiple of 12
 ```
 
 Check at new adjusted
@@ -544,7 +545,6 @@ lapply(data, seasonality) ## good both quartely and monthly.
 
 Perform FFT to check for possible other seasonal patterns
 ```{r}
-#data <- data2
 seasonality <- function(x){
                p = periodogram(x, plot = F) ## short lag determinant
                dd = data.frame(freq=p$freq, spec=p$spec)
@@ -569,33 +569,39 @@ Clean workspace
 rm(list = setdiff(ls(), c("acf_plots", "data")))
 ```
 
+
 Before starting with the implementation of the linear modelling of the series I perform a chow test to understand the possibility of structural breaks in the sample that would suggest prudence when working with the series as a whole.
+
+This is especially important as the period analyzed involves the outbreak of the dot-com bubble, which called for aggressive monetary policies and might significantly affect the results.
 ```{r}
-# assuming you have a 'ts' object in R 
-
-# 1. install package 'strucchange'
-# 2. Then write down this code:
-
-library(strucchange)
-
 prova <- function(x){
+  
+   ## I test against the alternative that each series can be fitted with a single constant     against the alternative of structural breaks that would call for multiple constants in      the sample.
+  
+  ## Using CUSUM
+  ocus.x <- efp(as.ts(x) ~ 1, type = "OLS-CUSUM")
+  
+  if(i == 1)
+    par(mfrow = c(2,1), mar = c(4,3,4,2))
+  else if((i%%3 == 0) & !(i %in% c(18, 21)))
+    par(mfrow = c(3,1), mar = c(4,3,4,2))
+  else if (i == ncol(data) -3)                ### search how to count over iterations of lapply
+    par(mfrow = c(2,2), mar = c(4,3,4,2))
+  plot(ocus.x, main = colnames(x))
+  
+  ## Using dynamic programming of <cite> 
+  ## https://eeecon.uibk.ac.at/~zeileis/papers/Zeileis+Kleiber+Kraemer-2003.pdf
+
   # store the breakdates
-  bp_ts <- breakpoints(as.ts(data$EX_UKUS, frequency = 12) ~ 1)
+  #bp_ts <- breakpoints(x~ 1)
 
   # this will give you the break dates and their confidence intervals
-  summary(bp_ts) 
+  #summary(bp_ts) 
   
-  bp_ts$breakpoints
+  #bp_ts$breakpoints
 
   # store the confidence intervals
-  ci_ts <- tryCatch(confint(bp_ts), error=function(e) NULL)
-
-  ## to plot the breakpoints with confidence intervals
-  if(ci_ts != NULL){
-      plot(as.ts(x))
-      lines(bp_ts)
-      lines(ci_ts)
-  }
+  #ci_ts <- tryCatch(confint(bp_ts), error=function(e) NULL)
 }
 
 lapply(data, prova)
@@ -607,15 +613,36 @@ lapply(data, prova)
 Univariate times series analysis
 ================================
 
-This section starts with the real analysis of the cleaned dataset.
+This section starts with the analysis of the cleaned dataset.
 
 In a first step I will try to check whether the Meese-Rogoff paradox holds in the analyzed time period. I will work with the USA as the benchmark series and apply the different macroeconomics models to linearly estimate the FX_rates.
 
+General model:
 
-White noise prediction
+EX = const. + b1 M_USFR + b2 UN_USFR + b3 TB_USFR + b4 CPI_USFR + b5(TB_US) + b6 TB_FR
+
+I will test the different models:
+
+(i) Frenkel Bilson -> b4, b5, b6 = 0
+
+(ii) Dornbusch-Frankel -> b5, b6 = 0
+
+(iii) Hooper Morton -> no constraint
+
+
+As in the case of Meese and Rogoff forecasting will be performed at one, three, six and twelwe months.
+
+Cite Meese and Rogoff in the thesis: 
+The purpose of considering multiple forecast horizons in this type of experiment is to see whether the structural models do better than time series models in the long run, when adjustment due to lags and/or a serially correlated error term has taken place. Of course, when lags and serial correlation are fully incorporated into the structural models, a consistentlyestimated true structural model will outpredict a time series model at all
+horizons in a large sample.
+
+Random walk prediction
 ```{r}
-
+rwf(data$EX_UKUS, h = 1, drift = FALSE, level = 95)
 ```
+
+Make cusum test on random walk to check for structural breaks in the series
+
 
 
 
