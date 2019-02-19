@@ -12,6 +12,27 @@ library(TSA) ## for applying FFT to get seasonality frequencies
 library(strucchange) ## to perform chow test
 ```
 
+
+######
+Write data to csv and import the data in order for me to start code from here, when rebooting the next day
+######
+
+Write csv and import csv
+```{r}
+write <- function(dat)
+  {
+  write.csv(as.data.frame(dat), file = "exchange rates.csv") 
+  ## as.dat.frame is necessary to get the date index out of the xts
+  }
+
+import <- function(dat)
+  {
+  dat <- read.csv("exchange rates.csv", header = T) ## loose xts notation.
+  dat <- as.xts(dat[,-1], order.by = as.Date(dat[,1]))  
+  }
+```
+
+
 ===============
 Data Collection
 ===============
@@ -189,7 +210,7 @@ Merge all of the statistics
 ```{r}
 data <- merge.xts(FX, bills, CPI, M1, M3, Trade, UNply) ##dagli anni '90 al 2005 hai tutte le statistiche.
 
-rm(list=setdiff(ls(), "data")) ## clean the workspace just keeping the data
+rm(list=setdiff(ls(), c("data", "import", "write"))) ## clean the workspace just keeping the data
 
 data <- data["1990-01-01/2006-02-01"] ## extract a complete dataset without NA; notice if you run the analysis with M1 you have complete data until 2013.
 
@@ -199,6 +220,7 @@ length(data[,1]) ## 194 observations per ts
 ```
 
 UK statistics are poor. For the other countries you can run the analysis back to the '70s. For UK because of M3 and especially unemployment rate the comparison is much more limited.
+
 
 ###################
 Data transformation
@@ -218,7 +240,7 @@ for(j in helper1){
                   }
 }
 rm(helper1)
-rm(list = setdiff(ls(), "data"))
+rm(list = setdiff(ls(), c("data", "import", "write")))
   
 ##Explaination of the code above; a loop in a loop to paste the code the right way and convert all of the variables into USD values. This will facilitate the comparison and the times series analysis at a later step.
 ```
@@ -234,7 +256,7 @@ for(j in helper2){
     }
     
 }
-rm(list = setdiff(ls(), "data"))
+rm(list = setdiff(ls(), c("data", "import", "write")))
 ```
 
 Logarithm transformation
@@ -251,7 +273,7 @@ for(j in transformation){
     }
     
 }
-rm(list = setdiff(ls(), "data"))
+rm(list = setdiff(ls(), c("data", "import", "write")))
 ```
 
 
@@ -293,7 +315,7 @@ Convert back to xts
 data <- xts(data2, order.by=index(data))
 
 ## clean workspace
-rm(list=setdiff(ls(), "data"))
+rm(list = setdiff(ls(), c("data", "import", "write")))
 ```
 
 
@@ -492,7 +514,7 @@ Will all of the above corrections the reslut is good and there is strong evidenc
 Clean workspace and just keep the full dataset
 ```{r}
 data <- na.trim(data)
-rm(list=setdiff(ls(), c("data", "acf_plots")))
+rm(list=setdiff(ls(), c("data", "acf_plots", "import", "write")))
 ```
 
 
@@ -566,7 +588,7 @@ Good. No other seasonal unit roots are displayed.
 
 Clean workspace
 ```{r}
-rm(list = setdiff(ls(), c("acf_plots", "data")))
+rm(list=setdiff(ls(), c("data", "acf_plots", "import", "write")))
 ```
 
 
@@ -581,12 +603,12 @@ prova <- function(x){
   ## Using CUSUM
   ocus.x <- efp(as.ts(x) ~ 1, type = "OLS-CUSUM")
   
-  if(i == 1)
-    par(mfrow = c(2,1), mar = c(4,3,4,2))
-  else if((i%%3 == 0) & !(i %in% c(18, 21)))
-    par(mfrow = c(3,1), mar = c(4,3,4,2))
-  else if (i == ncol(data) -3)                ### search how to count over iterations of lapply
-    par(mfrow = c(2,2), mar = c(4,3,4,2))
+  #if(i == 1)
+    #par(mfrow = c(2,1), mar = c(4,3,4,2))
+  #else if((i%%3 == 0) & !(i %in% c(18, 21)))
+    #par(mfrow = c(3,1), mar = c(4,3,4,2))
+  #else if (i == ncol(data) -3)                ### search how to count over iterations of lapply
+    #par(mfrow = c(2,2), mar = c(4,3,4,2))
   plot(ocus.x, main = colnames(x))
   
   ## Using dynamic programming of <cite> 
@@ -636,27 +658,56 @@ Cite Meese and Rogoff in the thesis:
 The purpose of considering multiple forecast horizons in this type of experiment is to see whether the structural models do better than time series models in the long run, when adjustment due to lags and/or a serially correlated error term has taken place. Of course, when lags and serial correlation are fully incorporated into the structural models, a consistently estimated true structural model will outpredict a time series model at all
 horizons in a large sample.
 
+Random walk fit code below is horribly complex. Define helper functions and simplify if you have time.
+
 Random walk without drift prediction using rolling series
 ```{r}
-## In the other models I will use 3/4 of the sample to train the data and the rest to predict. Be consistent to facilitate comaprison at a later stage. 
-data$Pred1_UKUS <- NA 
-for(i in 144:nrow(data)) 
-  { 
-  data$Pred1_UKUS[i] <- data$EX_UKUS[i-1]
-}
+## In the other models I will use 3/4 of the sample to train the data and the rest to predict. Be consistent to facilitate comaprison at a later stage.
+three_fourth <- round(nrow(data)*(3/4))
 
-data$Pred3_UKUS <- NA 
-for(i in 144:nrow(data)) 
-  { 
-  data$Pred1_UKUS[i+2] <- data$EX_UKUS[i-1]
-}
+## to create new series transform in data frame as before
 
-## wrong then the data for december are added... bla bla bla
+data2 <- as.data.frame(data)
+
+for(iPred in c(1,3,6,12)) 
+  { 
+    helper <- c("JP", "UK", "CH")
+    for(jCountry in helper)
+    {
+    data2[, paste0("rwPred" , iPred, "_", jCountry, "US")] <- NA
+    }
+  } 
+
+data2 <- as.xts(data2, order.by = index(data))## transform back to xts
+data <- data2
+rm(data2)
+```
+
+Fit the Random Walk prediction
+```{r}
+for(iPred in c(1,3,6,12)) 
+  { 
+    helpCountry <- c("JP", "UK", "CH")
+    for(jCountry in helpCountry)
+    {
+        for(kRow in three_fourth:nrow(data)) 
+        {
+         if ((iPred != 1) & (kRow+(iPred-2) == nrow(data))) break
+         data[kRow+(iPred-1), paste0("rwPred" , iPred, "_", jCountry, "US")] <- 
+           data[kRow-1, paste0("EX_", jCountry, "US")] 
+        }
+    }
+  } 
+```
+
+Write code
+```{r}
+write(data)
 ```
 
 Make cusum test on random walk to check for structural breaks in the series
 
-
+Make use of Dibold Mariano test to test the possibility of equal predictability of the methods.
 
 
 
