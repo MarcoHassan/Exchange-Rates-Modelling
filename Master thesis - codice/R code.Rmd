@@ -658,6 +658,10 @@ Cite Meese and Rogoff in the thesis:
 The purpose of considering multiple forecast horizons in this type of experiment is to see whether the structural models do better than time series models in the long run, when adjustment due to lags and/or a serially correlated error term has taken place. Of course, when lags and serial correlation are fully incorporated into the structural models, a consistently estimated true structural model will outpredict a time series model at all
 horizons in a large sample.
 
+===============
+Random walk fit
+===============
+
 Random walk fit code below is horribly complex. Define helper functions and simplify if you have time.
 
 Random walk without drift prediction using rolling series
@@ -704,6 +708,29 @@ Write code
 ```{r}
 write(data)
 ```
+
+
+==============================
+Macroeconomic structural model
+==============================
+
+
+
+
+
+===============================
+Vector Autoregressive Modelling
+===============================
+
+
+```{r}
+
+```
+
+
+
+
+
 
 Make cusum test on random walk to check for structural breaks in the series
 
