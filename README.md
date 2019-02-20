@@ -20,3 +20,6 @@ Step 5: Perform structural break tests
 
 Linear Modelling:
 
+Step 1: Random Walk forecasting with multiple lags.
+
+Step 2: VAR 
