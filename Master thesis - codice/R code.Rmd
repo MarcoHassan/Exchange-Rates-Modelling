@@ -5,11 +5,26 @@ output:  rmarkdown::github_document
 
 Libraries used
 ```{r}
+
+## String manipulation library using regualr expressions
+
+library(stringr) ## to make use of regular expressions to parse strings
+
+## Data collection library
+
 library(quantmod) ##same principle as Quandl, not limited by the amount of API calls though and connect to multiple daset providers. In this study we will mainly query the FRED database and extract data by referring to their API.
+
+## Data cleaning libraries
+
 library(forecast) ## for seasonality adjusting the times series
 library(tseries) ## -> check when used
 library(TSA) ## for applying FFT to get seasonality frequencies
 library(strucchange) ## to perform chow test
+
+## VAR packages
+
+library(vars)  ## to estimate VAR lag with exogenous variables
+library(tsDyn) ## to estimate the VAR model and perform the out of sample fit based on rolling window.
 ```
 
 
@@ -22,13 +37,13 @@ Write csv and import csv
 write <- function(dat)
   {
   write.csv(as.data.frame(dat), file = "exchange rates.csv") 
-  ## as.dat.frame is necessary to get the date index out of the xts
+  ## as.data.frame is necessary to get the date index out of the xts
   }
 
-import <- function(dat)
+import <- function(file)
   {
-  dat <- read.csv("exchange rates.csv", header = T) ## loose xts notation.
-  dat <- as.xts(dat[,-1], order.by = as.Date(dat[,1]))  
+  data <- read.csv(file, header = T) ## loose xts notation.
+  data <- as.xts(data[,-1], order.by = as.Date(data[,1]))  
   }
 ```
 
@@ -41,12 +56,14 @@ Meese and Rogoff also used the Forward rates for their estimation.
 
 Specify function to get symbols
 ```{r}
-get_Symbols <- function(x){
-                           lapply(x, function(sym){getSymbols(sym, src = "FRED",
-                                                              return.class = "xts",
-                                                              auto.assign = F)})
-  ## auto.assign specifies that not the ticker should be passed
-}
+get_Symbols <- function(x)
+  {
+   lapply(x, function(sym)
+     {getSymbols(sym, src = "FRED",
+                 return.class = "xts",
+                  auto.assign = F)  ## auto.assign specifies that not the ticker should be passed
+     }) 
+  }
 ```
 
 ###########
@@ -704,7 +721,7 @@ for(iPred in c(1,3,6,12))
   } 
 ```
 
-Write code
+Write data to the computer
 ```{r}
 write(data)
 ```
@@ -724,13 +741,37 @@ Vector Autoregressive Modelling
 
 
 ```{r}
+data <- as.data.frame(data) ## package tsDyn cannot deal with xts objects
+
+endogenous <- c("EX_UKUS", "EX_JPUS", "EX_CHUS")
+notexogenous <- str_extract(colnames(data), "^rw|^EX")
+notexogenous <- notexogenous %in% c("rw", "EX")
+exogenous <- !notexogenous
+
+VARselect(data[1:three_fourth, endogenous], lag.max = 7,
+          type = "none", exogen = data[1:three_fourth, exogenous]) 
+## one lag the best
+
+model <- lineVar(data[1:three_fourth, endogenous], 1, include = "none", 
+                 model = "VAR", I = "level",
+                 estim = "ML", LRinclude = "none", 
+                 exogen = data[1:three_fourth, exogenous])
 
 ```
 
 
+Rolling prediction using VAR
+```{r}
+# number rolling prediction per forecasting time frame
+for(i in c(1,3,6,12))
+  {
+  assign(paste0("numprediction", i), sum(!is.na(data[, paste0("rwPred", i, "_JPUS")])))
+  }
 
+predict_rolling(model)
+```
 
-
+Make test on endogeneity based on VAR model.
 
 Make cusum test on random walk to check for structural breaks in the series
 
