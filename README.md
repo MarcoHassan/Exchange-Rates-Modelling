@@ -23,3 +23,10 @@ Linear Modelling:
 Step 1: Random Walk forecasting with multiple lags.
 
 Step 2: VAR 
+    
+      2.1 Lag estimation via information criteria and likelihood ratio tests.
+      
+      2.2 Model estimation via maximum likelihood. 
+      
+      2.3 Variance decomposition of the implied impulse response and the within implied vector moving average model in order to check
+      for endogeneity in the series.
