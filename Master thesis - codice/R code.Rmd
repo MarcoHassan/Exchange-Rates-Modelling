@@ -721,11 +721,6 @@ for(iPred in c(1,3,6,12))
   } 
 ```
 
-Write data to the computer
-```{r}
-write(data)
-```
-
 
 ==============================
 Macroeconomic structural model
@@ -759,6 +754,18 @@ model <- lineVar(data[1:three_fourth, endogenous], 1, include = "none",
 
 ```
 
+Create columns for inserting prediction results
+```{r}
+for(iPred in c(1,3,6,12)) 
+  { 
+    helper <- c("JP", "UK", "CH")
+    for(jCountry in helper)
+    {
+    data[, paste0("varPred" , iPred, "_", jCountry, "US")] <- NA
+    }
+  } 
+```
+
 
 Rolling prediction using VAR
 ```{r}
@@ -768,7 +775,35 @@ for(i in c(1,3,6,12))
   assign(paste0("numprediction", i), sum(!is.na(data[, paste0("rwPred", i, "_JPUS")])))
   }
 
-predict_rolling(model)
+## Estimate the rolling window forecast
+for(j in c("UK", "JP", "CH")) 
+  {
+    for(i in c(1,3,6,12))
+    {
+    parsed_text1 <- eval(parse(text=paste0("numprediction", i)))
+    assign(paste0("endRow",i), nrow(data) +1 - parsed_text1)
+    assign(paste0("pred_model", i), 
+           predict_rolling(model, nroll = parsed_text1, n.ahead = i))
+    parsed_text2 <- eval(parse(text=paste0("pred_model", i)))
+    parsed_text3 <- eval(parse(text=paste0("endRow", i)))
+    if(j == "UK") list_member = 1
+    if(j == "JP") list_member = 2
+    if(j == "CH") list_member = 3
+    data[parsed_text3:nrow(data), 
+         paste0("varPred", i, "_", j, "US")] <- parsed_text2$pred[list_member]
+    }
+  }
+```
+
+
+Clean working space
+```{r}
+rm(list=setdiff(ls(), c("data", "acf_plots", "import", "write")))
+```
+
+Write data to the computer
+```{r}
+write(data)
 ```
 
 Make test on endogeneity based on VAR model.
