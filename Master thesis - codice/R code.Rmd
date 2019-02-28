@@ -778,85 +778,50 @@ in_sample <- three_fourth;
 ## Get in sample time frame
 st <- tsp(data2)[1] + (in_sample-2); 
 ## tsp(data2)[1] gets the start of the time frame; the second block adds the in_sample time window
-
 ```
 
 Working well just last observation disappeared somehow.
 ```{r}
-for(country in c("JP", "UK", "CH"))
-{  
-  for(i in 1:(nrow(data2)-in_sample))
-  {
-    xshort <- window(data2, start = tsp(data2)[1]+ (i-1), end=st + i)
-    xnew <- window(data2, start = st + i, end = (st +i)+11)
-  
-    ## Specify the arimax that fits at best
-    nd_pars<-expand.grid(ar=0:2,diff=0:1,ma=0:2)
-    nd_aic<-rep(0,nrow(nd_pars))
-    help <- eval(parse(text = paste0("interest",country)))
-    for(j in seq(along=nd_aic))
-    {
-      nd_aic[j]<-AIC(arimax(xshort[,paste0("EX_", country, "US")],
-                            unlist(nd_pars[j,1:3]), 
-                            xreg = xshort[, help],
-                            method = 'ML'))
-    }
-  
-    ## save the best fit
-    order <- nd_pars[which.min(nd_aic),]
-  
-    fit1 <- arimax(xshort[, paste0("EX_", country, "US")], order = unlist(order), 
-                   xreg = xshort[, help], method = 'ML')
-    new_exogenous <- xnew[, help]
-    fcast1 <- predict(fit1, n.ahead = 12, newxreg = new_exogenous)
-    if(index(tail(xshort,1)) == nrow(data2)-12) break 
-    ## so that you have always 12 out of sample
-    data2[in_sample+11+i, paste0("strPred12_", country, "US")] <- fcast1$pred[1]
-  }
-}
-```
-
-
-
-
-```{r}
-## transform to ts object ot leverage on the window function
-data2 <- as.ts(data2, frequency =12)
-
-## in sample observations
-in_sample <- three_fourth;
-  
-## Get in sample time frame
-st <- tsp(data2)[1] + (in_sample-2); 
-## tsp(data2)[1] gets the start of the time frame; the second block adds the in_sample time window
-
-
-for(i in 1:(nrow(data2)-in_sample))
+for( LAG in c(3, 6, 12) ) ## for 1 time period forecast not working. xnew is interpreted as a vector and not as a matrix and the column dimension is lost giving rise to distortions in the model comparison.
 {
-  xshort <- window(data2, start = tsp(data2)[1]+ (i-1), end=st + i)
-  xnew <- window(data2, start = st + i, end = (st +i)+11)
-  
-  ## Specify the arimax that fits at best
-  nd_pars<-expand.grid(ar=0:2,diff=0:1,ma=0:2)
-  nd_aic<-rep(0,nrow(nd_pars))
-  for(j in seq(along=nd_aic))
+  for( country in c("JP", "UK", "CH") )
+  {  
+    for( i in 1:(nrow(data2)-in_sample) )
     {
-      nd_aic[j]<-AIC(arimax(xshort[,"EX_UKUS"],
-                            unlist(nd_pars[j,1:3]), 
-                            xreg = xshort[, interestUK],
-                            method = 'ML'))
-    } 
-  
-  ## save the best fit
-  order <- nd_pars[which.min(nd_aic),]
-  
-  fit1 <- arimax(xshort[, paste0("EX_UKUS")], order = unlist(order), 
-                 xreg = xshort[, interestUK], method = 'ML')
-  new_exogenous <- xnew[, interestUK]
-  fcast1 <- predict(fit1, n.ahead = 12, newxreg = new_exogenous)
-  if(index(tail(xshort,1)) == nrow(data2)-12) break 
-  ## so that you have always 12 out of sample
-  data2[in_sample+11+i, paste0("strPred12_UKUS")] <- fcast1$pred[1]
+      xshort <- window(data2, start = tsp(data2)[1]+ (i-1), end=st + i)
+      xnew <- window(data2, start = st + i, end = (st +i)+(LAG-1))
+    
+      ## Specify the arimax that fits at best
+      nd_pars<-expand.grid(ar=0:2,diff=0:1,ma=0:2)
+      nd_aic<-rep(0,nrow(nd_pars))
+      help <- eval(parse(text = paste0("interest",country)))
+      
+      for(j in seq(along=nd_aic))
+      {
+        nd_aic[j]<-AIC(arimax(xshort[,paste0("EX_", country, "US")],
+                              unlist(nd_pars[j,1:3]), 
+                              xreg = xshort[, help],
+                              method = 'ML'))
+      }
+    
+      ## save the best fit
+      order <- nd_pars[which.min(nd_aic),]
+      
+      #View(xnew[, help])
+      #View(xshort[, help])
+      #str(xnew[,help])
+      #str(xshort[,help])
+    
+      fit1 <- arimax(xshort[, paste0("EX_", country, "US")], order = unlist(order), 
+                     xreg = xshort[, help], method = 'ML')
+      new_exogenous <- xnew[, help]
+      fcast1 <- predict(fit1, n.ahead = LAG, newxreg = new_exogenous)
+      if(index(tail(xshort,1)) == nrow(data2)-LAG) break 
+      ## so that you have always 12 out of sample
+      data2[in_sample+(LAG-1)+i, 
+            paste0("strPred", LAG, "_", country, "US")] <- fcast1$pred[1]
+    }
+  }
 }
 ```
 
@@ -866,17 +831,20 @@ Vector Autoregressive Modelling
 ===============================
 
 ```{r}
+data2 <- as.data.frame(data2)
 endogenous <- c("EX_UKUS", "EX_JPUS", "EX_CHUS")
-exogenous <- !str_detect(colnames(data), "^rw|^EX|^str")
+exogenous <- !str_detect(colnames(data2), "^rw|^EX|^str")
 
-VARselect(data[1:three_fourth, endogenous], lag.max = 7,
+VARselect(data2[1:three_fourth, endogenous], lag.max = 7,
           type = "none", exogen = data[1:three_fourth, exogenous]) 
 ## one lag the best
 
-model <- lineVar(data[1:three_fourth, endogenous], 1, include = "none", 
+data_exogenous <-  data2[1:three_fourth, exogenous]
+
+model <- lineVar(data2[1:three_fourth, endogenous], 1, include = "none", 
                  model = "VAR", I = "level",
                  estim = "ML", LRinclude = "none", 
-                 exogen = data[1:three_fourth, exogenous])
+                 exogen = data_exogenous)
 
 ```
 
@@ -887,7 +855,7 @@ for(iPred in c(1,3,6,12))
     helper <- c("JP", "UK", "CH")
     for(jCountry in helper)
     {
-    data[, paste0("varPred" , iPred, "_", jCountry, "US")] <- NA
+    data2[, paste0("varPred" , iPred, "_", jCountry, "US")] <- NA
     }
   } 
 ```
@@ -898,7 +866,7 @@ Rolling prediction using VAR
 # number rolling prediction per forecasting time frame
 for(i in c(1,3,6,12))
   {
-  assign(paste0("numprediction", i), sum(!is.na(data[, paste0("rwPred", i, "_JPUS")])))
+  assign(paste0("numprediction", i), sum(!is.na(data2[, paste0("rwPred", i, "_JPUS")])))
   }
 
 ## Estimate the rolling window forecast
@@ -907,7 +875,7 @@ for(j in c("UK", "JP", "CH"))
     for(i in c(1,3,6,12))
     {
     parsed_text1 <- eval(parse(text=paste0("numprediction", i)))
-    assign(paste0("endRow",i), nrow(data) +1 - parsed_text1)
+    assign(paste0("endRow",i), nrow(data2) +1 - parsed_text1)
     assign(paste0("pred_model", i), 
            predict_rolling(model, nroll = parsed_text1, n.ahead = i))
     parsed_text2 <- eval(parse(text=paste0("pred_model", i)))
@@ -915,16 +883,18 @@ for(j in c("UK", "JP", "CH"))
     if(j == "UK") list_member = 1
     if(j == "JP") list_member = 2
     if(j == "CH") list_member = 3
-    data[parsed_text3:nrow(data), 
+    data2[parsed_text3:nrow(data2), 
          paste0("varPred", i, "_", j, "US")] <- parsed_text2$pred[list_member]
     }
 }
-
-data2 <- as.xts(data2, order.by = index(data))## transform back to xts
-data <- data2
-rm(data2)
 ```
 
+Convert back to xts
+```{r}
+data2 <- as.xts(data2, order.by = index(data))## transform back to xts
+data <- data2
+#rm(data2)
+```
 
 TO DO: Would be nice to calculate the degrees of freedom in order to understand how reliable the model is.
 
@@ -941,15 +911,28 @@ Clean working space
 rm(list=setdiff(ls(), c("data", "acf_plots", "import", "write")))
 ```
 
-Write data to the computer
+
+======================================================
+Out of sample performance comparison for linear models
+======================================================
+
+In this section I will compare the performance of the different linear models in the out of sample predicition fit.
+
+Plot the different out of sample forecasting fits
 ```{r}
-write(data)
+plot(tail(data$EX_CHUS, 50),ylab="Rates",main="VAR in differences")
+lines(data$rwPred3_CHUS,col=2, lwd = 2)
+lines(data$strPred3_CHUS, col = 3, lwd = 2)
+lines(data$varPred3_CHUS, col = 4, lwd = 2)
+```
+
+Quantiative measure
+```{r}
+
 ```
 
 
-Make cusum test on random walk to check for structural breaks in the series
+## Make cusum test on random walk to check for structural breaks in the series
 
-Make use of Dibold Mariano test to test the possibility of equal predictability of the methods.
-
-
+## Make use of Dibold Mariano test to test the possibility of equal predictability of the methods.
 
