@@ -40,3 +40,4 @@ Step 1: Plot the different predictions to get a feeling of the model
 Step 2: Compute statistics for different distance measures from the realizations
 
 Step 3: Perform an analysis of the predictive power using the Diebold Mariano test
+
