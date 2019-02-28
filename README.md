@@ -33,7 +33,7 @@ Step 2: VAR
 
 Step 3: ARIMAX
 
-## Out of Sample Performance
+## Out of Sample Performance:
 
 Step 1: Plot the different predictions to get a feeling of the model
 
