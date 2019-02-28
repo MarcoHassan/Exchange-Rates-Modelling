@@ -41,8 +41,3 @@ Step 2: Compute statistics for different distance measures from the realizations
 
 Step 3: Perform an analysis of the predictive power using the Diebold Mariano test
 
-
-
-======================================================
-Out of sample performance comparison for linear models
-======================================================
