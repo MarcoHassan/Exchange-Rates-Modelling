@@ -37,6 +37,8 @@ Step 3: ARIMAX
 
 Step 1: Plot the different predictions to get a feeling of the model
 
+![image](https://user-images.githubusercontent.com/42472072/53584536-7d96b600-3b8c-11e9-88c7-c08d1f3e9d38.png)
+
 Step 2: Compute statistics for different distance measures from the realizations
 
 Step 3: Perform an analysis of the predictive power using the Diebold Mariano test
