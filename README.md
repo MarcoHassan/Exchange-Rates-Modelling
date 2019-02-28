@@ -42,7 +42,7 @@ Step 2: Compute statistics for different distance measures from the realizations
 Step 3: Perform an analysis of the predictive power using the Diebold Mariano test
 
 
-* this is a test *
+*this is a test*
 Plot the different out of sample forecasting fits
 ```{r}
 plot(tail(data$EX_CHUS, 50),ylab="Rates",main="VAR in differences")
