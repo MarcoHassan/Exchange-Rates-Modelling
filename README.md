@@ -40,13 +40,3 @@ Step 1: Plot the different predictions to get a feeling of the model
 Step 2: Compute statistics for different distance measures from the realizations
 
 Step 3: Perform an analysis of the predictive power using the Diebold Mariano test
-
-
-*this is a test*
-Plot the different out of sample forecasting fits
-```{r}
-plot(tail(data$EX_CHUS, 50),ylab="Rates",main="VAR in differences")
-lines(data$rwPred1_CHUS,col=2, lwd = 2)
-lines(data$strPred1_CHUS, col = 3, lwd = 2)
-lines(data$varPred1_CHUS, col = 4, lwd = 2)
-```
