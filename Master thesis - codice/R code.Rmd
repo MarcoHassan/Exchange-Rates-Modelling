@@ -496,7 +496,7 @@ helper1 <- c("JP", "CH", "UK", "US")
 par(mfrow = c(2,2), mar = c(4,4,4,2))
 for(i in helper1){
           trend <- ma(data2[, paste0("T_", i)], 
-                                       order = 4, centre = T) ##moving average of quartal
+                      order = 4, centre = T) ##moving average of quartal
           data[, paste0("T_", i)] <- as.ts(data2[, paste0("T_", i)]) - trend
           acf(na.trim(data[,paste0("T_", i)]), main = paste0("T_", i)) 
          
@@ -519,7 +519,7 @@ From the above two problematic series:
 
 1. Treasury bills of US - JP
 
-Solution: double differentiate the both
+Solution: double differentiate the series
 ```{r}
 data$TB_USJP <- diff(data$TB_USJP)
 acf(na.trim(data$TB_USJP))
@@ -675,11 +675,12 @@ Cite Meese and Rogoff in the thesis:
 The purpose of considering multiple forecast horizons in this type of experiment is to see whether the structural models do better than time series models in the long run, when adjustment due to lags and/or a serially correlated error term has taken place. Of course, when lags and serial correlation are fully incorporated into the structural models, a consistently estimated true structural model will outpredict a time series model at all
 horizons in a large sample.
 
+
+## Notice in the section below you are estimating the models both with M1 and M3 --> adjust it.
+
 ===============
 Random walk fit
 ===============
-
-Random walk fit code below is horribly complex. Define helper functions and simplify if you have time.
 
 Random walk without drift prediction using rolling series
 ```{r}
@@ -711,7 +712,7 @@ for(iPred in c(1,3,6,12))
     helpCountry <- c("JP", "UK", "CH")
     for(jCountry in helpCountry)
     {
-        for(kRow in three_fourth:nrow(data)) 
+        for(kRow in (three_fourth+1):nrow(data)) 
         {
          if ((iPred != 1) & (kRow+(iPred-2) == nrow(data))) break
          data[kRow+(iPred-1), paste0("rwPred" , iPred, "_", jCountry, "US")] <- 
@@ -728,24 +729,135 @@ Macroeconomic structural model
 
 In contrast to Meese and Rogoff I decided to make use of the ARIMAX model here. This will allow the introduction of lagged exogenous variables and its implementation is favoured compared to the long lagged AR model used by Meese and Rogoff to my mind.
 
+Specify rolling prediction
+```{r}
+## trasform to data-frame to add columns
+data2 <- as.data.frame(data)
+
+## create prediction columns
+
+for(iPred in c(1,3,6,12)) 
+  { 
+    helper <- c("JP", "UK", "CH")
+    for(jCountry in helper)
+    {
+    data2[, paste0("strPred" , iPred, "_", jCountry, "US")] <- NA
+    }
+  } 
+```
+
+Get exogenous variables for each of the series of interest
+```{r}
+## get exogenous parameters
+for(country in c("CH", "UK", "JP"))
+{
+  assign(paste0("interest", country), 
+         !str_detect(colnames(data2), paste0("^EX+\\D", country)) &
+          str_detect(colnames(data2), paste0("\\D", country)) & 
+         !str_detect(colnames(data2), "^rw|^str"))
+}
+
+
+## DO THIS NICE WITHOUT CODE REPETITION!!
+
+## Add the trade balance sheet
+interestUK[which(colnames(data2) == "T_US")] = T
+interestCH[which(colnames(data2) == "T_US")] = T
+interestJP[which(colnames(data2) == "T_US")] = T
+```
+
+### Arimax fit
 
 ```{r}
-## notice that you should still adjust the exogenous data frame. does not include the trade in the USA which should be included under the hooper merton model
+## transform to ts object ot leverage on the window function
+data2 <- as.ts(data2, frequency =12)
+
+## in sample observations
+in_sample <- three_fourth;
+  
+## Get in sample time frame
+st <- tsp(data2)[1] + (in_sample-2); 
+## tsp(data2)[1] gets the start of the time frame; the second block adds the in_sample time window
+
+```
+
+Working well just last observation disappeared somehow.
+```{r}
+for(country in c("JP", "UK", "CH"))
+{  
+  for(i in 1:(nrow(data2)-in_sample))
+  {
+    xshort <- window(data2, start = tsp(data2)[1]+ (i-1), end=st + i)
+    xnew <- window(data2, start = st + i, end = (st +i)+11)
+  
+    ## Specify the arimax that fits at best
+    nd_pars<-expand.grid(ar=0:2,diff=0:1,ma=0:2)
+    nd_aic<-rep(0,nrow(nd_pars))
+    help <- eval(parse(text = paste0("interest",country)))
+    for(j in seq(along=nd_aic))
+    {
+      nd_aic[j]<-AIC(arimax(xshort[,paste0("EX_", country, "US")],
+                            unlist(nd_pars[j,1:3]), 
+                            xreg = xshort[, help],
+                            method = 'ML'))
+    }
+  
+    ## save the best fit
+    order <- nd_pars[which.min(nd_aic),]
+  
+    fit1 <- arimax(xshort[, paste0("EX_", country, "US")], order = unlist(order), 
+                   xreg = xshort[, help], method = 'ML')
+    new_exogenous <- xnew[, help]
+    fcast1 <- predict(fit1, n.ahead = 12, newxreg = new_exogenous)
+    if(index(tail(xshort,1)) == nrow(data2)-12) break 
+    ## so that you have always 12 out of sample
+    data2[in_sample+11+i, paste0("strPred12_", country, "US")] <- fcast1$pred[1]
+  }
+}
+```
 
 
-## estimate optimal ARIMAX for UK 
-interestUK <- !str_detect(colnames(data), "^EX+\\DUK") & str_detect(colnames(data), "\\DUK") & !str_detect(colnames(data), "^rw|^var")
-nd_pars<-expand.grid(ar=0:2,diff=0:1,ma=0:2)
-nd_aic<-rep(0,nrow(nd_pars))
-for(i in seq(along=nd_aic)) nd_aic[i]<-AIC(arimax(data[1:three_fourth, "EX_UKUS"],unlist(nd_pars[i,1:3]), xreg = data[1:three_fourth, interestUK], method = 'ML'))
-nd_pars[which.min(nd_aic),]
 
 
-## specify the best fit model
-order <- nd_pars[which.min(nd_aic),]
-model <- arimax(data[1:three_fourth, "EX_UKUS"], order = unlist(order), xreg = data[1:three_fourth, interestUK], method = 'ML')
+```{r}
+## transform to ts object ot leverage on the window function
+data2 <- as.ts(data2, frequency =12)
 
-predict(model, n.ahead = 12, newxreg = data[(three_fourth+1):(three_fourth+12), interestUK])$pred[c(1,3,6,12)] ## subset at the end to get the frequencies of interest, i.e. 1, 3, 6, 12
+## in sample observations
+in_sample <- three_fourth;
+  
+## Get in sample time frame
+st <- tsp(data2)[1] + (in_sample-2); 
+## tsp(data2)[1] gets the start of the time frame; the second block adds the in_sample time window
+
+
+for(i in 1:(nrow(data2)-in_sample))
+{
+  xshort <- window(data2, start = tsp(data2)[1]+ (i-1), end=st + i)
+  xnew <- window(data2, start = st + i, end = (st +i)+11)
+  
+  ## Specify the arimax that fits at best
+  nd_pars<-expand.grid(ar=0:2,diff=0:1,ma=0:2)
+  nd_aic<-rep(0,nrow(nd_pars))
+  for(j in seq(along=nd_aic))
+    {
+      nd_aic[j]<-AIC(arimax(xshort[,"EX_UKUS"],
+                            unlist(nd_pars[j,1:3]), 
+                            xreg = xshort[, interestUK],
+                            method = 'ML'))
+    } 
+  
+  ## save the best fit
+  order <- nd_pars[which.min(nd_aic),]
+  
+  fit1 <- arimax(xshort[, paste0("EX_UKUS")], order = unlist(order), 
+                 xreg = xshort[, interestUK], method = 'ML')
+  new_exogenous <- xnew[, interestUK]
+  fcast1 <- predict(fit1, n.ahead = 12, newxreg = new_exogenous)
+  if(index(tail(xshort,1)) == nrow(data2)-12) break 
+  ## so that you have always 12 out of sample
+  data2[in_sample+11+i, paste0("strPred12_UKUS")] <- fcast1$pred[1]
+}
 ```
 
 
@@ -753,12 +865,9 @@ predict(model, n.ahead = 12, newxreg = data[(three_fourth+1):(three_fourth+12), 
 Vector Autoregressive Modelling
 ===============================
 
-
 ```{r}
-data <- as.data.frame(data) ## package tsDyn cannot deal with xts objects
-
 endogenous <- c("EX_UKUS", "EX_JPUS", "EX_CHUS")
-exogenous <- !str_detect(colnames(data), "^rw|^EX")
+exogenous <- !str_detect(colnames(data), "^rw|^EX|^str")
 
 VARselect(data[1:three_fourth, endogenous], lag.max = 7,
           type = "none", exogen = data[1:three_fourth, exogenous]) 
@@ -809,7 +918,11 @@ for(j in c("UK", "JP", "CH"))
     data[parsed_text3:nrow(data), 
          paste0("varPred", i, "_", j, "US")] <- parsed_text2$pred[list_member]
     }
-  }
+}
+
+data2 <- as.xts(data2, order.by = index(data))## transform back to xts
+data <- data2
+rm(data2)
 ```
 
 
