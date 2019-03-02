@@ -27,6 +27,13 @@ library(vars)  ## to estimate VAR lag with exogenous variables
 library(tsDyn) ## to estimate the VAR model and perform the out of sample fit based on rolling window.
 ```
 
+Helper Functions for the global evironment
+```{r}
+## Function 1 - helps to evalue paste0 expressions and to evalue them directly without 
+## interpreting them as text.
+evalue <- function(text){eval(parse(text = text))}
+```
+
 
 ######
 Write data to csv and import the data in order for me to start code from here, when rebooting the next day
@@ -227,7 +234,14 @@ Merge all of the statistics
 ```{r}
 data <- merge.xts(FX, bills, CPI, M1, M3, Trade, UNply) ##dagli anni '90 al 2005 hai tutte le statistiche.
 
-rm(list=setdiff(ls(), c("data", "import", "write"))) ## clean the workspace just keeping the data
+clean <- function() {
+  ENV <- globalenv()
+  ll <- ls(envir = ENV)
+  ll <- ll[!(ll %in% c("data", "clean", "import", "write", "evalue"))]
+  rm(list = ll, envir = ENV)
+}
+
+clean()
 
 data <- data["1990-01-01/2006-02-01"] ## extract a complete dataset without NA; notice if you run the analysis with M1 you have complete data until 2013.
 
@@ -257,7 +271,8 @@ for(j in helper1){
                   }
 }
 rm(helper1)
-rm(list = setdiff(ls(), c("data", "import", "write")))
+
+clean()
   
 ##Explaination of the code above; a loop in a loop to paste the code the right way and convert all of the variables into USD values. This will facilitate the comparison and the times series analysis at a later step.
 ```
@@ -273,7 +288,8 @@ for(j in helper2){
     }
     
 }
-rm(list = setdiff(ls(), c("data", "import", "write")))
+
+clean()
 ```
 
 Logarithm transformation
@@ -290,7 +306,8 @@ for(j in transformation){
     }
     
 }
-rm(list = setdiff(ls(), c("data", "import", "write")))
+
+clean()
 ```
 
 
@@ -332,7 +349,7 @@ Convert back to xts
 data <- xts(data2, order.by=index(data))
 
 ## clean workspace
-rm(list = setdiff(ls(), c("data", "import", "write")))
+clean()
 ```
 
 
@@ -531,7 +548,16 @@ Will all of the above corrections the reslut is good and there is strong evidenc
 Clean workspace and just keep the full dataset
 ```{r}
 data <- na.trim(data)
-rm(list=setdiff(ls(), c("data", "acf_plots", "import", "write")))
+
+## Remove acf_plots from clean function
+clean <- function() {
+  ENV <- globalenv()
+  ll <- ls(envir = ENV)
+  ll <- ll[!(ll %in% c("data", "clean", "import", "write", "evalue", "acf_plots"))]
+  rm(list = ll, envir = ENV)
+}
+
+clean()
 ```
 
 
@@ -605,7 +631,7 @@ Good. No other seasonal unit roots are displayed.
 
 Clean workspace
 ```{r}
-rm(list=setdiff(ls(), c("data", "acf_plots", "import", "write")))
+clean()
 ```
 
 
@@ -875,12 +901,12 @@ for(j in c("UK", "JP", "CH"))
   {
     for(i in c(1,3,6,12))
     {
-    parsed_text1 <- eval(parse(text=paste0("numprediction", i)))
+    parsed_text1 <- evalue(paste0("numprediction", i))
     assign(paste0("endRow",i), nrow(data2) +1 - parsed_text1)
     assign(paste0("pred_model", i), 
            predict_rolling(model, nroll = parsed_text1, n.ahead = i))
-    parsed_text2 <- eval(parse(text=paste0("pred_model", i)))
-    parsed_text3 <- eval(parse(text=paste0("endRow", i)))
+    parsed_text2 <- evalue(paste0("pred_model", i))
+    parsed_text3 <- evalue(paste0("endRow", i))
     if(j == "UK") list_member = 1
     if(j == "JP") list_member = 2
     if(j == "CH") list_member = 3
@@ -908,7 +934,7 @@ Endogeneity can be well ruled out in the series for the UKUS dollar and JPUS for
 
 Clean working space
 ```{r}
-rm(list=setdiff(ls(), c("data", "acf_plots", "import", "write")))
+clean()
 ```
 
 
@@ -920,17 +946,189 @@ In this section I will compare the performance of the different linear models in
 
 Plot the different out of sample forecasting fits
 ```{r}
-plot(tail(data$EX_CHUS, 50),ylab="Rates",main="VAR in differences")
-lines(data$rwPred1_CHUS,col=2, lwd = 2)
-lines(data$strPred1_CHUS, col = 3, lwd = 2)
-lines(data$varPred1_CHUS, col = 4, lwd = 2)
+plot(tail(data$EX_CHUS, 50), ylab="Rates", main="Linear Estimators - 1 Lag Out of Sample", 
+     grid.col = NA, col = 1)
+lines(data$rwPred1_CHUS,col= 2, lwd = 2)
+lines(data$strPred1_CHUS, col = "orange", lwd = 2)
+lines(data$varPred1_CHUS, col = "yellow", lwd = 2)
+addLegend("topleft", on=1, 
+          legend.names = c("Original", "RW", "ARIMAX", "VAR"), 
+          lty=c(1, 1), lwd=c(2, 1),
+          col=c(1, 2, "orange", "yellow"))
 ```
 
-Quantiative measure
+
+* Step 2 - Quantitative Measure for Prediction Power
+
+Root Mean Squared Error (MSE)
+```{r}
+rmseFun <- 
+          function(error)
+          {
+            #error <- Actual - Forecast
+            #print(error)
+            return( sqrt(sum(error**2)/length(error)) )
+          }
+```
+
+Mean Absolute Error (MAE)
+```{r}
+maeFun <- 
+            function(error)
+            {
+              #return( Actual - Forecast )
+              return( sum(abs(error))/length(error) )
+            }
+```
+
+Directional Accuracy (DAC)
+```{r}
+dacFun <- 
+          function(Actual, Forecast, LAG)
+          {
+            return( mean ( sign( diff(Actual, lag=LAG) ) == 
+                           sign( diff(Forecast, lag=LAG) ),
+                           na.rm = T
+                          ) 
+                  )
+          }
+```
+
+
+Create Series of Forcasting Errors; repeat for all of the lags.
+```{r}
+
+# number rolling prediction per forecasting time frame
+for(iLag in c(1,3,6,12))
+{
+assign(paste0("numprediction", iLag), sum(
+                                          !is.na(
+                                                  data[, 
+                                                      paste0("rwPred", iLag, "_JPUS")
+                                                      ]
+                                                 )
+                                          )
+       )
+  
+}
+
+RMSE <- matrix(NA,3,3, 
+               dimnames = list( c("rw", "str", "var"),
+               c("CH", "JP", "UK") )
+               )
+
+MAE <- matrix(NA,3,3, 
+               dimnames = list( c("rw", "str", "var"),
+               c("CH", "JP", "UK") )
+               )
+
+DAC <- matrix(NA,3,3, 
+               dimnames = list( c("rw", "str", "var"),
+               c("CH", "JP", "UK") )
+               )
+```
+
+
+Compute root mean square error and mean absolute error for the different lags and linear estimators
+```{r}
+errorFun <- 
+            function(LAG)
+            {
+              iRow = 0
+              jCol = 1
+              for( country in c("CH", "JP", "UK") )
+              {
+                for( method in c("rw", "str", "var") )
+                {
+                  iRow = iRow + 1
+                  
+                  error_data <- tail(data[, paste0("EX_", country, "US")],
+                                     evalue(paste0("numprediction", LAG))
+                  ) - 
+                    na.trim(data[, paste0(method, 
+                                          "Pred", LAG,"_", 
+                                          country, "US")
+                                 ]
+                    )
+                  
+                  RMSE[iRow, jCol] <- rmseFun(error_data)
+                  
+                  MAE[iRow, jCol] <- maeFun(error_data)
+                  
+                  if(iRow %% 3 == 0)
+                  {
+                    jCol = jCol + 1
+                    iRow = 0
+                  }
+                
+                }
+              }
+              
+              print(RMSE)
+                  
+              print(MAE)
+            }
+```
+
+Evalue the function for different lags
+```{r}
+for( iLAG in c(1, 3, 6, 12))
+errorFun(iLAG)
+```
+
+Perform Directional Accuracy test
+```{r}
+errorDacFun <- 
+            function(LAG)
+            {
+              iRow = 0
+              jCol = 1
+              for( country in c("CH", "JP", "UK") )
+              {
+                for( method in c("rw", "str", "var") )
+                {
+                  iRow = iRow + 1
+                  
+                  actual_data <- tail(data[, paste0("EX_", country, "US")],
+                                     evalue(paste0("numprediction", LAG))
+                                     )
+                  
+                  forecast_data <- na.trim(data[, paste0(method, 
+                                                "Pred", LAG,"_", 
+                                                country, "US")
+                                               ]
+                                           )
+                  
+                  DAC[iRow, jCol] <- dacFun(actual_data, forecast_data, LAG)
+                  
+                  
+                  if(iRow %% 3 == 0)
+                  {
+                    jCol = jCol + 1
+                    iRow = 0
+                  }
+                
+                }
+              }
+              
+              print(DAC)
+            }
+```
+
+
+Compute DAC
+```{r}
+for( iLag in c(1, 3, 6, 12) )
+errorDacFun(iLag)
+```
+
+===================================================================
+Perform a Diebold Mariano Test to check at equal predictivity power
+===================================================================
+
 ```{r}
 
 ```
-
 
 ## Make cusum test on random walk to check for structural breaks in the series
 
