@@ -25,53 +25,15 @@ library(strucchange) ## to perform chow test
 
 library(vars)  ## to estimate VAR lag with exogenous variables
 library(tsDyn) ## to estimate the VAR model and perform the out of sample fit based on rolling window.
-```
 
-Helper Functions for the global evironment
-```{r}
-## Function 1 - helps to evalue paste0 expressions and to evalue them directly without 
-## interpreting them as text.
-evalue <- function(text){eval(parse(text = text))}
-```
-
-
-######
-Write data to csv and import the data in order for me to start code from here, when rebooting the next day
-######
-
-Write csv and import csv
-```{r}
-write <- function(dat)
-  {
-  write.csv(as.data.frame(dat), file = "exchange rates.csv") 
-  ## as.data.frame is necessary to get the date index out of the xts
-  }
-
-import <- function(file)
-  {
-  data <- read.csv(file, header = T) ## loose xts notation.
-  data <- as.xts(data[,-1], order.by = as.Date(data[,1]))  
-  }
+## Import self defined functions
+source("functions.R")
 ```
 
 
 ===============
 Data Collection
 ===============
-
-Meese and Rogoff also used the Forward rates for their estimation.
-
-Specify function to get symbols
-```{r}
-get_Symbols <- function(x)
-  {
-   lapply(x, function(sym)
-     {getSymbols(sym, src = "FRED",
-                 return.class = "xts",
-                  auto.assign = F)  ## auto.assign specifies that not the ticker should be passed
-     }) 
-  }
-```
 
 ###########
 FX - rates
@@ -234,23 +196,30 @@ Merge all of the statistics
 ```{r}
 data <- merge.xts(FX, bills, CPI, M1, M3, Trade, UNply) ##dagli anni '90 al 2005 hai tutte le statistiche.
 
-clean <- function() {
-  ENV <- globalenv()
-  ll <- ls(envir = ENV)
-  ll <- ll[!(ll %in% c("data", "clean", "import", "write", "evalue"))]
-  rm(list = ll, envir = ENV)
-}
 
-clean()
 
 data <- data["1990-01-01/2006-02-01"] ## extract a complete dataset without NA; notice if you run the analysis with M1 you have complete data until 2013.
 
 length(data[,1]) ## 194 observations per ts
 
 ## Transform all the variables in USD currency
+
+#UK statistics are poor. For the other countries you can run the analysis back to the '70s. For UK because of M3 and especially unemployment rate the comparison is much more limited.
 ```
 
-UK statistics are poor. For the other countries you can run the analysis back to the '70s. For UK because of M3 and especially unemployment rate the comparison is much more limited.
+Specify a function to clean the environment and do it
+```{r}
+clean <- function() {
+  ENV <- globalenv()
+  ll <- ls(envir = ENV)
+  ll <- ll[!(ll %in% c("data", "clean", "import", "write", "evalue", "acf_plots",
+                       "adfTest", "seasonality", "suspectFrequency", "spa"))]
+  rm(list = ll, envir = ENV)
+}
+
+clean()
+```
+
 
 
 ###################
@@ -260,17 +229,21 @@ Data transformation
 Transform M1, M3 and Trade balance sheets in USD. Compute cumulative Trade balance sheet.
 Transform also the interest rate in USD interest rate. Assume FX-rate martingale. Otherwise you would have to download the forward interest rate. 
 ```{r}
-helper1 <- c("M1", "M3", "TB", "T")
-for(j in helper1){
-                  helper2 <- c("JP", "CH", "UK")
-                  help <- function(x){eval(parse(text = x))}
-                  for (i in helper2){
-                       if(paste0(j, "_", i) != "TB_UK")
-                       data[,paste0(j, "_", i)] <- help(paste0("data$", j, "_", i))/help(
-                                                              paste0("data$EX_", i, "US"))
+series <- c("M1", "M3", "TB", "T")
+
+for(j in series){
+                  country <- c("JP", "CH", "UK")
+                  for (i in country)
+                  {
+                  if(paste0(j, "_", i) != "TB_UK")
+                       data[,paste0(j, "_", i)] <- 
+                                                    evalue(paste0("data$", j, 
+                                                                  "_", i)
+                                                           ) /
+                                                    evalue(paste0("data$EX_", i, "US")
+                                                           )
                   }
 }
-rm(helper1)
 
 clean()
   
@@ -279,8 +252,9 @@ clean()
 
 Transform Trade to cumulative trade variable
 ```{r}
-helper2 <- c("JP", "CH", "UK", "US")
-for(j in helper2){
+country <- c("JP", "CH", "UK", "US")
+
+for(j in country){
     total = 0
     for(i in 1:length(data$T_CH)){
       total = total + as.numeric(data[i, paste0("T_", j)])
@@ -294,18 +268,26 @@ clean()
 
 Logarithm transformation
 ```{r}
-transformation <- c("M1", "M3", "EX")
-helper2 <- c("JP", "CH", "UK", "US")
-for(j in transformation){
-    for(i in helper2){
-      if(j != "EX"){
-         data[, paste0(j, "_", i)] <- log(data[, paste0(j, "_", i)])
+series <- c("M1", "M3", "EX")
+country <- c("JP", "CH", "UK", "US")
+for(j in series)
+{
+  for(i in country)
+  {
+    if(j != "EX")
+      {
+      data[, paste0(j, "_", i)] <- log(data[, paste0(j, "_", i)])
       }
-      else{if(i != "US") data[, paste0(j, "_", i, "US")] <- log(data[, paste0(j, "_", i,
-                                                                              "US")])}
-    }
-    
+    else
+      {
+      if (i != "US")
+        {
+        data[, paste0(j, "_", i, "US")] <- log(data[, paste0(j, "_", i,"US")]) 
+        }
+      }
+  }
 }
+  
 
 clean()
 ```
@@ -333,10 +315,10 @@ The series to be created
 (v)  CPI_US - CPI_Foreign
 ```{r}
 ## as the series are already in log. just take the difference
-helper1 <- c("TB", "M3", "UN", "M1", "CPI")
-for(i in helper1){
-  helper2 <-  c("CH", "JP", "UK") 
-  for(j in helper2){
+series <- c("TB", "M3", "UN", "M1", "CPI")
+for(i in series){
+  country <-  c("CH", "JP", "UK") 
+  for(j in country){
     if((i == "TB") & (j == "UK")) next
     data2[, paste0(i, "_US",  j)] <- 
       data2[,paste0(i,"_US")] - data2[,paste0(i, "_", j)]
@@ -376,9 +358,14 @@ In order to transform the series into stationary series I will:
     3. Test the series for unit roots.
     
     4. Perform chow-tests to check for structural breaks in the resulting series.
-    
-    
-    
+
+
+Write the data
+```{r}
+write(data, "rawdata.csv")
+```
+
+
 ##################
 Part 1: Detrending
 ##################
@@ -387,12 +374,16 @@ In a first step I will test the necessity for detrending the series.
 
 Plot the series as a help:
 ```{r}
-help <- function(i){
-  plot(i, main = colnames(i))
-}
+plotSeries <- 
+              function(i)
+              {
+              plot(i, main = colnames(i))
+              }
+
 lis <- list()
-lis <- lapply(data, help)
-for(i in 1:ncol(data)){
+lis <- lapply(data, plotSeries)
+for(i in 1:ncol(data))
+{
   if(i == 1) 
     par(mfrow = c(2,1))
   else if((i%%3 == 0) & !(i %in% c(18, 21)))
@@ -406,10 +397,13 @@ for(i in 1:ncol(data)){
 
 Plot proxy for variance as a help:
 ```{r}
-help <- function(i)plot((i- mean(i))**2, main = colnames(i)) ## notice assumes time invariant mean, which is clearly violated in the series.
+varPlot <- function(i)plot((i- mean(i, na.rm = T))**2, main = colnames(i)) ## notice assumes time invariant mean, which is clearly violated in the series.
+
 lis <- list()
-lis <- lapply(data, help)
-for(i in 1:ncol(data)){
+lis <- lapply(data, varPlot)
+
+for(i in 1:ncol(data))
+{
   if(i == 1)
     par(mfrow = c(3,1))
   else if((i%%3 == 0) & !(i %in% c(18, 21)))
@@ -424,7 +418,8 @@ The majority of the series are clearly not mean stationary.
 
 For the exchange rate and the money supply it is difficult to judge based on simple plots, these might could appear to be mean stationary but not volatility stationary. 
 ```{r}
-acf_plots <- function(){
+acf_plots <- function()
+{
   for(i in 1:ncol(data)){
     if(i == 1)
       par(mfrow = c(2,1), mar = c(4,3,4,2))
@@ -464,11 +459,8 @@ for(i in 1:ncol(data)){data[,i] <- data3[[i]]}
 
 Plot new Variables
 ```{r}
-help <- function(i){
-  plot(i, main = colnames(i))
-}
 lis <- list()
-lis <- lapply(data, help)
+lis <- lapply(data, plotSeries)
 for(i in 1:ncol(data)){
     if(i == 1)
       par(mfrow = c(2,1), mar = c(4,3,4,2))
@@ -482,16 +474,16 @@ for(i in 1:ncol(data)){
 
 Plot proxy for variance for the new variables as a help:
 ```{r}
-help <- function(i)plot((i- mean(i, na.rm = T))**2, main = colnames(i)) ## notice assumes time invariant mean, which is clearly violated in the series.
 lis <- list()
-lis <- lapply(data, help)
-for(i in 1:ncol(data)){
-    if(i == 1)
-      par(mfrow = c(2,1), mar = c(4,3,4,2))
-    else if((i%%3 == 0) & !(i %in% c(18, 21)))
-      par(mfrow = c(3,1), mar = c(4,3,4,2))
-    else if (i == ncol(data) -3)
-      par(mfrow = c(2,2), mar = c(4,3,4,2))
+lis <- lapply(data, varPlot)
+for(i in 1:ncol(data))
+{
+  if(i == 1)
+    par(mfrow = c(2,1), mar = c(4,3,4,2))
+  else if((i%%3 == 0) & !(i %in% c(18, 21)))
+    par(mfrow = c(3,1), mar = c(4,3,4,2))
+  else if (i == ncol(data) -3)
+    par(mfrow = c(2,2), mar = c(4,3,4,2))
   plot(lis[[i]])                  
 }
 ```
@@ -508,10 +500,10 @@ Result: Trade was a disaster. For the rest good improvement. Some adjustment sti
 
 Compute moving average smoother for Trade.
 ```{r}
-helper1 <- c("JP", "CH", "UK", "US")
+country <- c("JP", "CH", "UK", "US")
 
 par(mfrow = c(2,2), mar = c(4,4,4,2))
-for(i in helper1){
+for(i in country){
           trend <- ma(data2[, paste0("T_", i)], 
                       order = 4, centre = T) ##moving average of quartal
           data[, paste0("T_", i)] <- as.ts(data2[, paste0("T_", i)]) - trend
@@ -523,12 +515,7 @@ for(i in helper1){
 
 Check for unit roots in the series performing augmented Dickey-Fuller tests
 ```{r}
-help <- function(x){
-        dd <- adf.test(na.trim(x))
-        if(dd$p.value >= 0.05) dd
-}
-
-suppressWarnings(lapply(data, help)) ## supress warning to ignore message that true p-value smaller than the one printed
+suppressWarnings(lapply(data, adfTest)) ## supress warning to ignore message that true p-value smaller than the one printed
 ```
 
 
@@ -549,11 +536,13 @@ Clean workspace and just keep the full dataset
 ```{r}
 data <- na.trim(data)
 
-## Remove acf_plots from clean function
-clean <- function() {
+## Update the clean function
+clean <- function() 
+{
   ENV <- globalenv()
   ll <- ls(envir = ENV)
-  ll <- ll[!(ll %in% c("data", "clean", "import", "write", "evalue", "acf_plots"))]
+  ll <- ll[!(ll %in% c("data", "clean", "import", "write", "evalue", "acf_plots",
+                       "adfTest", "seasonality", "suspectFrequency", "spa"))]
   rm(list = ll, envir = ENV)
 }
 
@@ -579,7 +568,8 @@ acf_plots()
 
 Well behaved series; adjust for annual seasonality by block differenciating.
 ```{r}
-seasonality_12 <- function(x){
+seasonality_12 <- function(x)
+               {
                 m_series = t(matrix(data = x, nrow = 12))
                 season = colMeans(m_series, na.rm = T)
                 data[,colnames(x)] <<- x - season
@@ -587,7 +577,8 @@ seasonality_12 <- function(x){
 
 ## do an r test of the function tomorrow to check if the syntax is holds for the 13:24 and 25:36 observations.
 
-invisible(suppressWarnings(lapply(data, seasonality_12))) ## invisible does not return the lapply data assignments. The suppressWarnings tells us that for the last period there are not 12 observations and the demeaning is done with the remaining. This is because 190 is not a multiple of 12
+invisible(suppressWarnings(lapply(data, seasonality_12))) 
+## invisible does not return the lapply data assignments. The suppressWarnings tells us that for the last period there are not 12 observations and the demeaning is done with the remaining. This is because 190 is not a multiple of 12
 ```
 
 Check at new adjusted
@@ -597,32 +588,14 @@ acf_plots()
 
 Perform test checking for seasonal unit root at monthly, quartarly frequency.
 ```{r}
-seasonality <- function(x){
-               ## test for unit root for given seasonality
-               dat <- ts(x, frequency = 4) 
-               
-               # Test for the presence of seasonal patterns at the determined frequency
-               res <- nsdiffs(dat)
-}
-
-lapply(data, seasonality) ## good both quartely and monthly.
+lapply(data, seasonality, 4)
+## good both quartely and monthly. 
+## Notice the third argument is the ts-frequency argument specified in the function.R document
 ```
 
-Perform FFT to check for possible other seasonal patterns
+Perform FFT to check for possible other suspicious seasonality patterns for each series
 ```{r}
-seasonality <- function(x){
-               p = periodogram(x, plot = F) ## short lag determinant
-               dd = data.frame(freq=p$freq, spec=p$spec)
-               order = dd[order(-dd$spec),]
-               top = head(order, 1)
-               
-               # convert frequency to time periods
-               time = round(1/top$f)
-               
-               time[1]
-}
-
-lapply(data, seasonality)
+lapply(data, suspectFrequency)
 
 ## Trimestral frequency is worth to test.
 ```
@@ -937,6 +910,55 @@ Clean working space
 clean()
 ```
 
+Save results into a csv
+```{r}
+write(data, "linear.csv")
+```
+
+
+
+============================
+Autocorrelation of the Error
+============================
+
+Check at autocorrelation of error series to see whethere the residuals of the models are white noise of whether there is systematic information that was not captured.
+```{r}
+# number rolling prediction per forecasting time frame
+for(i in c(1,3,6,12))
+  {
+  assign(paste0("numprediction", i), sum(!is.na(data[, paste0("rwPred", i, "_JPUS")])))
+  }
+
+# Plot acf and test for white noise
+for ( iLag in c(1, 3, 6, 12) )
+{
+  for( country in c("CH", "JP", "UK") )
+  {
+    par(mfrow = c(3,1))
+    for( method in c("rw", "str", "var") )
+    {
+      error <- tail(data[, paste0("EX_", country, "US")],
+                          evalue(paste0("numprediction", iLag))
+                          ) - 
+                na.trim(data[, paste0(method, 
+                                    "Pred", iLag,"_", 
+                                    country, "US")
+                            ]
+                        )
+      acf(error, main = paste("Pred", method, iLag, country))
+      
+      ## Back up with quantitative Ljung Box measure
+      for( jLag in c(5,20,50) )
+      {
+      print(paste("Pred", method, iLag, country, "Ljung", jLag))
+      print(Box.test(error, lag = jLag, type = "Ljung-Box"))
+      }
+      
+    }
+  }
+}
+```
+
 
 ======================================================
 Out of sample performance comparison for linear models
@@ -1042,18 +1064,23 @@ errorFun <-
                 {
                   iRow = iRow + 1
                   
-                  error_data <- tail(data[, paste0("EX_", country, "US")],
-                                     evalue(paste0("numprediction", LAG))
-                  ) - 
-                    na.trim(data[, paste0(method, 
-                                          "Pred", LAG,"_", 
-                                          country, "US")
-                                 ]
-                    )
+                  actual_data <- tail(data[, paste0("EX_", country, "US")],
+                                      evalue(paste0("numprediction", LAG))
+                                      )
+                  
+                  forecast_data <- na.trim(data[, paste0(method, 
+                                                "Pred", LAG,"_", 
+                                                country, "US")
+                                               ]
+                                           )
+                  
+                  error_data <- actual_data - forecast_data
                   
                   RMSE[iRow, jCol] <- rmseFun(error_data)
                   
                   MAE[iRow, jCol] <- maeFun(error_data)
+                  
+                  DAC[iRow, jCol] <- dacFun(actual_data, forecast_data, LAG)
                   
                   if(iRow %% 3 == 0)
                   {
@@ -1064,9 +1091,14 @@ errorFun <-
                 }
               }
               
+              print(paste("RMSE", LAG))
               print(RMSE)
-                  
+              
+              print(paste("MAE", LAG))    
               print(MAE)
+              
+              print(paste("DAC", LAG))    
+              print(DAC)
             }
 ```
 
@@ -1076,61 +1108,59 @@ for( iLAG in c(1, 3, 6, 12))
 errorFun(iLAG)
 ```
 
-Perform Directional Accuracy test
+============
+Augmented MZ 
+============
+
+Test if the model can be restricted; i.e. test the null hypothesis of the different coefficients.
+
+!!!! USE AUGMENTED MZ TESTS TO CHECK WHETHER MORE SIMPLE MODELS HOLD IN THE DATA.
+
+====================
+Model Confidence set
+====================
+
+Model Confidence set
 ```{r}
-errorDacFun <- 
-            function(LAG)
-            {
-              iRow = 0
-              jCol = 1
-              for( country in c("CH", "JP", "UK") )
-              {
-                for( method in c("rw", "str", "var") )
-                {
-                  iRow = iRow + 1
-                  
-                  actual_data <- tail(data[, paste0("EX_", country, "US")],
-                                     evalue(paste0("numprediction", LAG))
-                                     )
-                  
-                  forecast_data <- na.trim(data[, paste0(method, 
-                                                "Pred", LAG,"_", 
-                                                country, "US")
-                                               ]
-                                           )
-                  
-                  DAC[iRow, jCol] <- dacFun(actual_data, forecast_data, LAG)
-                  
-                  
-                  if(iRow %% 3 == 0)
-                  {
-                    jCol = jCol + 1
-                    iRow = 0
-                  }
-                
-                }
-              }
-              
-              print(DAC)
-            }
+#Create u a matrix with all different univariate GARCH predictions: each column, one model prediction
+u <- na.trim(cbind(data$rwPred1_JPUS , data$varPred1_JPUS, data$strPred1_JPUS))
+
+n<-dim(u)[1]
+perf<-matrix(NA,n,3)
+
+for (j in 1:3)
+{
+  perf[,j]<- abs(tail(data$EX_JPUS, n)-u[,j]) #MAE
+  #perf[,j] <- abs(tail(data$EX_JPUS, n)-u[,j])^2 #MSE
+}
+
+colMeans(perf) ## Perf is a matrix containing for each column the loss function of one forecasting method.
+  
+for (k in 1:3)
+{
+  print(k)	
+  d<-rep(0,1000)
+  s<-1
+  for (i in 1:10)
+  { 
+  	#print(i)
+     e<-spa(per=perf,column_benchmark_model=k,
+            num_predmodels=3,number_predictions=n,q=0.25,iter=100,periodogram=T)
+     d[s:(s+99)]<-e$stat.boos
+     s<-s+100
+  }
+  print(mean((d>e$stat))) ## fraction 
+}
+
+## With MSE
+## -> random walk excluded wit 90% confidence
+
+## With MAE
+## -> random walk excluded with 99% confidence
+## -> arimax with 
+
 ```
 
-
-Compute DAC
-```{r}
-for( iLag in c(1, 3, 6, 12) )
-errorDacFun(iLag)
-```
-
-===================================================================
-Perform a Diebold Mariano Test to check at equal predictivity power
-===================================================================
-
-```{r}
-
-```
-
-## Make cusum test on random walk to check for structural breaks in the series
-
-## Make use of Dibold Mariano test to test the possibility of equal predictability of the methods.
-
+==========================
+Generalized Additive Model
+==========================
