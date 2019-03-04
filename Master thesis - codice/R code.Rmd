@@ -783,7 +783,7 @@ Working well just last observation disappeared somehow.
 ```{r}
 for( LAG in c(1, 3, 6, 12) ) 
 {
-  for( country in c("JP", "UK", "CH") )
+  for( country in c("JP", "CH", "UK") )
   {  
     for( i in 1:(nrow(data2)-in_sample) )
     {
@@ -1123,15 +1123,15 @@ Model Confidence set
 Model Confidence set
 ```{r}
 #Create u a matrix with all different univariate GARCH predictions: each column, one model prediction
-u <- na.trim(cbind(data$rwPred1_JPUS , data$varPred1_JPUS, data$strPred1_JPUS))
+u <- na.trim(cbind(data$rwPred1_JPUS, data$varPred1_JPUS, data$strPred1_JPUS))
 
 n<-dim(u)[1]
 perf<-matrix(NA,n,3)
 
 for (j in 1:3)
 {
-  perf[,j]<- abs(tail(data$EX_JPUS, n)-u[,j]) #MAE
-  #perf[,j] <- abs(tail(data$EX_JPUS, n)-u[,j])^2 #MSE
+  perf[,j]<- abs(tail(data$EX_JPUS[-nrow(data)], n)-u[,j]) #MAE
+  #perf[,j] <- abs(data$EX_JPUS-u[,j])^2 #MSE
 }
 
 colMeans(perf) ## Perf is a matrix containing for each column the loss function of one forecasting method.

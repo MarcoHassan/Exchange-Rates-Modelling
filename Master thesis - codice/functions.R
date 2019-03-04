@@ -16,7 +16,7 @@ evalue <- function(text){eval(parse(text = text))}
 
 write <- function(dat, name)
 {
-  write.csv(as.data.frame(dat), file = name) 
+  write.csv(as.data.frame(dat), file = paste0("Exported Files/", name)) 
   ## as.data.frame is necessary to get the date index out of the xts
 }
 
