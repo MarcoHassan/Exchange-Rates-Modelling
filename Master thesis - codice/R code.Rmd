@@ -1128,20 +1128,30 @@ u <- na.trim(cbind(data$rwPred1_JPUS, data$varPred1_JPUS, data$strPred1_JPUS))
 n<-dim(u)[1]
 perf<-matrix(NA,n,3)
 
+### Adjust length of perf for dac if you want compute it.
+
 for (j in 1:3)
 {
+  #perf[,j]<- na.trim(
+  #                    sign( diff(tail(data$EX_JPUS[-nrow(data)], n), 
+  #                               lag=1) 
+  #                          ) == 
+  #                         sign( diff(u[,j], lag=1) )
+  #                   ) # DAC
   perf[,j]<- abs(tail(data$EX_JPUS[-nrow(data)], n)-u[,j]) #MAE
-  #perf[,j] <- abs(data$EX_JPUS-u[,j])^2 #MSE
+  #perf[,j] <- abs(tail(data$EX_JPUS[-nrow(data)], n)-u[,j])^2 #MSE
 }
 
-colMeans(perf) ## Perf is a matrix containing for each column the loss function of one forecasting method.
+#print(colMeans(perf, na.rm = T))
+## Perf is a matrix containing for each column the loss function per observation of one forecasting method. 
+## Taking the colMeans corresponds 1:1 to the tables above; notice however that here you work with Mean Square Error and NOT Root Mean Square Error.
   
 for (k in 1:3)
 {
   print(k)	
-  d<-rep(0,1000)
+  d<-rep(NA,1000)
   s<-1
-  for (i in 1:10)
+  for (i in 1:10) ## make 10 times 100 boots = 1000 the number of d specified above
   { 
   	#print(i)
      e<-spa(per=perf,column_benchmark_model=k,
