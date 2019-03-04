@@ -87,8 +87,9 @@ suspectFrequency <- function(x)
 
 # Perform a superior predictive ability check based on Hansen, 2005 JBES,
 # Subsequently it extract p-values for the spa with different benchmark models based 
-# on the bootstrap technique explaind by Hansen, Lunde, Nason - 2011 Econometrica -.
-# Based on the obtained p-values the MCS with confidence 1-a is inferred.
+# on the bootstrap technique explaind by Hansen in his paper.
+# Given the different p-values performed with each different benchmark model 
+# a model confidence set as in Hansen, Lunde, Nason - 2011 Econometrica - is easily obtained
 
 spa <-function(per=perf, column_benchmark_model, num_predmodels, number_predictions,q=0.25, iter = 1, periodogram=T) 
 {
@@ -104,6 +105,8 @@ spa <-function(per=perf, column_benchmark_model, num_predmodels, number_predicti
   
   #colMeans(d)
   
+  ## Below get a reasonable estimation for the standard deviation of the difference of the loss function.
+  
   w<-rep(0,num_predmodels-1)
   for (k in 1:(num_predmodels-1))
   {
@@ -114,11 +117,11 @@ spa <-function(per=perf, column_benchmark_model, num_predmodels, number_predicti
     }
     else if (periodogram==T)
     {
-      w[k]<-sqrt(spectrum(d[,k],plot=F)$spec[1])
+      w[k]<-sqrt(spectrum(d[,k],plot=F)$spec[1]) 
     }
   }
   
-  stat<-max(0,max(sqrt(number_predictions)*colMeans(d)/w))
+  stat<-max(0,max(sqrt(number_predictions)*colMeans(d)/w)) 
   
   #Bootstrap:
   
