@@ -1,0 +1,9 @@
+---
+title: "Generalized Additive Model Fit"
+output: html_notebook
+---
+
+
+==========================
+Generalized Additive Model
+==========================
