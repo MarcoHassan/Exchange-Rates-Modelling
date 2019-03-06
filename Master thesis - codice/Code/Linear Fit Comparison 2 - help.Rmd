@@ -14,7 +14,7 @@ source("0 - functions.R") ## for this section especially important is the SPA fu
 Import Data
 ===========
 ```{r}
-path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/linear_pred.csv"
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/level_linear_pred.csv"
 
 data <- read.csv(path)
 
@@ -30,15 +30,16 @@ In this section I will compare the performance of the different linear models in
 
 Plot the different out of sample forecasting fits
 ```{r}
-plot(tail(data$EX_CHUS, 50), ylab="Rates", main="Linear Estimators - 1 Lag Out of Sample", 
+plot(tail(data$EX_UKUS, 50), ylab="Rates", main="Linear Estimators - 1 Lag Out of Sample", 
      grid.col = NA, col = 1)
-lines(data$rwPred1_CHUS,col= 2, lwd = 2)
-lines(data$strPred1_CHUS, col = "orange", lwd = 2)
-lines(data$varPred1_CHUS, col = "yellow", lwd = 2)
-addLegend("topleft", on=1, 
-          legend.names = c("Original", "RW", "ARIMAX", "VAR"), 
+lines(data$rwPred1_UKUS,col= 2, lwd = 2)
+lines(data$strPred1_UKUS, col = "orange", lwd = 2)
+lines(data$varPred1_UKUS, col = "yellow", lwd = 2)
+lines(data$vecmPred1_UKUS, col = "salmon", lwd = 2)
+addLegend("bottomleft", on=1, 
+          legend.names = c("Original", "RW", "ARIMAX", "VAR", "VECM"), 
           lty=c(1, 1), lwd=c(2, 1),
-          col=c(1, 2, "orange", "yellow"))
+          col=c(1, 2, "orange", "yellow", "salmon"))
 ```
 
 
@@ -96,18 +97,18 @@ assign(paste0("numprediction", iLag), sum(
   
 }
 
-RMSE <- matrix(NA,3,3, 
-               dimnames = list( c("rw", "str", "var"),
+RMSE <- matrix(NA,4,3, 
+               dimnames = list( c("rw", "str", "var", "vecm"),
                c("CH", "JP", "UK") )
                )
 
-MAE <- matrix(NA,3,3, 
-               dimnames = list( c("rw", "str", "var"),
+MAE <- matrix(NA,4,3, 
+               dimnames = list( c("rw", "str", "var", "vecm"),
                c("CH", "JP", "UK") )
                )
 
-DAC <- matrix(NA,3,3, 
-               dimnames = list( c("rw", "str", "var"),
+DAC <- matrix(NA,4,3, 
+               dimnames = list( c("rw", "str", "var", "vecm"),
                c("CH", "JP", "UK") )
                )
 ```
@@ -122,7 +123,7 @@ errorFun <-
               jCol = 1
               for( country in c("CH", "JP", "UK") )
               {
-                for( method in c("rw", "str", "var") )
+                for( method in c("rw", "str", "var", "vecm") )
                 {
                   iRow = iRow + 1
                   
@@ -144,7 +145,7 @@ errorFun <-
                   
                   DAC[iRow, jCol] <- dacFun(actual_data, forecast_data, LAG)
                   
-                  if(iRow %% 3 == 0)
+                  if(iRow %% 4 == 0)
                   {
                     jCol = jCol + 1
                     iRow = 0

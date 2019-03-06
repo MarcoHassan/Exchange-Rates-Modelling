@@ -35,7 +35,7 @@ Data import
 
 ```{r}
 ## Insert your path here
-path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Exported\ Files/rawdata.csv"
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/rawdata.csv"
 
 data <- read.csv(path)
 
@@ -84,8 +84,6 @@ for(i in 1:ncol(data))
     par(mfrow = c(2,1))
   else if((i%%3 == 0) & !(i %in% c(18, 21)))
     par(mfrow = c(3,1))
-  else if (i == ncol(data) -3)
-    par(mfrow = c(2,2))
   plot(lis[[i]])
 }
 ```
@@ -104,8 +102,6 @@ for(i in 1:ncol(data))
     par(mfrow = c(3,1))
   else if((i%%3 == 0) & !(i %in% c(18, 21)))
     par(mfrow = c(3,1))
-  else if (i == ncol(data) -3)
-    par(mfrow = c(2,2))
   plot(lis[[i]])                  
 }
 ```
@@ -121,8 +117,6 @@ acf_plots <- function()
       par(mfrow = c(2,1), mar = c(4,3,4,2))
     else if((i%%3 == 0) & !(i %in% c(18, 21)))
       par(mfrow = c(3,1), mar = c(4,3,4,2))
-    else if (i == ncol(data) -3)
-      par(mfrow = c(2,2), mar = c(4,3,4,2))
     acf(na.trim(data[,i]), main = colnames(data[,i]))                 
   }
 }
@@ -142,8 +136,6 @@ Step 2: Choose detrending solution
 (iii) Use a moving average filter, this is a 'low pass' filter since it takes data and removes from it the rapidly fluctuating component  to leave the slowly varying estimated
 trend.
 
-Linear trend will provide to be ineffective for all of the times series.
-
 
 Perform detrending via differentiation
 ```{r}
@@ -162,8 +154,6 @@ for(i in 1:ncol(data)){
       par(mfrow = c(2,1), mar = c(4,3,4,2))
     else if((i%%3 == 0) & !(i %in% c(18, 21)))
       par(mfrow = c(3,1), mar = c(4,3,4,2))
-    else if (i == ncol(data) -3)
-      par(mfrow = c(2,2), mar = c(4,3,4,2))
   plot(lis[[i]])
 }
 ```
@@ -178,8 +168,6 @@ for(i in 1:ncol(data))
     par(mfrow = c(2,1), mar = c(4,3,4,2))
   else if((i%%3 == 0) & !(i %in% c(18, 21)))
     par(mfrow = c(3,1), mar = c(4,3,4,2))
-  else if (i == ncol(data) -3)
-    par(mfrow = c(2,2), mar = c(4,3,4,2))
   plot(lis[[i]])                  
 }
 ```
@@ -196,14 +184,14 @@ Result: Trade was a disaster. For the rest good improvement. Some adjustment sti
 
 Compute moving average smoother for Trade.
 ```{r}
-country <- c("JP", "CH", "UK", "US")
+country <- c("JP", "CH", "UK")
 
-par(mfrow = c(2,2), mar = c(4,4,4,2))
+par(mfrow = c(3,1), mar = c(4,4,4,2))
 for(i in country){
-          trend <- ma(data2[, paste0("T_", i)], 
+          trend <- ma(data2[, paste0("T_US", i)], 
                       order = 4, centre = T) ##moving average of quartal
-          data[, paste0("T_", i)] <- as.ts(data2[, paste0("T_", i)]) - trend
-          acf(na.trim(data[,paste0("T_", i)]), main = paste0("T_", i)) 
+          data[, paste0("T_US", i)] <- as.ts(data2[, paste0("T_US", i)]) - trend
+          acf(na.trim(data[,paste0("T_US", i)]), main = paste0("T_US", i)) 
          
 }
 ```

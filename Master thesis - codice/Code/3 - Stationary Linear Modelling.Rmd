@@ -36,7 +36,7 @@ Data Import
 
 ```{r}
 ## Insert your path here
-path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Exported\ Files/clean_stationary.csv"
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/clean_stationary.csv"
 
 data <- read.csv(path)
 

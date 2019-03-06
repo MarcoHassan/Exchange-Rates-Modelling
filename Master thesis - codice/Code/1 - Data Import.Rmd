@@ -296,9 +296,11 @@ The series to be created
 (iii) UN_US - UN_Foreign
 
 (iv)  CPI_US - CPI_Foreign
+
+(v) Cumulative Trade differential
 ```{r}
 ## as the series are already in log. just take the difference
-series <- c("TB", "M3", "UN", "M1", "CPI")
+series <- c("TB", "M3", "UN", "M1", "CPI", "T")
 for(i in series){
   country <-  c("CH", "JP", "UK") 
   for(j in country){
@@ -308,6 +310,19 @@ for(i in series){
   }
 } 
 ```
+
+Normalize the trade differential initial value to one for computational precision.
+```{r}
+for ( iCountry in c("CH", "JP", "UK") )
+{
+  data2[, paste0("T_US",  iCountry)] <- data2[, paste0("T_US",  iCountry)] /
+                                        data2[1, paste0("T_US",  iCountry)]
+}
+## this step is advisable to avoid swamping because of the very high values of the trade balance sheet differentials
+
+## Important you normalized with a negative number and accordingly the coefficient of the subsequent regression will be of inverted sign.
+```
+
 
 Convert back to xts
 ```{r}
@@ -319,7 +334,7 @@ clean()
 
 Keep just the series of interes
 ```{r}
-data <- cbind(data[,27:ncol(data)], data[,1:3], data[,19:22])
+data <- cbind(data[,27:ncol(data)], data[,1:3])
 ```
 
 Write the data

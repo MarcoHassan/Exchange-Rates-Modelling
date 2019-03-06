@@ -136,7 +136,7 @@ spa <-function(per=perf, column_benchmark_model, num_predmodels, number_predicti
       tau[i]<-(as.integer(number_predictions*runif(1))+1)*(s<q)+((tau[i-1]<number_predictions)*tau[i-1]+1)*(s>=q)
     }
     
-    d.boos<-d[tau,] ## select the bootstrapped difference in the loss function. Understand better how the tau is computed.
+    d.boos<-d[tau,] ## select the bootstrapped difference in the loss function.
     
     e<-d
     for (k in 1:(num_predmodels-1))
