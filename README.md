@@ -35,6 +35,8 @@ Step 3: ARIMAX
 
 ## Out of Sample Performance:
 
+#### In detrended and seasonally adjusted series
+
 Step 1: Plot the different predictions to get a feeling of the model
 
 ![image](https://user-images.githubusercontent.com/42472072/53882217-689fa400-401e-11e9-9ae9-d06cb6e15cd4.png)
@@ -42,4 +44,9 @@ Step 1: Plot the different predictions to get a feeling of the model
 Step 2: Compute statistics for different distance measures from the realizations
 
 Step 3: Perform an analysis of the predictive power using the Diebold Mariano test
+
+
+#### In levels, with cointegration analysis and VECM
+
+![image](https://user-images.githubusercontent.com/42472072/53899331-a44c6500-4042-11e9-95f6-7cbecded3982.png)
 
