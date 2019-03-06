@@ -37,7 +37,7 @@ Step 3: ARIMAX
 
 Step 1: Plot the different predictions to get a feeling of the model
 
-![image](https://user-images.githubusercontent.com/42472072/53584536-7d96b600-3b8c-11e9-88c7-c08d1f3e9d38.png)
+![image](https://user-images.githubusercontent.com/42472072/53882217-689fa400-401e-11e9-9ae9-d06cb6e15cd4.png)
 
 Step 2: Compute statistics for different distance measures from the realizations
 
