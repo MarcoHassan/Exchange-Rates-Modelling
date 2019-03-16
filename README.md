@@ -48,5 +48,5 @@ Step 3: Perform an analysis of the predictive power using the Diebold Mariano te
 
 #### In levels, with cointegration analysis and VECM
 
-![image](https://user-images.githubusercontent.com/42472072/53899331-a44c6500-4042-11e9-95f6-7cbecded3982.png)
+![image](https://user-images.githubusercontent.com/42472072/54478942-b4252f80-4820-11e9-8b5f-d67a502dac88.png)
 
