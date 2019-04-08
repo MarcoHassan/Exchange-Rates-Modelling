@@ -1,0 +1,33 @@
+\section{Dataset}
+\label{sec:part1}
+
+The dataset, comprehensively discussed in Appendix A \ref{app:A} consists of
+monthly observations for a 21 years time frame ranging
+from January 1986 to January 2007.
+All the times series of use are selected from the FRED database
+in accordance with the underlying monetary
+structural models and are consistent with the series first utilized by
+Meese and Rogoff (1983a, \cite{MeeseRogoffa}).
+As in our reference papers we decided to work using not seasonally
+adjusted times series in order to avoid the possible bias introduced by different seasonal
+adjustments on the structural parameters documented in Sims (1973a and 1973b, \cite{Simsa, Simsb}).
+Henceforth we decided to approach our model validation in two different ways fitting the models
+on seasonal adjusted and detrended times series and on untreated times series in levels.
+This will of course have important consequences for the interpretation of the model results.
+While detrended and seasonally adjusted stationary times series will allow an interpretability
+of the results the latter is not guaranteed for the not treated times series where spurious regressions
+might arise distorting the model interpretation. Given the fact, that the goal of this work
+is nonetheless a reliable forecast of FX-rates rather than the identification of the causal
+relation between macroeconomic variables and FX-rates an analysis of the series in levels is
+ultimately interesting for the analysis and will yield superior results in comparison to treated times
+series as in Meese and Rogoff (1983a, \cite{MeeseRogoffa}).
+With respect to the times series adjustments we proceeded by detrending the series at first exploring three
+different possibilities. Firstly detrending via differentiation, secondly detrending through a
+linear time trend and thirdly detreding through a moving average filter. Detrending through differencing
+provided to be the most effective compared to linear detrending due to the quadratic behaviour displayed by
+the series. This approach was therefore applied to all of the series but the current account balance
+differentials, where the particular monotonic behaviour of the series required a moving average
+filter able to separate the rapidly fluctuating component of the series from the slow varying component.
+The obtained mean stationary series were consequently inspected for the presence of seasonality and appropriately
+differenciated to the point where no significance was found for seasonal units roots according to the methods
+proposed in Canova and Hansen (1995, \cite{CanovaHansen}) and in Wang and Smith (2006, \cite{WangSmith}).

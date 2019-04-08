@@ -1,0 +1,171 @@
+\section{Methodology}
+\label{sec:part2}
+
+\subsection{Modeling Approach}
+\label{sub:models}
+
+\subsubsection{Structural Model}
+
+The basic structural model encompassing all of the different monetary models
+discussed in the introductory session is of the following form:
+
+\begin{equation} \label{eq:structural}
+  s = \beta_{0} + \beta_{1}(m - m^{*}) + \beta_{2}(y-y^{*}) + \beta_{3}(r-r^{*})
+  + \beta_{4}(\pi - \pi^{*}) + \beta_{5}(TB - TB^{*}) + \varepsilon
+\end{equation}
+
+where $s$ represents the logarithm of the indirect quote of FX-rates, i.e. the
+foreign exchange value of a dollar unit, $m-m^{*}$ represents the logarithm of
+the U.S. and foreign country money mass supply differential, $y-y^{*}$ the logarithm
+of the U.S. and foreign GDP level, $r-r^{*}$ the short term U.S. forign country
+interest rate differential, $\pi - \pi^{*}$ the U.S. and foreign country inflation
+rate differential, $TB - TB^{*}$ the U.S. foreign country current account differential
+normalized to be one at the beginning of the sample period and finally where
+$\varepsilon$ represents the error term of the regression capturing all of the
+other factors not expressed in the model.\\
+The model above encompasses all of the monetary models discussed. In the specific
+the most basics monetary model, the Frenkel-Bilson model logically inferred from
+the PPP proposition assumes $\beta_{4} = \beta_{5} = 0$. The Dornbusch model allowing
+a sluggish price adjustment behaviour and predicting FX-overshooting
+assumes $\beta_{5} = 0$ and finally the Hooper-Morton model poses no restriction on
+the coeffcients of equation \ref{eq:structural}. Such a structural model will consequently
+be estimated allowing for four different parametric models of interest, which will be discussed next.
+
+\subsubsection{Univariate Models}
+\label{sub:univariate}
+
+The most basic model that will be tested is an OLS model as in the benchmark papers of Meese
+and Rogoff (1983a, 1983b, \cite{MeeseRogoffa, MeeseRogoffb}). In this basic first model the
+coefficients of equation \ref{eq:structural} will be computed without looking at any lagged effect.
+In contrast to it a second more flexible model will be applied to capture possible lagged effects
+of the macroeconomics fundamentals. In comparison to the Meese and Rogoff papers where the authors decided
+to capture the possibility of lagged terms by incorporating autoregressive models giving a higher
+importance on more recent observations we decided to apply the transfer function models widely spread in
+the fields of engineering such as control systems and electronic circuits. These models have been poorly
+discussed in the field of economics with the exception of Tustin (1957, \cite{Tustin}) that tried to
+make the point for applying the models into the economics modeling field.\\
+Transfer function models relates a given set of inputs to an output variable through the following general formula
+
+\begin{equation} \label{eq:transfer}
+  Y_{t} = \mu + \frac{(\omega_{0}+\omega_{1}B^{1}+\dots+\omega_{s}B^{s})}{1-\delta_{1}B^{1}-\dots-\delta_{r}B^{r}}X_{t-b} + \varepsilon_{t}
+\end{equation}
+
+where $X$ represent a matrix of exogenous terms, $\mu$ the optional term modeling the mean of the series and
+$\varepsilon$ the non-captured variation in the series. Moreover the above ratio represents the transform
+function of the regressors matrix and is especially caracterized by the order of the denominator and
+nominator terms. $r$, the order of the denominator term, expresses the rate of the decay pattern, where
+a higher term indicates a slower decay.  $s$, the order of the denominator term, expresses the persistence of
+so called unpatterned spikes, that is the persistence of effects that are not captured in the decay pattern.
+Finally, the $b$ teerm in the matrix of input represent the dead time, that is the time it takes for the dependent
+variable to react to some changes in the input matrix. This is of primary importance as it might very well be
+that some shift in macroeconomics fundamentals just start to display effects after a certain amount of time when
+the economics actors start to perceive the change.\\
+Due to the flexible nature of the latter model, we believe that it is better suited and preferrable to
+capture the true distributed lags present in the structural model of equation \ref{eq:structural} compare with
+the smoothed autoregressive model applied by Meese and Rogoff with the arbitrarly chosen smoothing
+term of 0.95 (See Meese and Rogoff (1983a pp. 7, \cite{MeeseRogoffa})).
+
+
+\subsubsection{Multivariate Models}
+The above discussed models rely on the exogeneity of the independent variables. If the assumption
+fails the model will be biased and would lead to misleading conclusion as the independence of the
+sample distribution would not be guaranteed. In practice this poses an issue for the estimation
+of the structural model of equation \ref{eq:structural}. While some variables as the monetary
+mass and the output gap are commonly treated as exogenous variables in the underlying monetary models
+the practice suggest that such macroeconomic variables might very well be influenced by the
+movements of FX-rates. On the top of it other variables such as short term interest rates differentials
+are treated as endogenous even in the underlying monetary models and therefore require a different estimation
+compared to the one outlined in the models of the previous section.\\
+To obviate the above issues Meese and Rogoff (1983a and 1983b, \cite{MeeseRogoffa, MeeseRogoffb}) analyzed the structural model
+of interest through a vector autoregressive model firstly introduced by Sims (1980, \cite{Sims1980}).
+In the general case the model consists of a system of equations of the form
+
+\begin{equation} \label{eq:VAR}
+y_{t} =  \Phi_{0}+ \Phi_{1}y_{t-1} + \Phi_{2}y_{t-2} + \dots + \Phi_{n}y_{t-n} + \varepsilon_{t}
+\end{equation}
+
+where $y$ is a vector containing the endogenous variables of interest, $\Phi_0$ is a vector of constant,
+$\Phi_1,  \dots  , \Phi_n$ are matrices describing the effect of lagged endogenous variables on the levels of
+the current variables and $\varepsilon$ captures the equations specific error term.
+The resulting model will model the endogeneity present in the monetary structural model allowing a consistent
+OLS estimation as far as the error terms of the equations will be uncorrelated.
+\\
+Despite the described vector autoregressive model well manages to model the endogeneity of macroeconomic
+variables we question whether a restricted form of it could yield more efficient and reliable estimates capturing
+the FX-rates and the monetary models relation. This is especially motivated by the cointegration theory developed
+by Engle and Granger (1987, \cite{EngleGranger}) and the well known evidence of non stationary macroeconomics
+times series \footnote{See for instance Gil-Alana and Robinson (1997, \cite{GilAlanaRobinson})}. This is especially
+important given the demonstrated evidence of Phillips (1986, \cite{Phillips}) that set down the theoretical fundamentals
+showing that parameter estimates of cointegrated series will not converge in probability and will not converge to any
+non-degenerate distribution in the asymptotic case if the case of a misspecified OLS estimate as potentially equation \ref{eq:VAR}.
+\\
+We propose therefore a test for cointegration among the macroeconomics series based on Johansen (1991, \cite{Johansen})
+and we consequently propose a vector error correction model of the form
+
+\begin{align}
+  \Delta y_t =& \ \Pi y_{t-1} + \sum^{p-1}_{i=1} \Phi^{*} \Delta y_{t-i} + \varepsilon_t \nonumber\\
+  \Phi^{*} =& \ - \sum^{p}_{i=j+1} \Phi_i, \ \  j = 1, \dots, p-1 \label{eq:VECM}\\
+  \Pi =& \ -(I - \Phi_1 - \dots - \Phi_p) \nonumber\
+\end{align}
+
+where $\Pi y_{t-1}$ of equation \ref{eq:VECM} represent the error correction term and $y_i$ and $\Phi$
+refer to the variables described in the unrestricted vector autoregressive model of \ref{eq:VAR}.
+
+\subsection{Forecasting Approach}
+
+The four described models described above will be validated by looking at their ability to
+forecast FX-rates out of sample. In this sense the 245 observations sample is splitted in
+a training and validation sample. Three fourth of the total observations will be used for
+training the four models outlined above at first. In comparison to Meese and Rogoff
+(1983b, \cite{MeeseRogoffb}) we will not try any restricted estimation based on the theoretical
+monetary models literature but will rather estimate unrestricted versions for all of the models
+outlined with the exception of the vector error correction model described in \ref{eq:VECM}, given
+the by product VAR model restriction imposed by the latter.\\
+All of the four different models will be estimated according to the most general structural model
+described in \ref{eq:structural} without restrictions. Based on the estimation results augmented
+Mincer-Zarnowitz tests first presented in Mince and Zarnowitz (1969, \cite{MincerZarnowitz})
+will be estimated in order to check whether there is evidence in the sample to consider
+restricted monetary models. 
+
+Based on the first estimation we proceeded by calculating the out of sample performance of the
+different models applying a rolling forecast in analogy to the benchmark papers. This will consist
+of a reestimation of the four outlined models for each new forecasting point. Given the decision
+to estimate the out of sample model performance at one, three, six and twelve months lags the above
+corresponds of a model reestimation at such frequencies. Important is nonetheless to underline how
+the results of the Mincer-Zarnowitz tests will be extended for each of the subsequent models applied
+in the rolling forecast. This means that given statistical significant evidence for the Null of a
+restricted hypothesis in the first three fourth of the sample the same restricted model will be used for
+subsequent model estimations. \\
+Finally, as in the benchmark papers, we will allow the univariate models
+described in \ref{sub:univariate} a richer set of information compared to the random walk.
+In the specific while the random walk and the multivariate model will use the $\mathscr{F}_{t-1} = {F_0, \ \dots, \ F_{t-1}}$
+information set, where $F_i$ represent a set containing all of the available information at timepoint $i$.
+By contrast the univariate models will dispose of $\mathscr{F}_t \setminus s_t$, where $s_t$ represents
+the FX-rate at time point t.
+In simple terms this means that we are going to give the univariate models the vantage of using the actual realizations of
+macroeconomics variables at timepoint $t$ for estimating the FX-rates at the corresponding time period without the need
+of estimating them.
+
+\textbf{explain SPA and MCS tomorrow}
+
+
+\section{Note}
+While the forecasts generated in this study are based on models with
+freely-estimated coefficients, elsewhere [Meese and Rogoff (1983)] we try
+forecasting with the structural models using a grid of coefficient constraints
+drawn from the theoretical and empirical literature on money demand and
+purchasing power parity.
+
+\section{Why MAE?}
+A possible problem with all the techniques listed thus far is that they
+minimize criteria based on squared deviations. These type of criteria are
+inappropriate if, for example, exchange rates follow non-normal stable-
+Paretian distributions with infinite variance, as suggested by Westerfield
+(1977).
+
+\section{times series without adjustments}
+While the relative performance of the six univariate forecasting techniques
+is of interest in itself, we shall only report detailed results for the long AR
+model without trend, seasonal adjustment, or differencing. This model's
+performance characterizes those of the best univariate models; we will discuss
+the results of the other univariate models only to a lesser degree.

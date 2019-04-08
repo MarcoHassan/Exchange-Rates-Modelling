@@ -54,11 +54,11 @@ GDP
 
 GDP is an aggregated statistic that is published on a quarterly basis. You can use monthly proxies. Electricity consumption? Industrial production? <-> this is normalized to 100. Is that good?
 
-Unemployment not good. Does not capture the size of an economy. Here it will be important.
+Unemployment not good. Does not capture the size of an economy. Here it will be important but it will be nonetheless incorporated throught the constant.
 ```{r}
 ## use industrial production? 
 ## use unemployment rate. This approach preferred
-Symbols <- c("LRUN64TTUSM156N", "LRUN64TTJPM156N", "LMUNRRTTCHM156N", "LMUNRRTTGBM156N") #F not seasonally adjusted.
+Symbols <- c("LRUN64TTUSM156S", "LRUN64TTJPM156S", "LMUNRRTTCHM156S", "LMUNRRTTGBM156S") #F not seasonally adjusted.
 
 UNply <- get_Symbols(Symbols)
 
@@ -191,7 +191,9 @@ data <- merge.xts(FX, bills, CPI, M1, M3, Trade, UNply) ##dagli anni '90 al 2005
 
 
 
-data <- data["1990-01-01/2006-02-01"] ## extract a complete dataset without NA; notice if you run the analysis with M1 you have complete data until 2013.
+data <- data["1986-09-01/2007-01-01"] ## extract a complete dataset without NA; notice if you run the analysis with M1 you have complete data until 2013.
+
+## with M3 1990-01-01/2006-02-01
 
 length(data[,1]) ## 194 observations per ts
 

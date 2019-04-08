@@ -10,6 +10,9 @@ Libraries used
 
 library(stringr) ## to make use of regular expressions to parse strings
 
+## To perform the adf.test
+library(tseries)
+
 ## For applying Johansen test for cointegration
 library(urca)
 
@@ -48,8 +51,11 @@ for(country in c("CH", "UK", "JP"))
 {
   assign(paste0("interest", country), 
          !str_detect(colnames(data), paste0("^M1+\\D", country)) & ## with M3
-          str_detect(colnames(data), paste0("\\D", country)))
+         str_detect(colnames(data), paste0("\\D", country))
+        )
 }
+
+## Notice that if you perform the above just with the CPI, EX and M1 you find 2 cointegrated vectors at very high significance lag. This means that EX is indeed part of the cointegration relation. 
 ```
 
 In sample - Three fourth of the dataset
@@ -62,7 +68,7 @@ Johansen cointegration test
 ```{r}
 ## transform in data frame to iterate over
 data2 <- as.data.frame(data)
-#data2 <- as.ts(data2, start = index(data)[1], end = tail(index(data),1), frequency = 12)
+
 for(interest in c("interestJP", "interestCH", "interestUK"))
 {
   coint <- ca.jo(data2[1:three_fourth,eval(parse(text=interest))], ecdet = "none", type = "trace")
