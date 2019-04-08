@@ -37,6 +37,9 @@ library(TSA)
 ## To make use of SQL queries
 library(sqldf)
 
+## To set up the generalized tree structured model
+library(partykit)
+
 ## Import self defined functions
 source("0 - functions.R")
 ```
@@ -49,7 +52,8 @@ clean <- function()
   ll <- ls(envir = ENV)
   ll <- ll[!(ll %in% c("data", "clean", "import", "write", "evalue", "acf_plots",
                        "adfTest", "seasonality", "suspectFrequency", "spa",
-                       "logLikelihood"))]
+                       "logLikelihood", "partitionSpace", "fork", "bestFit", "GTS",
+                       "prunedTree", "GTSEstimate", "createTree", "AICcSmall"))]
   rm(list = ll, envir = ENV)
 }
 ```
@@ -67,9 +71,6 @@ data <- read.csv(path)
 data <- as.xts(data[,-1], order.by = as.Date(data[,1]))
 ```
 
-
-ADD nonlinear BDS test?? -> notice minimum sample size suggested ~ 500.
-
 ==========================
 Tree Structured Estimation
 ==========================
@@ -78,6 +79,8 @@ Create the partitioned space of exogenous regressors.
 
 From Audrino Paper: Typically, we fix the empirical quantiles as a = i/mesh, i =
 1,...,mesh - 1, where mesh determines the fineness of the grid on which we search for multivariate thresholds. Typically, we choose mesh = 8 (I chose 4, my choice is first and foremost motivated by the fact that the small sample size does not allow to have to small partitions for obvious estimation issues.)
+
+
 
 Get exogenous variables for each of the series of interest
 ```{r}
@@ -92,15 +95,12 @@ for(country in c("CH", "UK", "JP"))
 
 Start to implement the model for CH-US
 ```{r}
-exogen <- data[,interestCH]
+exogen <- data[,interestUK]
+exogen$Time <- c(1:nrow(exogen))
+exogen <- exogen[,c(6,1,3,2,4,5)]
 
-partitioned_space <- matrix(NA, ncol(exogen) , 5)
-
-rownames(partitioned_space) <- colnames(exogen)
-
-partitioned_space <- t(sapply(exogen, quantile, probs = seq(0,1, 1/4)))
-
-partitioned_space <- partitioned_space[, c(-1, -5)]
+three_fourth <- round(3/4 * nrow(exogen))
+insample <- exogen[1:three_fourth,]
 ```
 
 ==========================
@@ -109,288 +109,177 @@ Estimate the general model
 
 Use OLS as the benchmark model. 
 
-General Model
-```{r}
-global <- arimax(exogen[,6], xreg = exogen[,-6]) 
-
-print("Coefficients of OLS model")
-global$coef
-
-print("AIC for global OLS model")
-global$loglik
-```
-
-Partition the sample
-```{r}
-exogen <- as.data.frame(exogen)
-
-part_right <- sqldf(sprintf("SELECT * 
-                             FROM exogen 
-                             GROUP BY TB_USCH 
-                             HAVING TB_USCH > %f", partitioned_space[1,2]))
-
-part_left <- sqldf(sprintf("SELECT * 
-                            FROM exogen 
-                            GROUP BY TB_USCH 
-                            HAVING TB_USCH <= %f", partitioned_space[1,2]))
-
-## Check that the minimum number of observations for the safe estimation of the OLS model is guaranteed after partitioning.
-if( nrow(part_right) < 50 ||  nrow(part_left) < 50 ) 
-{
-  warning(sprintf("One Partition containes less than 50 observations [i.e. %d obs.]",
-                  min(nrow(part_right), nrow(part_left))
-                  )
-          )
-}
-
-## Due to the additive nature of the log likelihood measure you can compute the log likelihood of the general tree structured model as the sum of its single elements.
-
-## Create matrix to compute the likelihood of the partitioned mmethods.
-
-Log_likelihood <- arimax(part_right[,6], xreg = part_right[,-6])$loglik + arimax(part_left[,6], xreg = part_left[,-6])$loglik
-
-## Keep just the highest log likelihood model. ==> Not good because of pruning later. 
-Log_likelihood
-
-## Prova 
-estimator <- as.matrix(cbind(rep(1, nrow(exogen)),exogen[,-6])) %*% global$coef
-
-error <- exogen[,6] - estimator
-
-logLikelihood(error)
-
-## Compute likelihood of newly estimated data
-right <- arimax(part_right[,6], xreg = part_right[,-6])$residuals 
-
-left<- arimax(part_left[,6], xreg = part_left[,-6])$residuals
-
-ress <- as.data.frame(c(right, left))
-
-logLikelihood(ress)
-```
-
-## Bakery Algorithm
-```{r}
-  Entering: array [1..NUM_THREADS] of bool = {false};
-  Number: array [1..NUM_THREADS] of integer = {0};
-
-lock <- function(i) 
-{
-      Entering[i] = true;
-      Number[i] = 1 + max(Number[1], ..., Number[NUM_THREADS]);
-      Entering[i] = false;
-      for (integer j = 1; j <= NUM_THREADS; j++) 
-      {
-          ## Wait until thread j receives its number:
-          while (Entering[j]) 
-            {  } ##nothing
-          
-          ## Wait until all threads with smaller numbers or with the same
-          ## number, but with higher priority, finish their work:
-          while ((Number[j] != 0) && ((Number[j], j) < (Number[i], i))) 
-            { } ##nothing
-      }
-}
-  
-  unlock(integer i) {
-      Number[i] = 0;
-  }
-
-  Thread(integer i) {
-      while (true) {
-          lock(i);
-          // The critical section goes here...
-          unlock(i);
-          // non-critical section...
-      }
-  }
-```
-
-
-```{r}
 ## Algorithm
 
-# For each partition break just keep the highest likelihood function and save the structure of the partition. 
+```
+(i) For each partition break just keep the highest likelihood function and save the structure of the partition. 
 
-# Iterate until you reach the highest number of partitions that has to be prespecified by the user.
+(ii) Iterate until you reach the highest number of partitions that has to be prespecified by the user.
 
-# Prune using Information criteria. 
+(iii) Prune using Information criteria. 
 ```
 
-## Functions just for the first partition. Then not. This is because subsequentially the variable to be partitioned must be adjusted.
-
-Implement the algorithm
+Run the GTS
 ```{r}
-Log_likelihood <- global$loglik
-mPartition <- 0
+## Calculate computation time
+# a <- system.time(GTS(insample, max_Partition = 5))
 
-while (mPartition < 1)
+# a[3] * 48 (out of sample observations) -> takes around 13 min. to run recompute the model at each step.
+
+```
+
+Create Tree
+```{r}
+## Define break structure and models.
+suppressMessages( GTS(insample, max_Partition = 5) )
+
+newdata <- cbind(1, exogen[147,-ncol(exogen)])
+
+if(is.null(max_lik2))
 {
-  ## Take from Bakery Algorithm.
-  number = 
-  ## Create data to be analyzed for partitioning
-  data <- ## to specify
-    
-    ## first partition
-    ## data1 <- exogen
-    
-    ## second partition has to be <50% CPI and, then  >50%CPI
-    ## data2a <- sqldf(
-    ##                        sprintf(  "SELECT * 
-    ##                                   FROM data1 
-    ##                                   GROUP BY %s 
-    ##                                   HAVING %s > %f", 
-    ##                                opt_variable, 
-    ##                                opt_variable,
-    ##                                partitioned_space[opt_variable,opt_break]
-    ##                                )
-    ##                        )
-  
-    ## second partition has to be <50% CPI and, then  >50%CPI
-    ## data2b <- sqldf(
-    ##                        sprintf(  "SELECT * 
-    ##                                   FROM data1 
-    ##                                   GROUP BY %s 
-    ##                                   HAVING %s <= %f", 
-    ##                                opt_variable, 
-    ##                                opt_variable,
-    ##                                partitioned_space[opt_variable,opt_break]
-    ##                                )
-    ##                        )
-  
-    ## If you will mange to make it sequentially in the loop from data2a and data2b just one     ## winner, call it data2. From here on iterable
-  
-      ## third partition
-    ## data3a <- sqldf(
-    ##                        sprintf(  "SELECT * 
-    ##                                   FROM data2 
-    ##                                   GROUP BY %s 
-    ##                                   HAVING %s > %f", 
-    ##                                opt_variable, 
-    ##                                opt_variable,
-    ##                                partitioned_space[opt_variable,opt_break]
-    ##                                )
-    ##                        )
-  
-    ## third partition 
-    ## data3b <- sqldf(
-    ##                        sprintf(  "SELECT * 
-    ##                                   FROM data2 
-    ##                                   GROUP BY %s 
-    ##                                   HAVING %s <= %f", 
-    ##                                opt_variable, 
-    ##                                opt_variable,
-    ##                                partitioned_space[opt_variable,opt_break]
-    ##                                )
-    ##                        )
-  
-    ## So what you need is how to make sequentially data2a and data2b
-    
-    ## third partition has to be (made up) <50% CPI, and then >50%CPI and <25% mucca and then 75% mucca.
-    
-  ## create waiting loop. for left partition.
-  
-  for (iVariable in c(1:nrow(partitioned_space)))
-  {
-    
-    for(jBreak in c(1:ncol(partitioned_space)))
-    {
-        exogen <- as.data.frame(exogen)
-  
-        part_right <- sqldf(
-                            sprintf(  "SELECT * 
-                                       FROM exogen 
-                                       GROUP BY %s 
-                                       HAVING %s > %f", 
-                                    rownames(partitioned_space)[iVariable], 
-                                    rownames(partitioned_space)[iVariable],
-                                    partitioned_space[iVariable,jBreak]
-                                    )
-                            )
-        
-        part_left <- sqldf(
-                            sprintf("SELECT * 
-                                    FROM exogen 
-                                    GROUP BY %s 
-                                    HAVING %s <= %f", 
-                                    rownames(partitioned_space)[iVariable], 
-                                    rownames(partitioned_space)[iVariable],
-                                    partitioned_space[iVariable,jBreak]))
-        
-        ## Check that the minimum number of observations for the safe estimation of the
-        ## OLS model is guaranteed after partitioning.
-        if( nrow(part_right) < 50 ||  nrow(part_left) < 50 ) 
-        {
-          warning(
-                sprintf(
-                        "One Partition containes less than 50  observations [i.e. %d obs.]",
-                        min(nrow(part_right), nrow(part_left))
-                        )
-                  )
-        }
-        
-        ## Compute the likelihood measure for the model an keep the model just if it imporved compared to the current benchmark model.
-        exogen <- as.xts(exogen, order.by = index(data), frequency = 12)
-        
-        # Obtain residuals for the partitioned model:
-        ress <- as.data.frame(c(arimax(part_right[,6], xreg = part_right[,-6])$residuals, 
-                                arimax(part_left[,6], xreg = part_left[,-6])$residuals))
-        
-        # Compute Likelihood for the model:
-        part_logLik <- logLikelihood(ress)
-        
-        
-        ## Keep just the highest log likelihood model. ==> Not good because of pruning later. 
-        if(part_logLik > Log_likelihood)
-        {
-          sprintf("Old Likelihood: %f", Log_likelihood)
-          
-          Log_likelihood <- part_logLik
-          
-          sprintf("New Likelihood: %f", Log_likelihood)
-          
-          opt_variable <-  rownames(partitioned_space)[iVariable]
-          
-          opt_break <- colnames(partitioned_space)[jBreak]
-        }
-        
-    }
-    
+  if(newdata[, max_lik1$optVar] > max_lik1$optBreak)
+  {newdata %*% max_lik1$right_model} else{
+    newdata %*%  max_lik1$left_model
   }
+
+} else{
+  ## Save structure and results in a formatted way.
+  createTree(iterate = max_Partition, plot = T) ## to plot without pruning
   
-  print(sprintf("For partition %d the optimal break is at break %s of the variable %s", 
-        mPartition, opt_break, opt_variable))
+  ## Pruning via AICc
+  best_Partition <- prunedTree()
+  createTree(iterate = best_Partition)
   
-  mPartition = mPartition + 1;
+  ## Out of Sample Forecast
+  GTSEstimate(newdata)
+}
+
+```
+
+## fai il plot degli split points sulle variabli
+(idea pag 14)[https://cran.r-project.org/web/packages/party/vignettes/party.pdf] 
+
+
+==================
+Rolling Estimation
+==================
+
+Add GTS prediction
+```{r}
+## trasform to data-frame to add columns
+data2 <- as.data.frame(data)
+## create prediction columns
+for(iPred in c(1,3,6,12)) 
+  { 
+    country <- c("JP", "UK", "CH")
+    for(jCountry in country)
+    {
+    data2[, paste0("GTSPred" , iPred, "_", jCountry, "US")] <- NA
+    }
+  } 
+```
+
+Get exogenous variables for each of the series of interest
+```{r}
+## get exogenous parameters
+for(country in c("CH", "UK", "JP"))
+{
+  assign(paste0("interest", country), 
+          str_detect(colnames(data2), paste0("\\D", country)) & 
+         !str_detect(colnames(data2), "^rw|^str|^var|^vecm|^GTS|^M1")) ## With M3
 }
 ```
 
-First Partition
 ```{r}
-exogen <- as.data.frame(exogen)
-
-part_right <- sqldf(
-                    sprintf(  "SELECT * 
-                               FROM exogen 
-                               GROUP BY CPI_USCH 
-                               HAVING CPI_USCH > %f",
-                            partitioned_space["CPI_USCH","50%"]
-                            )
-                    )
-
-part_left <- sqldf(
-                    sprintf(
-                            "SELECT * 
-                             FROM exogen 
-                             GROUP BY CPI_USCH 
-                             HAVING CPI_USCH <= %f",
-                           partitioned_space["CPI_USCH","50%"]
-                           )
-                  )
+## in sample observations
+three_fourth <- round(3/4 * nrow(data))
+st <- three_fourth;
 ```
 
-## Now same algorithm as before. So you can write a function with one data function.
-## Just at the end you have to make sure you compare the likelihood between the two nodes and choose the node with the highest.
+## devi rimuovere tutti i max_lik dall global
+
+Open File where to redirect messages of the GTS fit. This will subsequently be used to generate descriptive statistics about the average numbers of splits, variables of splits. In which partitions? Etc.
+```{r}
+fileout <- file("GTS_out.txt", open = "wt")
+
+sink(file = fileout, append = T, type = "message")
+
+message("test daoo")
+
+isOpen(fileout)
+
+zz <- file("test.txt")
+sink(zz ,type = "output")
+sink(zz, type = "message")
+print("using print")
+cat("using cat\n")
+message("using message")
+warning("using warning")
+
+sink(NULL, type="output")
+```
+
+
+Rolling Prediction OLS
+```{r}
+for( LAG in c(1) ) 
+{
+  for( country in c("UK", "JP") )
+  {  
+    data3 <- data2[, get(paste0("interest", country))]
+    data3 <- as.xts(data3, order.by = as.Date(index(data3)))
+    
+    iteration = 0
+    
+    for( iRow in 1:(nrow(data2)-st) )
+    {
+      iteration = iteration + 1
+      
+      beg <- 1 + (iRow-1)
+      end <- st + (iRow -1)
+      xshort <- data3[beg:end, ]
+      
+      ## Out of Sample Forecast
+      beg <-  st + iRow
+      end <- (st +iRow)+(LAG-1)
+      xnew <- data3[beg:end, ]
+      print(xnew[, ncol(xnew)])
+      xnew <- cbind(1, xnew[, -ncol(xnew)])
+    
+      GTS(xshort, max_Partition = 5)
+
+      if(is.null(max_lik2))
+      {
+        if(xnew[, match(max_lik1$optVar, names(xshort))+1] > max_lik1$optBreak) 
+        {fcast1 <- xnew %*% max_lik1$right_model} else{
+          fcast1 <- xnew %*%  max_lik1$left_model
+        }
+      
+      } else{
+        ## Pruning via AICc
+        best_Partition <- prunedTree()
+        createTree(iterate = best_Partition)
+        
+        ## Out of sample
+        fcast1 <- GTSEstimate(xnew)
+      }
+      
+      ## Save the forecast
+      data2[st+(LAG-1)+iRow, 
+            paste0("GTSPred", LAG, "_", country, "US")] <- fcast1
+      
+      print(iteration)
+      print(fcast1)
+    }
+  }
+}
+```
+
+
+Write Data to csv
+```{r}
+write(data2, "level_GTS_pred.csv")
+```
 
 
 
