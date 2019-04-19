@@ -2,6 +2,6 @@
  "cointegration_test"
  (lambda ()
    (LaTeX-add-labels
-    "sec:part2"))
+    "sec:results"))
  :latex)
 

@@ -1,0 +1,217 @@
+\section{Empirical Results}
+\label{sec:results}
+
+\subsection{Univariate Models}
+
+The results for the univariate model fit are presented in table \ref{table:MAEunivariate}. As in Meese and Rogoff
+(1983a and 1983b, \cite{MeeseRogoffa, MeeseRogoffb}) we decided to report in the paper the results for the
+fit of the times series in levels and not for the detrended adjusted series as the latter
+performed generally worst compared to the first. 
+
+For all of the univariate models described in section \ref{sub:univariate} a Wald test assessing the empirical evidence
+for a restricted structural model was computed. While we do not find
+any evidence in the data supporting a restricted  structural model for the detrended and differentiated times series we find
+that the jointly Null of the Frenkel-Bilson model cannot be rejected on a 1\% confidence level for the OLS modeling FX-rates in levels.
+We decided therefore to estimate the out of sample performance for the OLS applying both the most
+general structural model and the Frenkel-Bilson model. 
+For the transfer function model described in \ref{eq:transfer} the rate of decay, the persistence term and the dead lag where estimated at each model
+estimation in the rolling forecast. The optimal lags for the terms above where selected minimizing the Akaike information criteria
+(See Akaike (1998, \cite{Akaike}). We found a compelling evidence for modeling the differentiated series with one term in the nominator
+capturing the effect of unexpected shifts in the independent variables and two terms in the denominator capturing the general
+high persistency of FX-rates movements through time.
+
+The results of table \ref{table:MAEunivariate} confirm the one of the general literature where an OLS model vastly underperforms a random walk
+in the out of sample forecast of FX-rate at all tested lags. This especially in the case of a restricted model that suggests that despite the strong
+uncertainty surrounding the necessity of the inflation differentials and current account movements in the sample, such variables are beneficial for estimating
+the FX-rates movements out of sample.
+
+In contrast, transfer function models performed much better in modeling FX-rates out of sample. While the model still underperforms a random walk in
+forecasting the FX-rates of the countries of interest at 1 month lag, the evidence at higher lags is rather mixed and it seems the two models equally
+performs in forecasting FX-rates out of sample. This is confirmed by the superior predictive test of Hansen (2005, \cite{HansenSPA}) and the
+bootstrap obtained p-value reported in parenthesis in table \ref{table:MAEunivariate} obtained by applying Hansen (2011, \cite{HansenMCS}).
+For all of the models the equal predictability hypothesis of the unrestricted and restricted OLS model is rejected with 5\% confidence.
+
+Two possible causes for such observations might exist. While on the one hand the increased
+forecast performance at higher lags might be explained by the different information set allowed to the two models as described in \ref{sub:forecast},
+on the other hand, the fact might be caused by an increasing importance of macroeconomic variables at explaining the long run behaviour
+of FX-rates movements.
+
+Finally, the Null of equal predictability of the random walk and the transfer function models in the superior predictability test could not be rejected
+with 10\% confidence. This suggests the random walk model as the best univariate model to fit FX-rates out of sample given its parsimonious computation
+power combined with a restricted information set compared to the transfer function model as discussed in \ref{sub:forecast}.
+
+We observe no systematic difference when looking at RMSE. The picture for the latter looks similar at all lags for all the models
+to the results obtained looking at the MAE. No particular important outliers in forecast errors seem to be of particular importance in the analysis.
+A final word is give to the directional accuracy measure defined as the average number of times the sign of the realized FX-rate difference is matched by
+an equivalent sign in the FX-rate forecast difference. The values for such statistics lies  between 0.5-0.7
+for all the frequencies and there seems not to be systematic differences among the models. Such realizations for the
+random walk model suggest a certain degree of momentum for FX-rates important to include in the models.
+
+\begin{table}[!h] % ! -> to insert at the bottom of a page.
+  \centering
+    \caption{Mean Absolute Error \textendash \ Univariate Models}
+  \begin{tabular}{llccc} % tells how you want the columns aligned.
+    \toprule
+    \multicolumn{5}{c}{Univariate Models}                      \\
+    \cmidrule(r){1-5}
+    Lag                           &   Model                                     &Switzerland  & United Kingdom  & Japan\\
+    \midrule
+    \multirow{4}{*}{MAE 1}        & \multicolumn{1}{l}{Random Walk}             &   0.0193 (0.503) & 0.0168 (0.506) & 0.0162 (0.506)\\
+                                  & \multicolumn{1}{l}{Transfer Function Model} &   0.0205 (0.119) & 0.0176 (0.128) & 0.0173 (0.228)\\ 
+                                  & \multicolumn{1}{l}{OLS - unrestricted}      &   0.0234 (0.031) & 0.0211 (0.053) & 0.0194 (0.192)\\
+                                  & \multicolumn{1}{l}{OLS - restricted}        &   0.1435 (0.000) & 0.1352 (0.002) & 0.0534 (0.000)\\
+    \\
+    \multirow{4}{*}{MAE 3}        & \multicolumn{1}{l}{Random Walk}             &   0.0390 (0.307) & 0.0330 (0.093) & 0.0291 (0.534)\\ 
+                                  & \multicolumn{1}{l}{Transfer Function Model} &   0.0384 (0.499) & 0.0341 (0.094) & 0.0280 (0.111)\\
+                                  & \multicolumn{1}{l}{OLS - unrestricted}      &   0.0603 (0.133) & 0.0443 (0.143) & 0.0497 (0.000)\\
+                                  & \multicolumn{1}{l}{OLS - restricted}        &   0.1551 (0.000) & 0.1389 (0.007) & 0.0583 (0.000)\\
+                                                                             
+    \\
+    \multirow{4}{*}{MAE 6}        & \multicolumn{1}{l}{Random Walk}             &   0.0580 (0.483) & 0.0495 (0.785) & 0.0439 (0.484)\\
+                                  & \multicolumn{1}{l}{Transfer Function Model} &   0.0581 (0.468) & 0.0498 (0.526) & 0.0442 (0.396)\\
+                                  & \multicolumn{1}{l}{OLS - unrestricted}      &   0.0789 (0.003) & 0.0531 (0.486) & 0.0669 (0.000)\\
+                                  & \multicolumn{1}{l}{OLS - restricted}        &   0.1716 (0.000) & 0.1446 (0.041) & 0.0669 (0.000)\\
+     \\
+    \multirow{4}{*}{MAE 12}       & \multicolumn{1}{l}{Random Walk}             &   0.0964 (0.171) & 0.0584 (0.726) & 0.0753 (0.505)\\
+                                  & \multicolumn{1}{l}{Transfer Function Model} &   0.0954 (0.489) & 0.0598 (0.678) & 0.0752 (0.147)\\
+                                  & \multicolumn{1}{l}{OLS - unrestricted}      &   0.1210 (0.000) & 0.0744 (0.523) & 0.1001 (0.000)\\
+                                  & \multicolumn{1}{l}{OLS - restricted}        &   0.2100 (0.000) & 0.1660 (0.459) & 0.0776 (0.000)\\
+
+    \bottomrule
+  \end{tabular}
+\label{table:MAEunivariate}
+\end{table}
+
+
+\subsection{Multivariate Models}
+
+The evidence of the previous section together with the general empirical literature suggests the presence of a unit root in the
+FX-rates. This was further confirmed by augmented Dickey-Fuller tests (Dickey and Fuller (1979, \cite{DickeyFuller}))
+applied to the FX-rates and macroeconomics variables suggesting the statistical significant presence of unit roots.
+Dickey-Fuller tests were estimated once again after differencing the series. All of the series but the US-JP interest rates
+differential and the US-UK unemployment rate differential provided to be stationary after such adjustment, which supports evidence
+for an integration order of 1 for most of the series.
+
+While in the previous section the FX-rate unit root was proved to be best modeled by a simple random walk model this section further
+expand the analysis by looking at the performance of multivariate models, which may capture and efficiently estimate the relation among
+macroeconomics variables and FX-rates in the case of endogeneity among the series.
+
+While the reference paper of Meese and Rogoff (1983a and 1983b, \cite{MeeseRogoffa, MeeseRogoffb}) attempted a multivariate model through
+a vector autocorrelation model we will analyze the extent of cointegration among the series given the results of the previous analysis
+showing a higher order integration for the macroeconomic and FX-rates series.
+
+In order to do that we tested the hypothesis of cointegration for the macroeconomics variables and the FX-rates taking into account the
+trend displayed by the times series. The results of such an analysis are based on the trace statistic for the computed eigenvector discussed in Johansen (1991,
+\cite{Johansen}). Running the Johansen cointegration test we obtained the results presented in table \ref{tab:Cointegration}. All of
+the series display a profound evidence for the presence of three cointegration vectors at 5\% percent confidence level.
+
+Given the five series of macroeconomics fundamentals it might be that the three cointegration relations might exist just among such variables and that a
+long term term relation between the macroeconomics fundamentals and the FX-rate for the three different series does not exists. In order to test
+such an hypothesis we decided to run Johansen tests checking for cointegration between the FX-rate and a single macroeconomic variable and to
+iterate the process adding a macroeconomic variable more until the estimation of a model comprehending all of the variables present in the
+structural model as in \ref{eq:structural}. The results in such a case confirm the hypothesis of cointegration between FX-rates and the macroeconomic variables.
+For the period analyzed we found strong evidence for cointegration among the FX-rate and macroeconomics fundamentals for the United Kingdom - USA series. In
+such a case the Null of no cointegration could be rejected with 5\% confidence for the FX-M3, FX-CPI, FX-Current Account, FX-interest rate series.
+The picture looks more fragmented in the case of the other series. In the case of the Switzerland - USA series evidence for cointegration is displayed
+between \{M3, M1, Interest Rate\} and the FX-rate respectively, while for the Japan - USA series the Null of no cointegration can be rejected only for the FX-M3
+series.
+
+\begin{table}[!h] % ! -> to insert at the bottom of a page.
+  \centering
+    \caption{Johansen Cointegration Test \textendash \ Trace Statistics}
+  \begin{tabular}{llcccc} % tells how you want the columns aligned.
+    \toprule
+                                             &                                                 &               & \multicolumn{3}{c}{Quantiles Test Statistics}\\
+    \cmidrule(r){1-6}
+    Series                                   &                                                 & Trace Score   &  90\%     & 95\%     & 99\%\\
+    \midrule
+    \multirow{4}{*}{Structural JP-US}        & \multicolumn{1}{l}{Cointegrated Series <= 3}    & 26.46         & 28.71     & 31.52    & 37.22  \\
+                                             & \multicolumn{1}{l}{Cointegrated Series <= 2}    & 48.79         & 45.23     & 48.28    & 55.43  \\ 
+                                             & \multicolumn{1}{l}{Cointegrated Series <= 1}    & 87.80         & 66.49     & 70.60    & 78.87  \\
+                                             & \multicolumn{1}{l}{Cointegrated Series \ \ = 0} & 138.18        & 85.18     & 90.39    & 104.20 \\
+    \\
+    \multirow{4}{*}{Structural CH-US}        & \multicolumn{1}{l}{Cointegrated Series <= 3}    & 25.97         & 28.71     & 31.52    & 37.22  \\
+                                             & \multicolumn{1}{l}{Cointegrated Series <= 2}    & 53.22         & 45.23     & 48.28    & 55.43  \\ 
+                                             & \multicolumn{1}{l}{Cointegrated Series <= 1}    & 85.88         & 66.49     & 70.60    & 78.87  \\
+                                             & \multicolumn{1}{l}{Cointegrated Series \ \ = 0} & 145.12        & 85.18     & 90.39    & 104.20 \\
+    \\
+    \multirow{4}{*}{Structural UK-US}        & \multicolumn{1}{l}{Cointegrated Series <= 3}    & 26.94         & 28.71     & 31.52    & 37.22  \\
+                                             & \multicolumn{1}{l}{Cointegrated Series <= 2}    & 51.26         & 45.23     & 48.28    & 55.43  \\ 
+                                             & \multicolumn{1}{l}{Cointegrated Series <= 1}    & 88.47         & 66.49     & 70.60    & 78.87  \\
+                                             & \multicolumn{1}{l}{Cointegrated Series \ \ = 0} & 178.10        & 85.18     & 90.39    & 104.20 \\
+    \bottomrule
+  \end{tabular}
+\label{tab:Cointegration}
+\end{table}
+
+
+\begin{table}[!h] % ! -> to insert at the bottom of a page.
+  \centering
+    \caption{Mean Absolute Error \textendash \ Multivariate Models}
+  \begin{tabular}{llccc} % tells how you want the columns aligned.
+    \toprule
+    \multicolumn{5}{c}{Multivariate Models}                      \\
+    \cmidrule(r){1-5}
+    Lag                           &   Model                                     &Switzerland       & United Kingdom & Japan\\
+    \midrule
+    \multirow{3}{*}{MAE 1}        & \multicolumn{1}{l}{Random Walk}             &   0.0193 (0.125) & 0.0168 (0.177) & 0.0162 (0.625)\\
+                                  & \multicolumn{1}{l}{VAR}                     &   0.0183 (0.207) & 0.0186 (0.178) & 0.0160 (0.170)\\ 
+                                  & \multicolumn{1}{l}{VECM}                    &   0.0176 (0.491) & 0.0174 (0.476) & 0.0153 (0.355)\\
+    \\
+    \multirow{3}{*}{MAE 3}        & \multicolumn{1}{l}{Random Walk}             &   0.0390 (0.392) & 0.0330 (0.495) & 0.0291 (0.529)\\ 
+                                  & \multicolumn{1}{l}{VAR}                     &   0.0394 (0.359) & 0.0333 (0.486) & 0.0292 (0.488)\\
+                                  & \multicolumn{1}{l}{VECM}                    &   0.0376 (0.624) & 0.0328 (0.016) & 0.0320 (0.770)\\
+                                                                             
+    \\
+    \multirow{3}{*}{MAE 6}        & \multicolumn{1}{l}{Random Walk}             &   0.0580 (0.675) & 0.0495 (0.081) & 0.0439 (0.449)\\
+                                  & \multicolumn{1}{l}{VAR}                     &   0.0578 (0.666) & 0.0488 (0.504) & 0.0418 (0.575)\\
+                                  & \multicolumn{1}{l}{VECM}                    &   0.0580 (0.535) & 0.0483 (0.355) & 0.0434 (0.647)\\
+     \\
+    \multirow{3}{*}{MAE 12}       & \multicolumn{1}{l}{Random Walk}             &   0.0964 (0.258) & 0.0584 (0.232) & 0.0753 (0.458)\\
+                                  & \multicolumn{1}{l}{VAR}                     &   0.0974 (0.165) & 0.0603 (0.092) & 0.0763 (0.267)\\
+                                  & \multicolumn{1}{l}{VECM}                    &   0.0881 (0.507) & 0.0542 (0.676) & 0.0731 (0.573)\\
+    \bottomrule
+  \end{tabular}
+\label{table:MAEmultivariate}
+\end{table}
+
+
+Given the evidence of cointegration relations among FX-rates and macroeconomics fundamentals the Granger's theorem postulates the existence of
+a vector error correction model representation as in \ref{eq:VECM}. We selected the optimal lagged terms of it by estimating three different
+information criteria for the model fit. In the specific, we computed the Akaike, Quinn-Hannan (See Hannan and Quinn (1979, \cite{QuinnHannan})
+and Schwarz (See Schwarz (1978, \cite{Schwarz}) information criteria for the models with different lagged terms and selected
+for parsimony reason the minimum lag number identified by any of the three models above. An analogous approach was used for determining
+the optimal lagged terms of the benchmark multivariate model, a vector autoregressive model in difference. Based on such an approach multivariate models
+of term one, and with a smaller frequence of term two, resulted in the model estimates of the rolling forecast method.
+This is an important result given the restricted sample size and the exponential increase of parameters in the number of lagged terms.
+
+The results of the rolling forecast are presented in table \ref{table:MAEmultivariate}. As in the case of the univariate fit and in line
+with the expectations the error increase in the estimation lag. In contrast to Meese and Rogoff (1983a and 1983b,
+\cite{MeeseRogoffa, MeeseRogoffb}) we do not find evidence for a general underperformance of the vector autoregressive models in predicting out of
+sample movements of foreign exchange rates in comparison to a simple random walk model. Especially in the short term when looking at the one month
+out of sample performance of vector autoregressive models we find that the latter marginally outperform a random walk model. For higher term lags the
+evidence is rather mixed and the superiority of random walk models cannot be claimed. Moreover, important is to underline that in comparison to
+univariate models of \ref{sub:univariate}, the multivariate models make use of the same information set $\mathscr{F}_{t-1}$ as the random walk.
+
+One possible explanation for the striking difference between the results reported in this paper and the one presented in Meese and Rogoff (1983a and 1983b,
+\cite{MeeseRogoffa, MeeseRogoffb}) may be found in the different sample size used for the reported study compared to the one of Meese and Rogoff papers.
+In this sense, Meese and Rogoff worked with a sample size of 87 observations, using as few as 37 observations for fitting
+their models (See Meese and Rogoff (1983a Section 3 and 1983b Section 3.2, \cite{MeeseRogoffa, MeeseRogoffb}).
+It is therefore highly likely that the multivariate results of their study suffer from overfitting issues leading the vector
+autoregressive model to poorly perform out of sample.
+
+Turning to the vector error correction model of equation \ref{eq:VECM} that models the cointegration relation previously described we can see from
+table \ref{table:MAEmultivariate} that the rolling forecast of such models beats a random walk fit for all of the countries and at all lags when measured
+in terms of mean absolute error. 
+
+While the vector error correction model well manged to outperform the a simple random walk model when looking at the MAE statistics, no statistical significant
+evidence for the difference among the two models is found when modeling a model confidence set as in Hansen (2011, \cite{HansenMCS}). Looking at the p value
+of the Null Hypothesis of equal predictability resulting from a bootstrapped superior ability tests reported in parenthesis of table \ref{table:MAEmultivariate}
+the results are clear. All of the three models are indistinguishable in terms of their out of sample performance across all of the estimation lags and
+series.
+
+
+
+
+
+

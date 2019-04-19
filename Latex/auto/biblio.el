@@ -21,6 +21,13 @@
     "GilAlanaRobinson"
     "Johansen"
     "Phillips"
-    "MincerZarnowitz"))
+    "MincerZarnowitz"
+    "HansenMCS"
+    "HansenSPA"
+    "Westerfield"
+    "DickeyFuller"
+    "QuinnHannan"
+    "Schwarz"
+    "Akaike"))
  :bibtex)
 

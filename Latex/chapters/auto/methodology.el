@@ -3,11 +3,12 @@
  (lambda ()
    (LaTeX-add-labels
     "sec:part2"
-    "sub:models"
     "eq:structural"
     "sub:univariate"
     "eq:transfer"
+    "sub:multivariate"
     "eq:VAR"
-    "eq:VECM"))
+    "eq:VECM"
+    "sub:forecast"))
  :latex)
 

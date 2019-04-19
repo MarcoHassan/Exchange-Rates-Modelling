@@ -1,7 +1,7 @@
 (TeX-add-style-hook
- "conclusion"
+ "appendix_data"
  (lambda ()
    (LaTeX-add-labels
-    "sec:conclusion"))
+    "app:A"))
  :latex)
 

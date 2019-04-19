@@ -2,6 +2,6 @@
  "dataset"
  (lambda ()
    (LaTeX-add-labels
-    "sec:part1"))
+    "sec:dataset"))
  :latex)
 

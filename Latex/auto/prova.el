@@ -14,8 +14,10 @@
     "latex2e"
     "chapters/abstract"
     "chapters/intro"
-    "chapters/dataset"
     "chapters/methodology"
+    "chapters/dataset"
+    "chapters/results"
+    "chapters/conclusion"
     "chapters/appendix_data"
     "article"
     "art10"
@@ -30,13 +32,12 @@
     "microtype"
     "amsmath"
     "mathrsfs"
+    "eucal"
     "lipsum"
-    "standalone")
-   (LaTeX-add-labels
-    "sec:headings"
-    "sec:others"
-    "fig:fig1"
-    "tab:table")
+    "standalone"
+    "multirow"
+    "caption"
+    "dblfloatfix")
    (LaTeX-add-bibliographies
     "biblio"))
  :latex)
