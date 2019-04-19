@@ -23,6 +23,7 @@ library(TSA)
 
 library(vars)  ## to estimate VAR lag with exogenous variables
 library(tsDyn) ## to estimate the VAR model and perform the out of sample fit based on rolling window.
+library(TSA)
 
 ## Import functions from the relating project
 source("~/Exchange-Rates-Modelling/Master thesis - codice/Code/0 - functions.R")
@@ -143,7 +144,7 @@ Get exogenous variables for each of the series of interest
 for(country in c("CH", "UK", "JP"))
 {
   assign(paste0("interest", country), 
-         !str_detect(colnames(data2), paste0("^M3|^EX+\\D", country)) &
+         !str_detect(colnames(data2), paste0("^M1|^EX|^EX+\\D", country)) &
           str_detect(colnames(data2), paste0("\\D", country)) & 
          !str_detect(colnames(data2), "^rw|^str"))
 }
@@ -173,32 +174,85 @@ st <- tsp(data2)[1] + (in_sample-2);
 ## tsp(data2)[1] gets the start of the time frame; the second block adds the in_sample time window
 ```
 
+
+Test restricted models
+```{r}
+for( country in c("JP", "CH", "UK") )
+  {
+    ## Specify the arimax that fits at best
+    nd_pars<-expand.grid(ar=0:2,diff=0:1,ma=0:2)
+    nd_aic<-rep(0,nrow(nd_pars))
+    help <- get(paste0("interest",country))
+    xshort <- window(data2, start = tsp(data2)[1]+ (1-1), end=st + (1-1))
+    
+    for(j in seq(along=nd_aic))
+    {
+      nd_aic[j]<-AIC(arimax(xshort[,paste0("EX_", country, "US")],
+                            unlist(nd_pars[j,1:3]), 
+                            xreg = xshort[, help],
+                            method = 'ML'))
+    }
+    
+    ## save the best fit
+    order <- nd_pars[which.min(nd_aic),]
+    
+    ## General structural the model
+    fit1 <- arimax(xshort[, paste0("EX_", country, "US")], order = unlist(order), 
+                         xreg = xshort[, help], method = 'ML')
+    
+    ## Frenkson Bilson test
+    xshort2 <- xshort[, help]
+    fit2 <- arimax(xshort[, paste0("EX_", country, "US")], order = unlist(order), 
+                         xreg = xshort2[, -(4:5)], method = 'ML')
+    
+    ## Dornbusch Model test
+    fit3 <- arimax(xshort[, paste0("EX_", country, "US")], order = unlist(order), 
+                         xreg = xshort2[, -5], method = 'ML')
+    
+    ## Frenkson Bilson
+    cat("\nCountry "); cat(country); cat(":\n")
+    cat("Frenkson Bilson w\\o Current account and Inflation\n")
+    print(waldtest(fit1, fit2))
+    
+    ## Dornbusch Model
+    cat("Dornbusch Model w\\o Current account\n")
+    print(waldtest(fit2, fit3))
+  }
+```
+
+
 Working well just last observation disappeared somehow.
 ```{r}
+file_con <- file("level_arimax.txt")
+sink(file_con, "out")
 for( LAG in c(1, 3, 6, 12) ) 
 {
-  for( country in c("JP", "UK", "CH") )
+  cat("this is lag: "); cat(LAG); cat("\n")
+  for( country in c("JP", "CH", "UK") )
   {  
-    for( iRow in 1:(nrow(data2)-in_sample) )
+    cat("Country: "); cat(country); cat("\n")
+    for( i in 1:(nrow(data2)-in_sample) )
     {
-      xshort <- window(data2, start = tsp(data2)[1]+ (iRow-1), end=st + iRow)
-      xnew <- window(data2, start = st + iRow, end = (st +iRow)+(LAG-1))
+      xshort <- window(data2, start = tsp(data2)[1]+ (i-1), end=st + (i-1))
+      xnew <- window(data2, start = st + i, end = (st +i)+(LAG-1))
     
       ## Specify the arimax that fits at best
       nd_pars<-expand.grid(ar=0:2,diff=0:1,ma=0:2)
       nd_aic<-rep(0,nrow(nd_pars))
-      help <- eval(parse(text = paste0("interest",country)))
+      help <- get(paste0("interest",country))
       
-      for(jPar in seq(along=nd_aic))
+      for(j in seq(along=nd_aic))
       {
-        nd_aic[jPar]<-AIC(arimax(xshort[,paste0("EX_", country, "US")],
-                              unlist(nd_pars[jPar,1:3]), 
+        nd_aic[j]<-AIC(arimax(xshort[,paste0("EX_", country, "US")],
+                              unlist(nd_pars[j,1:3]), 
                               xreg = xshort[, help],
                               method = 'ML'))
       }
     
       ## save the best fit
       order <- nd_pars[which.min(nd_aic),]
+      cat(paste0(order))
+      cat("\n")
       
     
       fit1 <- arimax(xshort[, paste0("EX_", country, "US")], order = unlist(order), 
@@ -209,15 +263,149 @@ for( LAG in c(1, 3, 6, 12) )
       if ( LAG == 1) new_exogenous <- t(xnew[, help])
       else new_exogenous <- xnew[, help]
       
-      fcast1 <- predict(fit1, n.ahead = LAG, newdata = new_exogenous)
+      fcast1 <- predict(fit1, n.ahead = LAG, newxreg = new_exogenous)
       if(index(tail(xshort,1)) == nrow(data2)-LAG) break 
       ## so that you have always 12 out of sample
-      data2[in_sample+(LAG-1)+iRow, 
+      data2[in_sample+(LAG-1)+i, 
             paste0("strPred", LAG, "_", country, "US")] <- fcast1$pred[1]
     }
   }
 }
+sink()
+close(file_con)
 ```
+
+Write the data
+```{r}
+write(data2, "after_str_level_linear_pred.csv")
+```
+
+===
+OLS
+===
+
+Import data
+```{r}
+## Insert your path here
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/after_str_level_linear_pred.csv"
+data2 <- read.csv(path)
+data2 <- as.xts(data2[,-1], order.by = as.Date(data2[,1]))
+```
+
+
+Specify rolling prediction
+```{r}
+## trasform to data-frame to add columns
+data2 <- as.data.frame(data2)
+## create prediction columns
+for(iPred in c(1,3,6,12)) 
+  { 
+    country <- c("JP", "UK", "CH")
+    for(jCountry in country)
+    {
+    data2[, paste0("OLSPred" , iPred, "_", jCountry, "US")] <- NA
+    }
+  } 
+```
+
+Get exogenous variables for each of the series of interest
+```{r}
+## get exogenous parameters
+for(country in c("CH", "UK", "JP"))
+{
+  assign(paste0("interest", country), 
+         !str_detect(colnames(data2), paste0("^M1|^EX|^EX+\\D", country)) &
+          str_detect(colnames(data2), paste0("\\D", country)) & 
+         !str_detect(colnames(data2), "^rw|^str|^OLS"))
+}
+```
+
+```{r}
+## transform to ts object ot leverage on the window function
+data2 <- as.ts(data2, frequency =12)
+## in sample observations
+in_sample <- three_fourth;
+  
+## Get in sample time frame
+st <- tsp(data2)[1] + (in_sample-2); 
+## tsp(data2)[1] gets the start of the time frame; the second block adds the in_sample time window
+```
+
+
+Test restricted models
+```{r}
+for( country in c("JP", "CH", "UK") )
+  {
+    xshort <- window(data2, start = tsp(data2)[1]+ (1-1), end=st + (1-1))
+    help <- get(paste0("interest",country))
+    
+    ## General structural the model
+    fit1 <- arimax(xshort[, paste0("EX_", country, "US")], 
+                   xreg = xshort[, help], method = 'ML')
+    
+    ## Frenkson Bilson test
+    xshort2 <- xshort[, help]
+    fit2 <- arimax(xshort[, paste0("EX_", country, "US")], 
+                   xreg = xshort2[, -(4:5)], method = 'ML')
+    
+    ## Dornbusch Model test
+    fit3 <- arimax(xshort[, paste0("EX_", country, "US")],
+                   xreg = xshort2[, -5], method = 'ML')
+    
+    ## Frenkson Bilson
+    cat("Country "); cat(country); cat(":\n")
+    cat("Frenkson Bilson w\\o Current account and Inflation\n")
+    print(waldtest(fit1, fit2))
+    
+    ## Dornbusch Model
+    cat("Dornbusch Model w\\o Current account\n")
+    print(waldtest(fit2, fit3))
+  }
+```
+
+Get exogenous variables for each of the series of interest
+```{r}
+## get exogenous parameters
+for(country in c("CH", "UK", "JP"))
+{
+  assign(paste0("interest", country), 
+         !str_detect(colnames(data2), paste0("^M1|^EX|^EX+\\D", country)) &
+          str_detect(colnames(data2), paste0("\\D", country)) & 
+         !str_detect(colnames(data2), "^rw|^str|^OLS"))
+}
+```
+
+OLS rolling fit
+```{r}
+for( LAG in c(1, 3, 6, 12) ) 
+{
+  for( country in c("JP", "CH", "UK") )
+  {  
+    for( i in 1:(nrow(data2)-in_sample) )
+    {
+      xshort <- window(data2, start = tsp(data2)[1]+ (i-1), end=st + (i-1))
+      xnew <- window(data2, start = st + i, end = (st +i)+(LAG-1))
+      help <- get(paste0("interest",country))
+      
+    
+      fit1 <- arimax(xshort[, paste0("EX_", country, "US")], 
+                     xreg = xshort[, help], method = 'ML')
+      
+      ## Create an exogenous vector and specify the structur in the case of lag == 1
+      ## to keep the column structure in a consistent way to fit the model
+      if ( LAG == 1) new_exogenous <- t(xnew[, help])
+      else new_exogenous <- xnew[, help]
+      
+      fcast1 <- predict(fit1, n.ahead = LAG, newxreg = new_exogenous)
+      if(index(tail(xshort,1)) == nrow(data2)-LAG) break 
+      ## so that you have always 12 out of sample
+      data2[in_sample+(LAG-1)+i, 
+            paste0("OLSPred", LAG, "_", country, "US")] <- fcast1$pred[1]
+    }
+  }
+}
+```
+
 
 ===============================
 Vector Autoregressive Modelling
@@ -226,7 +414,7 @@ Vector Autoregressive Modelling
 ```{r}
 data2 <- as.data.frame(data2)
 endogenous <- c("EX_UKUS", "EX_JPUS", "EX_CHUS")
-exogenous <- !str_detect(colnames(data2), "^M1|^rw|^EX|^str")
+exogenous <- !str_detect(colnames(data2), "^M1|^rw|^EX|^str|^OLS|^var")
 data_exogenous <-  data2[, exogenous]
 ```
 
@@ -270,12 +458,11 @@ for(j in c("UK", "JP", "CH"))
     min_lag <- min(lags$selection)
 
     ## one lag the best
-    model <- lineVar(data2[, endogenous], 1, 
+    model <- lineVar(cbind(data2[, endogenous],data_exogenous) , 1, 
                      lag = min_lag,
                      include = "none", 
-                     model = "VAR", I = "level",
-                     estim = "ML", LRinclude = "none", 
-                     exogen = data_exogenous)
+                     model = "VAR", I = "diff",
+                     estim = "ML", LRinclude = "none")
             
     parsed_text1 <- evalue(paste0("numprediction", i))
     assign(paste0("endRow",i), nrow(data2) +1 - parsed_text1)
@@ -299,7 +486,6 @@ data2 <- as.xts(data2, order.by = index(data))## transform back to xts
 data <- data2
 clean()
 ```
-
 
 Write the data
 ```{r}
@@ -374,7 +560,7 @@ for( jCountry in c("CH", "JP", "UK") )
                        lag.max = 7, type = "none")$selection
              ) 
   
-  model <- tsDyn::VECM(evalue(paste0("data_", jCountry)), 
+  model <- tsDyn::VECM(evalue(paste0("data_", jCountry)),
                        lag = LAG, estim = "ML", LRinclude = 'none'
                       )
   

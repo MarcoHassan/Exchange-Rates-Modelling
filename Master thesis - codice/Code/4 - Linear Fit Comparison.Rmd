@@ -40,8 +40,9 @@ Plot the different out of sample forecasting fits
 plot(tail(data$EX_CHUS, 50), ylab="Rates", main="Linear Estimators - 1 Lag Out of Sample", 
      grid.col = NA, col = 1)
 lines(data$rwPred1_CHUS,col= 2, lwd = 2)
-#lines(data$strPred1_CHUS, col = "orange", lwd = 2)
+lines(data$strPred1_CHUS, col = "orange", lwd = 2)
 lines(data$varPred1_CHUS, col = "yellow", lwd = 2)
+lines(data$OLSPred1_CHUS, col = "salmon", lwd = 2)
 addLegend("topleft", on=1, 
         legend.names = c("Original", "RW", "ARIMAX", "VAR"), 
         lty=c(1, 1), lwd=c(2, 1),
@@ -105,18 +106,18 @@ assign(paste0("numprediction", iLag), sum(
   
 }
 
-RMSE <- matrix(NA,3,3, 
-               dimnames = list( c("rw", "str", "var"),
+RMSE <- matrix(NA,4,3, 
+               dimnames = list( c("rw", "str", "var", "OLS"),
                c("CH", "JP", "UK") )
                )
 
-MAE <- matrix(NA,3,3, 
-               dimnames = list( c("rw", "str", "var"),
+MAE <- matrix(NA,4,3, 
+               dimnames = list( c("rw", "str", "var", "OLS"),
                c("CH", "JP", "UK") )
                )
 
-DAC <- matrix(NA,3,3, 
-               dimnames = list( c("rw", "str", "var"),
+DAC <- matrix(NA,4,3, 
+               dimnames = list( c("rw", "str", "var", "OLS"),
                c("CH", "JP", "UK") )
                )
 ```
@@ -131,7 +132,7 @@ errorFun <-
               jCol = 1
               for( country in c("CH", "JP", "UK") )
               {
-                for( method in c("rw", "str", "var") )
+                for( method in c("rw", "str", "var", "OLS") )
                 {
                   iRow = iRow + 1
                   
@@ -153,7 +154,7 @@ errorFun <-
                   
                   DAC[iRow, jCol] <- dacFun(actual_data, forecast_data, LAG)
                   
-                  if(iRow %% 3 == 0)
+                  if(iRow %% 4 == 0)
                   {
                     jCol = jCol + 1
                     iRow = 0
@@ -194,15 +195,48 @@ Model Confidence set
 Model Confidence set
 ```{r}
 #Create u a matrix with all different univariate GARCH predictions: each column, one model prediction
-u <- na.trim(cbind(data$rwPred1_JPUS, data$varPred1_JPUS, data$strPred1_JPUS))
+u <- na.trim(cbind(data$rwPred1_CHUS, data$varPred1_CHUS, data$strPred1_CHUS, data$OLSPred1_CHUS))
+
+n<-dim(u)[1]
+perf<-matrix(NA,n,4)
+
+for (j in 1:4)
+{
+  perf[,j]<- abs(tail(data$EX_CHUS, n)-u[,j]) #MAE
+  #perf[,j] <- abs(data$EX_CHUS-u[,j])^2 #MSE
+}
+
+#colMeans(perf) ## Perf is a matrix containing for each column the loss function of one forecasting method.
+  
+for (k in 1:4)
+{
+  print( paste( "Benchmark model", colnames(u[,k]) )	)
+  d<-rep(0,1000)
+  s<-1
+  for (i in 1:10) ## iterate 10 times with spa 100 bootstrapped values each. Total = 1000.
+  { 
+     e<-spa(per=perf,column_benchmark_model=k,
+            num_predmodels=4,number_predictions=n,q=0.25,iter=100,periodogram=T)
+     d[s:(s+99)]<-e$stat.boos
+     s<-s+100
+  }
+  print(mean((d>e$stat))) ## fraction 
+}
+
+```
+
+Iterate without transfer function
+```{r}
+#Create u a matrix with all different univariate GARCH predictions: each column, one model prediction
+u <- na.trim(cbind(data$rwPred1_CHUS, data$varPred1_CHUS, data$OLSPred1_CHUS))
 
 n<-dim(u)[1]
 perf<-matrix(NA,n,3)
 
 for (j in 1:3)
 {
-  perf[,j]<- abs(tail(data$EX_JPUS[-nrow(data)], n)-u[,j]) #MAE
-  #perf[,j] <- abs(data$EX_JPUS-u[,j])^2 #MSE
+  perf[,j]<- abs(tail(data$EX_CHUS, n)-u[,j]) #MAE
+  #perf[,j] <- abs(data$EX_CHUS-u[,j])^2 #MSE
 }
 
 #colMeans(perf) ## Perf is a matrix containing for each column the loss function of one forecasting method.
@@ -221,13 +255,6 @@ for (k in 1:3)
   }
   print(mean((d>e$stat))) ## fraction 
 }
-
-## With MSE
-## -> random walk excluded wit 90% confidence
-
-## With MAE
-## -> random walk excluded with 99% confidence
-## -> arimax with 
-
 ```
+
 

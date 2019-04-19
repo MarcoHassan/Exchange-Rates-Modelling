@@ -34,7 +34,10 @@ Raw series, no deternding nor seasonal adjustment
 ```{r}
 data <- read.csv("/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/rawdata.csv")
 
+colnames(data)[17:19] <- c("TR_USCH", "TR_USUK", "TR_USJP")
+
 data <- as.xts(data[,-1], order.by = as.Date(data[,1]))
+
 ```
 
 
@@ -50,7 +53,7 @@ Get exogenous parameters
 for(country in c("CH", "UK", "JP"))
 {
   assign(paste0("interest", country), 
-         !str_detect(colnames(data), paste0("^M1+\\D", country)) & ## with M3
+         !str_detect(colnames(data), paste0("^M3|^TR|^UN|^TB|^CPI|^M1+\\D", country)) & ## with M3
          str_detect(colnames(data), paste0("\\D", country))
         )
 }
@@ -62,6 +65,11 @@ In sample - Three fourth of the dataset
 ```{r}
 three_fourth <- round((3/4)* nrow(data), 0)
 ```
+
+```{r}
+View(data[1:three_fourth,interestCH])
+```
+
 
 
 Johansen cointegration test

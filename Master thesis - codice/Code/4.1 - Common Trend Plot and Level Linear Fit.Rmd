@@ -14,6 +14,12 @@ library(xts)
 ## To extract and plot Cointegration Common Trend
 library(CommonTrend)
 
+## xtable to obtain latex matrices
+library(xtable) 
+
+## To use regular expressions
+library(stringr)
+
 ```
 
 
@@ -51,15 +57,7 @@ for (iCountry in c("CH", "JP", "UK"))
 {
   in_sample <- data[1:three_fourth, evalue(paste0("interest", iCountry))]
   
-  if(iCountry == "UK")
-  {
-    in_sample <- in_sample[, c(5, 2, 3, 4, 1)]
-  }
-  
-  else
-  {
-    in_sample <- in_sample[, c(6, 2, 3, 4, 5, 1)]
-  }
+  in_sample <- in_sample[, c(6, 2, 3, 4, 5, 1)]
   
   G=GG.ComT (in_sample,1,2)
   Date= index(data[1:three_fourth,])
@@ -152,18 +150,18 @@ assign(paste0("numprediction", iLag), sum(
   
 }
 
-RMSE <- matrix(NA,4,3, 
-               dimnames = list( c("rw", "str", "var", "vecm"),
+RMSE <- matrix(NA,5,3, 
+               dimnames = list( c("rw", "str", "OLS", "var", "vecm"),
                c("CH", "JP", "UK") )
                )
 
-MAE <- matrix(NA,4,3, 
-               dimnames = list( c("rw", "str", "var", "vecm"),
+MAE <- matrix(NA,5,3, 
+               dimnames = list( c("rw", "str", "OLS", "var", "vecm"),
                c("CH", "JP", "UK") )
                )
 
-DAC <- matrix(NA,4,3, 
-               dimnames = list( c("rw", "str", "var", "vecm"),
+DAC <- matrix(NA,5,3, 
+               dimnames = list( c("rw", "str", "OLS", "var", "vecm"),
                c("CH", "JP", "UK") )
                )
 ```
@@ -178,7 +176,7 @@ errorFun <-
               jCol = 1
               for( country in c("CH", "JP", "UK") )
               {
-                for( method in c("rw", "str", "var", "vecm") )
+                for( method in c("rw", "str", "OLS", "var", "vecm") )
                 {
                   iRow = iRow + 1
                   
@@ -200,7 +198,7 @@ errorFun <-
                   
                   DAC[iRow, jCol] <- dacFun(actual_data, forecast_data, LAG)
                   
-                  if(iRow %% 4 == 0)
+                  if(iRow %% 5 == 0)
                   {
                     jCol = jCol + 1
                     iRow = 0
@@ -210,13 +208,16 @@ errorFun <-
               }
               
               print(paste("RMSE", LAG))
-              print(RMSE)
+              RMSE <- xtable(RMSE, digits = c(0,4,4,4))
+              #print(RMSE)
               
-              print(paste("MAE", LAG))    
+              print(paste("MAE", LAG))
+              MAE <- xtable(MAE, digits = c(0,4,4,4))
               print(MAE)
               
-              print(paste("DAC", LAG))    
-              print(DAC)
+              print(paste("DAC", LAG))
+              DAC <- xtable(DAC, digits = c(0,4,4,4))
+              #print(DAC)
             }
 ```
 
@@ -226,13 +227,7 @@ for( iLAG in c(1, 3, 6, 12))
 errorFun(iLAG)
 ```
 
-============
-Augmented MZ 
-============
 
-Test if the model can be restricted; i.e. test the null hypothesis of the different coefficients.
-
-!!!! USE AUGMENTED MZ TESTS TO CHECK WHETHER MORE SIMPLE MODELS HOLD IN THE DATA.
 
 ====================
 Model Confidence set
@@ -241,21 +236,21 @@ Model Confidence set
 Model Confidence set
 ```{r}
 #Create u a matrix with all different univariate predictions: each column, one model prediction
-u <- na.trim(cbind(data$rwPred1_CHUS, data$varPred1_CHUS, data$strPred1_CHUS, 
-                   data$vecmPred1_CHUS))
+u <- na.trim(cbind(data$rwPred1_JPUS,
+                   data$varPred1_JPUS, data$vecmPred1_JPUS))
 
 n<-dim(u)[1]
-perf<-matrix(NA,n,4)
+perf<-matrix(NA,n,3)
 
-for (j in 1:4)
+for (j in 1:3)
 {
-  #perf[,j]<- abs(tail(data$EX_CHUS[-nrow(data)], n)-u[,j]) #MAE ## RECALL TO CHANGE ALSO HERE THE COUNTRY WHEN ADAPTING AND DERIVING P-VALUES.
-  perf[,j] <- abs(data$EX_CHUS-u[,j])^2 #MSE
+  perf[,j]<- abs(tail(data$EX_JPUS, n)-u[,j]) #MAE ## RECALL TO CHANGE ALSO HERE THE COUNTRY WHEN ADAPTING AND DERIVING P-VALUES.
+  #perf[,j] <- abs(data$EX_UKUS-u[,j])^2 #MSE
 }
 
 #colMeans(perf) ## Perf is a matrix containing for each column the loss function of one forecasting method.
   
-for (k in 1:4)
+for (k in 1:3)
 {
   print( paste("Benchmark model", colnames(u[,k]))	)
   d<-rep(0,1000)
@@ -263,7 +258,7 @@ for (k in 1:4)
   for (i in 1:10) ## iterate 10 times with spa 100 bootstrapped values each. Total = 1000.
   { 
      e<-spa(per=perf,column_benchmark_model=k,
-            num_predmodels=4,number_predictions=n,q=0.25,iter=100,periodogram=T)
+            num_predmodels=3,number_predictions=n,q=0.25,iter=100,periodogram=T)
      d[s:(s+99)]<-e$stat.boos
      s<-s+100
   }
