@@ -260,10 +260,11 @@ for( LAG in c(1, 3, 6, 12) )
       else new_exogenous <- xnew[, help]
       
       fcast1 <- predict(fit1, n.ahead = LAG, newxreg = new_exogenous)
-      if(index(tail(xshort,1)) == nrow(data2)-LAG) break 
+      ## breeak prima qui.
       ## so that you have always 12 out of sample
       data2[in_sample+(LAG-1)+i, 
             paste0("strPred", LAG, "_", country, "US")] <- fcast1$pred[1]
+      if(index(tail(xshort,1)) == nrow(data2)-LAG) break 
     }
   }
 }

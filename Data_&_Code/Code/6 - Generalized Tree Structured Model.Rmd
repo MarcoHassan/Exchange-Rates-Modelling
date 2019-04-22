@@ -64,7 +64,7 @@ Data Import
 
 ```{r}
 ## Insert your path here
-path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/level_linear_pred.csv"
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written Data/linear_pred.csv"
 
 data <- read.csv(path)
 
@@ -79,7 +79,6 @@ Create the partitioned space of exogenous regressors.
 
 From Audrino Paper: Typically, we fix the empirical quantiles as a = i/mesh, i =
 1,...,mesh - 1, where mesh determines the fineness of the grid on which we search for multivariate thresholds. Typically, we choose mesh = 8 (I chose 4, my choice is first and foremost motivated by the fact that the small sample size does not allow to have to small partitions for obvious estimation issues.)
-
 
 
 Get exogenous variables for each of the series of interest
@@ -133,7 +132,7 @@ Create Tree
 ## Define break structure and models.
 suppressMessages( GTS(insample, max_Partition = 5) )
 
-newdata <- cbind(1, exogen[147,-ncol(exogen)])
+newdata <- cbind(1, exogen[175,-ncol(exogen)])
 
 if(is.null(max_lik2))
 {
@@ -147,14 +146,15 @@ if(is.null(max_lik2))
   createTree(iterate = max_Partition, plot = T) ## to plot without pruning
   
   ## Pruning via AICc
-  best_Partition <- prunedTree()
-  createTree(iterate = best_Partition)
+  ##best_Partition <- prunedTree()
+  ##createTree(iterate = best_Partition)
   
   ## Out of Sample Forecast
   GTSEstimate(newdata)
 }
 
 ```
+
 
 ## fai il plot degli split points sulle variabli
 (idea pag 14)[https://cran.r-project.org/web/packages/party/vignettes/party.pdf] 
@@ -186,7 +186,7 @@ for(country in c("CH", "UK", "JP"))
 {
   assign(paste0("interest", country), 
           str_detect(colnames(data2), paste0("\\D", country)) & 
-         !str_detect(colnames(data2), "^rw|^str|^var|^vecm|^GTS|^M1")) ## With M3
+         !str_detect(colnames(data2), "^rw|^str|^var|^vecm|^GTS|^M1|^OLS")) ## With M3
 }
 ```
 
@@ -196,40 +196,30 @@ three_fourth <- round(3/4 * nrow(data))
 st <- three_fourth;
 ```
 
-## devi rimuovere tutti i max_lik dall global
-
-Open File where to redirect messages of the GTS fit. This will subsequently be used to generate descriptive statistics about the average numbers of splits, variables of splits. In which partitions? Etc.
-```{r}
-fileout <- file("GTS_out.txt", open = "wt")
-
-sink(file = fileout, append = T, type = "message")
-
-message("test daoo")
-
-isOpen(fileout)
-
-zz <- file("test.txt")
-sink(zz ,type = "output")
-sink(zz, type = "message")
-print("using print")
-cat("using cat\n")
-message("using message")
-warning("using warning")
-
-sink(NULL, type="output")
-```
-
 
 Rolling Prediction OLS
 ```{r}
-for( LAG in c(1) ) 
+for( LAG in c(3, 6, 12) ) 
 {
-  for( country in c("UK", "JP") )
+  for( country in c("UK", "CH", "JP") )
   {  
     data3 <- data2[, get(paste0("interest", country))]
     data3 <- as.xts(data3, order.by = as.Date(index(data3)))
     
     iteration = 0
+    
+    #Close File Connession and redirection
+    if(sink.number() > 0)
+    { 
+      sink(NULL, type="output")
+      close(fileout)
+    }
+    
+    ## Open File where to redirect messages of the GTS fit. This will subsequently be used to generate descriptive statistics about the average numbers of splits, variables of splits. In which partitions? Etc.
+  
+    fileout <- file(paste0("GTS_", country ,"_", LAG, ".txt"), open = "wt")
+  
+    sink(file = fileout, append = T, type = "output")
     
     for( iRow in 1:(nrow(data2)-st) )
     {
@@ -243,7 +233,7 @@ for( LAG in c(1) )
       beg <-  st + iRow
       end <- (st +iRow)+(LAG-1)
       xnew <- data3[beg:end, ]
-      print(xnew[, ncol(xnew)])
+      message(xnew[LAG, ncol(xnew)])
       xnew <- cbind(1, xnew[, -ncol(xnew)])
     
       GTS(xshort, max_Partition = 5)
@@ -251,25 +241,26 @@ for( LAG in c(1) )
       if(is.null(max_lik2))
       {
         if(xnew[, match(max_lik1$optVar, names(xshort))+1] > max_lik1$optBreak) 
-        {fcast1 <- xnew %*% max_lik1$right_model} else{
-          fcast1 <- xnew %*%  max_lik1$left_model
+        {fcast1 <- xnew[LAG,] %*% max_lik1$right_model} else{
+          fcast1 <- xnew[LAG,] %*%  max_lik1$left_model
         }
       
       } else{
         ## Pruning via AICc
         best_Partition <- prunedTree()
-        createTree(iterate = best_Partition)
+        condition <- createTree(iterate = best_Partition)
         
         ## Out of sample
-        fcast1 <- GTSEstimate(xnew)
+        fcast1 <- GTSEstimate(xnew[LAG,])
       }
       
       ## Save the forecast
       data2[st+(LAG-1)+iRow, 
             paste0("GTSPred", LAG, "_", country, "US")] <- fcast1
       
-      print(iteration)
-      print(fcast1)
+      message(iteration)
+      message(fcast1)
+      if(index(tail(xshort,1)) == nrow(data2)-LAG) break 
     }
   }
 }
@@ -278,7 +269,7 @@ for( LAG in c(1) )
 
 Write Data to csv
 ```{r}
-write(data2, "level_GTS_pred.csv")
+write(data2, "stationary_GTS_pred.csv")
 ```
 
 

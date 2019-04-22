@@ -231,7 +231,7 @@ fork <-
         ## Check that the minimum number of observations for the safe estimation of the parameters
         
         ## If partition contains less than 40 observations don't even try to estimate the model.
-        if( nrow(part_right) < 30 ||  nrow(part_left) < 30 ) 
+        if( nrow(part_right) < 40 ||  nrow(part_left) < 40 ) 
         {
           next
         }
@@ -398,7 +398,7 @@ GTS <- function(dat, max_Partition = 8)
   variable <- max_lik1$optVar
   brek <- max_lik1$optBreak
   
-  message(sprintf("For partition %d the optimal split is at %s %s [i.e. %f]", mPartition, variable, 
+  print(sprintf("For partition %d the optimal split is at %s %s [i.e. %f]", mPartition, variable, 
                   brek, max_lik1$partitioned_space[variable, brek]))
   
   
@@ -453,7 +453,7 @@ GTS <- function(dat, max_Partition = 8)
   variable = max_lik2$optVar
   brek = max_lik2$optBreak
   
-  message(sprintf("For partition %d the optimal split is at %s %s [i.e. %f]", 
+  print(sprintf("For partition %d the optimal split is at %s %s [i.e. %f]", 
                   mPartition, variable, brek, max_lik2$partitioned_space[variable, brek]))
   
   rm(max_lik2right, max_lik2left)
@@ -529,7 +529,7 @@ GTS <- function(dat, max_Partition = 8)
     variable <- get(paste0("max_lik", mPartition+1))$optVar
     brek <- get(paste0("max_lik", mPartition+1))$optBreak
     
-    message(sprintf("For partition %d the optimal split is at %s %s [i.e. %f]", mPartition+1, 
+    print(sprintf("For partition %d the optimal split is at %s %s [i.e. %f]", mPartition+1, 
                     variable, brek,
                     get(paste0("max_lik", mPartition+1))$partitioned_space[variable, brek]))
     
@@ -589,7 +589,7 @@ prunedTree <- function()
                   idx = idx+1
                 }  
                 
-                message(sprintf("Highest Infromation Criteria is at Partition %d", best_index))
+                print(sprintf("Highest Infromation Criteria is at Partition %d", best_index))
                 
                 return(best_index)
               }
@@ -600,6 +600,8 @@ prunedTree <- function()
 
 createTree <- function(iterate, plot = F)
 {
+  if(iterate == 1) return(NULL)
+  
   ## Save the resutls as partykit objects and plot the partitions
   for (mPartition in 1:iterate)
   {
@@ -750,7 +752,7 @@ createTree <- function(iterate, plot = F)
       plot(tree)
     }
     
-
+    return("NOT NULL")
   }
   
   else
@@ -778,6 +780,8 @@ createTree <- function(iterate, plot = F)
     {
       plot(tree)
     }
+    
+    return("NOT NULL")
   }
 }
 
@@ -789,6 +793,14 @@ createTree <- function(iterate, plot = F)
 
 GTSEstimate <- function(new_data)
 {
+  if(is.null(condition))
+    {
+      model <- arimax(xshort[, ncol(xshort)], 
+                       xreg = xshort[, -ncol(xshort)])
+      
+      return(new_data %*% model$coef)
+      }
+  
   ## Check in which branch the observation falls [Condition 1]
   if(new_data[, (prova$nodes[1][[1]]$split$varid+1)] >
      prova$nodes[1][[1]]$split$breaks)

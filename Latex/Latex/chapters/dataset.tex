@@ -1,0 +1,41 @@
+\section{Dataset} \label{sec:dataset}
+
+The dataset, comprehensively discussed in Appendix A \ref{app:A} consists of
+monthly observations over 21 years ranging
+from January 1986 to January 2006.
+All the time series of use are selected in accordance with the underlying monetary
+structural model \ref{eq:structural} and are consistent with the series first utilized by
+Meese and Rogoff (1983a, \cite{MeeseRogoffa}). Three different FX-rates series are
+analyzed, namely the JPN/USD rate, the GBP/USD rate and the CHF/USD rate.
+With respect to the independent variables of the structural model, we decided to work
+with the 3-months treasury bills to capture the short term interest rates differentials. The only exception were of CH series where we worked with the 3-month US-CH LIBOR spread
+due to missing reported publicly available data for the seasonally unadjusted short term treasury rates at monthly lag.
+\\ For measuring money mass differentials,
+we worked with the M1 and M3 measures testing the both given the important difference among the two 
+and the lack of theoretical models to favour one measure above the other. We obtained stronger results for the M3 series
+and therefore proceeded to report the results obtained through such measure in the paper. \\ For measuring the
+inflation rate differentials important for the Dorbusch model we worked with consumer price indices and
+for measuring the trade balance we worked with the net trade amount for goods as a proxy for the current account balance.
+This trade balance is indeed just a rough approximation
+given the fraction of traded goods in comparison to the total amount of trade that includes services and monetary transfers.
+Nonetheless we preferred such measure from an interpolation of the quarterly published current account balances. \\
+Finally, we worked with the unemployment rate to capture the output differential of the economies as we
+believe that such variable
+reflects well the fluctuations in output levels, i.e. the quantitiy of interest, leaving
+the constant term in equation \ref{eq:structural} to capture the other information present
+in the output measure such as the size of the economies.
+
+As in our reference papers we decided not to work with seasonal time series in order to avoid
+the possible bias introduced by different seasonal 
+adjustments to the structural parameters documented in Sims (1973a and 1973b, \cite{Simsa, Simsb}).
+Henceforth we decided to approach our model validation by fitting the
+models on seasonal adjusted and detrended time series.
+
+With respect to the time series adjustments we proceeded by detrending the series exploring three
+different possibilities. Firstly, detrending via differentiation, secondly detrending through a
+linear time trend and thirdly detreding through a moving average filter. Detrending through differencing
+proved to be the most effective due to the quadratic behaviour displayed by
+the series. This approach was therefore applied to all of the series.
+The obtained mean stationary series were consequently inspected for the presence of seasonality and appropriately
+differentiated to the point where no significance was found for seasonal unit roots according to the methods
+proposed in Canova and Hansen (1995, \cite{CanovaHansen}) and in Wang and Smith (2006, \cite{WangSmith}).

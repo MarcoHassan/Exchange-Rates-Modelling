@@ -23,7 +23,7 @@ library(CommonTrend)
 Import Data
 ===========
 ```{r}
-path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/level_GTS_pred.csv"
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/stationary_GTS_pred.csv"
 
 data <- read.csv(path)
 
@@ -40,8 +40,6 @@ for(jCountry in c("CH", "JP", "UK"))
      grid.col = NA, col = 1))
   print(lines(data[,paste0("rwPred1_", jCountry, "US")],col= 2, lwd = 2))
   print(lines(data[,paste0("strPred1_", jCountry, "US")], col = "orange", lwd = 2))
-  print(lines(data[,paste0("varPred1_", jCountry, "US")], col = "yellow", lwd = 2))
-  print(lines(data[,paste0("vecmPred1_", jCountry, "US")], col = "salmon", lwd = 2))
   print(lines(data[,paste0("GTSPred1_", jCountry, "US")], col = "violet", lwd = 2))
   print(addLegend("bottomleft", on=1, 
             legend.names = c("Original", "RW", "ARIMAX", "VAR", "VECM", "GTS"), 
@@ -106,18 +104,18 @@ assign(paste0("numprediction", iLag), sum(
   
 }
 
-RMSE <- matrix(NA,5,3, 
-               dimnames = list( c("rw", "str", "var", "vecm", "GTS"),
+RMSE <- matrix(NA,4,3, 
+               dimnames = list( c("rw", "str", "var", "GTS"),
                c("CH", "JP", "UK") )
                )
 
-MAE <- matrix(NA,5,3, 
-               dimnames = list( c("rw", "str", "var", "vecm", "GTS"),
+MAE <- matrix(NA,4,3, 
+               dimnames = list( c("rw", "str", "var", "GTS"),
                c("CH", "JP", "UK") )
                )
 
-DAC <- matrix(NA,5,3, 
-               dimnames = list( c("rw", "str", "var", "vecm", "GTS"),
+DAC <- matrix(NA,4,3, 
+               dimnames = list( c("rw", "str", "var", "GTS"),
                c("CH", "JP", "UK") )
                )
 ```
@@ -132,7 +130,7 @@ errorFun <-
               jCol = 1
               for( country in c("CH", "JP", "UK") )
               {
-                for( method in c("rw", "str", "var", "vecm", "GTS") )
+                for( method in c("rw", "str", "var", "GTS") )
                 {
                   iRow = iRow + 1
                   
@@ -154,7 +152,7 @@ errorFun <-
                   
                   DAC[iRow, jCol] <- dacFun(actual_data, forecast_data, LAG)
                   
-                  if(iRow %% 5 == 0)
+                  if(iRow %% 4 == 0)
                   {
                     jCol = jCol + 1
                     iRow = 0
@@ -179,7 +177,7 @@ errorFun <-
 
 Evalue the function for different lags
 ```{r}
-for( iLAG in c(1) )  ##c(1, 3, 6, 12))
+for( iLAG in c(1,3,6) )  ##c(1, 3, 6, 12))
 errorFun(iLAG)
 
 ## Notice Japan at lag 1. Much better estimated via GTS. CH is highly biased by the big error in the one estimation. MAE performs better in this sense.
@@ -192,22 +190,22 @@ Model Confidence set
 Model Confidence set
 ```{r}
 #Create u a matrix with all different univariate predictions: each column, one model prediction
-u <- na.trim(cbind(data$rwPred1_CHUS, data$varPred1_CHUS, data$strPred1_CHUS, 
-                   data$vecmPred1_CHUS, data$GTSPred1_CHUS))
+u <- na.trim(cbind(data$rwPred3_CHUS, data$varPred3_CHUS, data$strPred3_CHUS,
+                   data$GTSPred3_CHUS))
 
 n<-dim(u)[1]
-perf<-matrix(NA,n,5)
+perf<-matrix(NA,n,4)
 
 ## RECALL TO CHANGE ALSO HERE THE COUNTRY WHEN ADAPTING AND DERIVING P-VALUES.
-for (j in 1:5)
+for (j in 1:4)
 {
-  #perf[,j]<- abs(tail(data$EX_UKUS[-nrow(data)], n)-u[,j]) #MAE 
+  #perf[,j]<- abs(data$EX_CHUS-u[,j]) #MAE 
   perf[,j] <- abs(data$EX_CHUS-u[,j])**2 #MSE
 }
 
 #colMeans(perf) ## Perf is a matrix containing for each column the loss function of one forecasting method.
   
-for (k in 1:5)
+for (k in 1:4)
 {
   print( paste("Benchmark model", colnames(u[,k]))	)
   d<-rep(0,1000)
@@ -215,7 +213,7 @@ for (k in 1:5)
   for (i in 1:10) ## iterate 10 times with spa 100 bootstrapped values each. Total = 1000.
   { 
      e<-spa(per=perf,column_benchmark_model=k,
-            num_predmodels=5,number_predictions=n,q=0.25,iter=100,periodogram=T)
+            num_predmodels=4,number_predictions=n,q=0.25,iter=100,periodogram=T)
      d[s:(s+99)]<-e$stat.boos
      s<-s+100
   }

@@ -53,9 +53,9 @@ Before diving into the descriptive analysis of the series, I will try to transfo
 
 In order to transform the series into stationary series I will:
 
-    1. Detrend the series.
+    1. Remove the seasonal component.
 
-    2. Remove the seasonal component.
+    2. Detrend the series.
     
     3. Test the series for unit roots.
     
@@ -280,6 +280,10 @@ Clean workspace
 clean()
 ```
 
+
+#######################
+## Structural breaks ##
+#######################
 
 Before starting with the implementation of the linear modelling of the series I perform a chow test to understand the possibility of structural breaks in the sample that would suggest prudence when working with the series as a whole.
 
