@@ -51,5 +51,7 @@ Step 3: Perform an analysis of the predictive power using the Diebold Mariano te
 ![image](https://user-images.githubusercontent.com/42472072/56908020-c80db380-6aa5-11e9-8083-1ed3bb31e837.png)
 
 #### Stationary GTS OLS fit
-![image](https://user-images.githubusercontent.com/42472072/56908205-289cf080-6aa6-11e9-97a2-3e056e235647.png)
+
+![image](https://user-images.githubusercontent.com/42472072/56908296-56823500-6aa6-11e9-8219-8cf5e531b0cb.png)
+
 
