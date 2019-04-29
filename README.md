@@ -54,4 +54,14 @@ Step 3: Perform an analysis of the predictive power using the Diebold Mariano te
 
 ![image](https://user-images.githubusercontent.com/42472072/56908296-56823500-6aa6-11e9-8219-8cf5e531b0cb.png)
 
+## GTS with OLS underlying model optimal sptils in the full sample
+
+![image](https://user-images.githubusercontent.com/42472072/56908565-d5776d80-6aa6-11e9-8415-2589d5d51220.png)
+
+
+![image](https://user-images.githubusercontent.com/42472072/56908608-ecb65b00-6aa6-11e9-9537-d67231462394.png)
+
+![image](https://user-images.githubusercontent.com/42472072/56908664-048ddf00-6aa7-11e9-8977-6f040d866683.png)
+
+
 
