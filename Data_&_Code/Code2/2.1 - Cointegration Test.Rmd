@@ -1,0 +1,101 @@
+---
+title: "Cointegration in FX-rates"
+output:  rmarkdown::github_document
+---
+
+Libraries used
+```{r}
+
+## String manipulation library using regualr expressions
+
+library(stringr) ## to make use of regular expressions to parse strings
+
+## To perform the adf.test
+library(tseries)
+
+## For applying Johansen test for cointegration
+library(urca)
+
+## VAR packages
+
+library(vars)  ## to estimate VAR lag with exogenous variables
+library(tsDyn) ## to estimate the VAR model and perform the out of sample fit based on rolling window.
+
+## Import functions from the relating project
+source("~/Exchange-Rates-Modelling/Master thesis - codice/Code/0 - functions.R")
+```
+
+
+===================================
+Import dataset from related project
+===================================
+
+Raw series, no deternding nor seasonal adjustment
+```{r}
+data <- read.csv("/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/rawdata.csv")
+
+colnames(data)[17:19] <- c("TR_USCH", "TR_USUK", "TR_USJP")
+
+data <- as.xts(data[,-1], order.by = as.Date(data[,1]))
+
+```
+
+
+======================
+Descriptive Statistics
+======================
+
+This section continues with general descriptive statistics trying to understand the behaviour of the exogenous series and trying to test whether the latter are indeed exogenous.
+
+Get exogenous parameters
+```{r}
+## get country specific parameters
+for(country in c("CH", "UK", "JP"))
+{
+  assign(paste0("interest", country), 
+         !str_detect(colnames(data), paste0("^M3|^TR|^UN|^TB|^CPI|^M1+\\D", country)) & ## with M3
+         str_detect(colnames(data), paste0("\\D", country))
+        )
+}
+
+## Notice that if you perform the above just with the CPI, EX and M1 you find 2 cointegrated vectors at very high significance lag. This means that EX is indeed part of the cointegration relation. 
+```
+
+In sample - Three fourth of the dataset
+```{r}
+three_fourth <- round((3/4)* nrow(data), 0)
+```
+
+```{r}
+View(data[1:three_fourth,interestCH])
+```
+
+
+
+Johansen cointegration test
+```{r}
+## transform in data frame to iterate over
+data2 <- as.data.frame(data)
+
+for(interest in c("interestJP", "interestCH", "interestUK"))
+{
+  coint <- ca.jo(data2[1:three_fourth,eval(parse(text=interest))], ecdet = "none", type = "trace")
+  print(summary(coint))
+}
+
+```
+
+
+To be sure set up the OLS regression and test for stationarity in the error model
+```{r}
+fit1 <- lm(EX_JPUS ~ M3_USJP + TB_USJP + UN_USJP + CPI_USJP, data = data2[1:three_fourth,])
+
+error<-ts(residuals(fit1))
+adf.test(error) 
+```
+
+
+**Good evidence for the cointegration in the series.**
+
+
+

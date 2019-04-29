@@ -332,6 +332,8 @@ Convert back to xts
 ```{r}
 data <- xts(data2, order.by=index(data))
 
+data <- na.trim(data)
+
 ## clean workspace
 clean()
 ```

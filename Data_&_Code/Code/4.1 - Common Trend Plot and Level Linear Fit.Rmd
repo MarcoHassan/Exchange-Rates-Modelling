@@ -27,7 +27,7 @@ library(stringr)
 Import Data
 ===========
 ```{r}
-path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/level_linear_pred.csv"
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Data_&_Code/Written\ Data/linear_pred.csv"
 
 data <- read.csv(path)
 
@@ -208,16 +208,16 @@ errorFun <-
               }
               
               print(paste("RMSE", LAG))
-              RMSE <- xtable(RMSE, digits = c(0,4,4,4))
-              #print(RMSE)
+              #RMSE <- xtable(RMSE, digits = c(0,4,4,4))
+              print(RMSE)
               
               print(paste("MAE", LAG))
-              MAE <- xtable(MAE, digits = c(0,4,4,4))
+              #MAE <- xtable(MAE, digits = c(0,4,4,4))
               print(MAE)
               
               print(paste("DAC", LAG))
-              DAC <- xtable(DAC, digits = c(0,4,4,4))
-              #print(DAC)
+              #DAC <- xtable(DAC, digits = c(0,4,4,4))
+              print(DAC)
             }
 ```
 

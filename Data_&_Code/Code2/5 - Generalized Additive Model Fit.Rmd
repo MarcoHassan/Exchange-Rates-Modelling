@@ -1,0 +1,93 @@
+---
+title: "Generalized Additive Model Fit"
+output: html_notebook
+---
+
+Useful libraries
+```{r}
+## For generalized additive models modeling
+library(mgcv)
+library(xts)
+
+# For self defined functions
+source("0 - functions.R") ## for this section especially important is the SPA function that returns the bootstrapped interval for the superior preddiction ability hypothesis.
+```
+
+## Testing a parametric term against a smooth alternative --> page 312 book.
+
+Import data
+```{r}
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written Data/rawdata.csv"
+
+data <- read.csv(path)
+
+data <- as.xts(data[,-1], order.by = as.Date(data[,1]))
+```
+
+
+==========================
+Generalized Additive Model
+==========================
+
+Motivation: fit the data considering the nonlinear nature of the data.
+
+```{r}
+data <- as.data.frame(data)
+
+for(jSeries in c("T", "CPI", "UN", "M3", "M1", "TB"))
+{
+  par(mfrow = c(3,1))
+  for(iCountry in c("CH","JP", "UK"))
+  {
+   if(iCountry == "UK" && jSeries == "TB") next
+    
+   plot(data[, paste0(jSeries, "_US", iCountry)], 
+        data[, paste0("EX_", iCountry, "US")],
+        xlab = paste(jSeries), ylab = "EX-rate", main = paste(jSeries, iCountry))
+  }
+}
+```
+
+```{r}
+      
+    plot( evalue(paste0(jSeries, "_US", iCountry)), 
+          evalue(paste0("EX_US", iCountry))
+        )
+```
+
+
+```{r}
+sm <- smoothCon(s(T_USCH, k = 10), data = data2, knots = NULL)[[1]]
+beta <- coef(lm(data2$EX_CHUS ~ sm$X-1))
+with(data2, plot(T_USCH, EX_CHUS))
+
+## Create prediction matrix
+Trade <- seq(min(data2$T_USCH), max(data2$T_USCH), 100)
+
+Xp <- PredictMat(sm, data.frame(Trade))
+lines(Trade, Xp%*%beta)
+```
+
+
+```{r}
+sm <- smoothCon(s(times, k = 10), data = mcycle, knots = NULL)[[1]]
+beta <- coef(lm(mcycle$accel ~ sm$X-1))
+
+
+## Create prediction matrix
+times <- seq(0, 60, 200)
+Xp <- PredictMat(sm, data.frame(times))
+
+with(mcycle, plot(times, accel))
+lines(Trade, Xp%*%beta)
+
+with(brain, plot(X,Y))
+```
+
+```{r}
+aiuto <- brain$medFPQ>5e-3
+brain <- brain[aiuto,]
+
+m3 <- gam(medFPQ ~ s(Y, k = 30) + s(X = 30), family = Gamma(link=log), data = brain)
+```
+

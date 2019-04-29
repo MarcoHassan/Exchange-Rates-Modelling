@@ -1,6 +1,6 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output: rmarkdown::github_document
 ---
 
 =========
@@ -14,16 +14,16 @@ source("0 - functions.R") ## for this section especially important is the SPA fu
 ## To handle xts times series objects.
 library(xts)
 
-## To extract and plot Cointegration Common Trend
-library(CommonTrend)
-
+## To check at partition splits
+library(readr)
+library(stringr)
 ```
 
 ===========
 Import Data
 ===========
 ```{r}
-path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/stationary_GTS_pred.csv"
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Data_&_Code/Written\ Data/stationary_GTSVAR_pred.csv"
 
 data <- read.csv(path)
 
@@ -40,7 +40,7 @@ for(jCountry in c("CH", "JP", "UK"))
      grid.col = NA, col = 1))
   print(lines(data[,paste0("rwPred1_", jCountry, "US")],col= 2, lwd = 2))
   print(lines(data[,paste0("strPred1_", jCountry, "US")], col = "orange", lwd = 2))
-  print(lines(data[,paste0("GTSPred1_", jCountry, "US")], col = "violet", lwd = 2))
+  print(lines(data[,paste0("GTS_VARPred1_", jCountry, "US")], col = "violet", lwd = 2))
   print(addLegend("bottomleft", on=1, 
             legend.names = c("Original", "RW", "ARIMAX", "VAR", "VECM", "GTS"), 
             lty=c(1, 1), lwd=c(2, 1),
@@ -105,17 +105,17 @@ assign(paste0("numprediction", iLag), sum(
 }
 
 RMSE <- matrix(NA,4,3, 
-               dimnames = list( c("rw", "str", "var", "GTS"),
+               dimnames = list( c("rw", "str", "OLS", "GTS"),
                c("CH", "JP", "UK") )
                )
 
 MAE <- matrix(NA,4,3, 
-               dimnames = list( c("rw", "str", "var", "GTS"),
+               dimnames = list( c("rw", "str", "OLS", "GTS"),
                c("CH", "JP", "UK") )
                )
 
 DAC <- matrix(NA,4,3, 
-               dimnames = list( c("rw", "str", "var", "GTS"),
+               dimnames = list( c("rw", "str", "OLS", "GTS"),
                c("CH", "JP", "UK") )
                )
 ```
@@ -130,7 +130,7 @@ errorFun <-
               jCol = 1
               for( country in c("CH", "JP", "UK") )
               {
-                for( method in c("rw", "str", "var", "GTS") )
+                for( method in c("rw", "str", "OLS", "GTS_VAR") )
                 {
                   iRow = iRow + 1
                   
@@ -177,10 +177,8 @@ errorFun <-
 
 Evalue the function for different lags
 ```{r}
-for( iLAG in c(1,3,6) )  ##c(1, 3, 6, 12))
+for( iLAG in c(1,3,6, 12) )
 errorFun(iLAG)
-
-## Notice Japan at lag 1. Much better estimated via GTS. CH is highly biased by the big error in the one estimation. MAE performs better in this sense.
 ```
 
 ====================
@@ -190,22 +188,21 @@ Model Confidence set
 Model Confidence set
 ```{r}
 #Create u a matrix with all different univariate predictions: each column, one model prediction
-u <- na.trim(cbind(data$rwPred3_CHUS, data$varPred3_CHUS, data$strPred3_CHUS,
-                   data$GTSPred3_CHUS))
+u <- na.trim(cbind(data$rwPred1_UKUS, data$OLSPred1_UKUS, data$GTS_VARPred1_UKUS))
 
 n<-dim(u)[1]
-perf<-matrix(NA,n,4)
+perf<-matrix(NA,n,3)
 
 ## RECALL TO CHANGE ALSO HERE THE COUNTRY WHEN ADAPTING AND DERIVING P-VALUES.
-for (j in 1:4)
+for (j in 1:3)
 {
-  #perf[,j]<- abs(data$EX_CHUS-u[,j]) #MAE 
-  perf[,j] <- abs(data$EX_CHUS-u[,j])**2 #MSE
+  perf[,j]<- abs(data$EX_UKUS-u[,j]) #MAE 
+  #perf[,j] <- abs(data$EX_UKUS-u[,j])**2 #MSE
 }
 
 #colMeans(perf) ## Perf is a matrix containing for each column the loss function of one forecasting method.
   
-for (k in 1:4)
+for (k in 1:3)
 {
   print( paste("Benchmark model", colnames(u[,k]))	)
   d<-rep(0,1000)
@@ -213,12 +210,58 @@ for (k in 1:4)
   for (i in 1:10) ## iterate 10 times with spa 100 bootstrapped values each. Total = 1000.
   { 
      e<-spa(per=perf,column_benchmark_model=k,
-            num_predmodels=4,number_predictions=n,q=0.25,iter=100,periodogram=T)
+            num_predmodels=3,number_predictions=n,q=0.25,iter=100,periodogram=T)
      d[s:(s+99)]<-e$stat.boos
      s<-s+100
   }
   print(mean((d>e$stat))) ## fraction 
 }
 ```
+
+=============================
+Analysis of Partitioned Space
+=============================
+
+```{r}
+for(country in c("CH", "JP", "UK"))
+{
+  message(paste("\n\nFor country", country, "the optimal splits are at:\n"))
+  for( LAG in c("1", "3", "6", "12") )
+  {
+        message(paste("\nFor lag", LAG, "the optimal splits are at:\n"))
+    
+        prova <- read_file(paste0("Split/VAR/GTSVAR_", country, "_", LAG, ".txt"))
+        
+        patt <- "(?=Highest).*(?<=[:digit:])"
+        
+        optimal_part <- str_extract_all(prova, pattern = patt)
+
+        for (partition in c("1", "2", "3", "4", "5"))
+        {
+            cat(paste("\n", partition, "Optimal Partition:\n"))
+            print(sum(str_detect(optimal_part[[1]], partition)))
+            
+            cat(paste("\nPartition", partition, "splits:\n\n"))
+            ## Extract first partition characterisitics 
+            patt <- paste("(?<=For partition", partition, "the optimal).*(?<=])")
+            
+            first_part <- str_extract_all(prova, pattern = patt)
+            
+            for (method in c("UN", "TB", "M", "CPI", "T_", "time"))
+            {
+              ## Extract variable
+              patt <- paste0("(?=", method, ").*(?=%)")
+              
+              splitVar <- str_detect(first_part[[1]], pattern = patt)
+              
+              if(sum(splitVar) == 0)next
+              cat(paste("Method", method, "splits:\n"))
+              print(sum(splitVar))
+            }
+        }
+  }
+}
+```
+
 
 

@@ -30,10 +30,12 @@ clean <- function()
 {
   ENV <- globalenv()
   ll <- ls(envir = ENV)
-  ll <- ll[!(ll %in% c("data", "clean", "import", "write", "evalue", "acf_plots",
+  ll <- ll[!(ll %in% c("data", "data_univariate", "clean", "import", "write", "evalue", "acf_plots",
                        "adfTest", "seasonality", "suspectFrequency", "spa"))]
   rm(list = ll, envir = ENV)
 }
+
+clean()
 ```
 
 ===========
@@ -42,7 +44,7 @@ Data Import
 
 ```{r}
 ## Insert your path here
-path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Master thesis - codice/Written\ Data/clean_stationary.csv"
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Data_&_Code/Written\ Data/clean_stationary.csv"
 
 data <- read.csv(path)
 
@@ -224,7 +226,7 @@ sink(file_con, "out")
 for( LAG in c(1, 3, 6, 12) ) 
 {
   cat("this is lag: "); cat(LAG); cat("\n")
-  for( country in c("JP", "CH", "UK") )
+  for( country in c("CH", "JP", "UK") )
   {  
     cat("Country: "); cat(country); cat("\n")
     for( i in 1:(nrow(data2)-in_sample) )
@@ -256,15 +258,15 @@ for( LAG in c(1, 3, 6, 12) )
       
       ## Create an exogenous vector and specify the structur in the case of lag == 1
       ## to keep the column structure in a consistent way to fit the model
-      if ( LAG == 1) new_exogenous <- t(xnew[, help])
-      else new_exogenous <- xnew[, help]
+      if ( LAG == 1) {new_exogenous <- t(xnew[, help])} else new_exogenous <- xnew[, help]
       
       fcast1 <- predict(fit1, n.ahead = LAG, newxreg = new_exogenous)
       ## breeak prima qui.
       ## so that you have always 12 out of sample
+      
+      if(index(tail(xshort,1)) == nrow(data2)-LAG) break 
       data2[in_sample+(LAG-1)+i, 
             paste0("strPred", LAG, "_", country, "US")] <- fcast1$pred[1]
-      if(index(tail(xshort,1)) == nrow(data2)-LAG) break 
     }
   }
 }
@@ -341,7 +343,7 @@ for( country in c("JP", "CH", "UK") )
 ```
 
 
-Working well just last observation cannot be computed due to the lack of exogenous observations.
+Working well.
 ```{r}
 for( LAG in c(1, 3, 6, 12) ) 
 {
@@ -372,96 +374,12 @@ for( LAG in c(1, 3, 6, 12) )
 }
 ```
 
-
-===============================
-Vector Autoregressive Modelling
-===============================
-
-```{r}
-data2 <- as.data.frame(data2)
-endogenous <- c("EX_UKUS", "EX_JPUS", "EX_CHUS")
-exogenous <- !str_detect(colnames(data2), "^M1|^rw|^EX|^str|^OLS")
-data_exogenous <-  data2[, exogenous]
-```
-
-Create columns for inserting prediction results
-```{r}
-for(iPred in c(1,3,6,12)) 
-  { 
-    helper <- c("JP", "UK", "CH")
-    for(jCountry in helper)
-    {
-    data2[, paste0("varPred" , iPred, "_", jCountry, "US")] <- NA
-    }
-  } 
-```
-
-Iportant reminder of the predict_rolling function computations
-This function allows to check the out-of sample forecasting accuracy by
-estimating the model on a sub-sample of the original, then making
-\code{nroll} forcasts of horizont \code{n.ahead}, each time by updating the
-sample. In other words, with a given model estimated on 100 observations, the
-function will estimate it on say 90 first obs (\code{nroll=10}), generate a
-say 1 step-ahead \code{n.ahead=1} from obs 90, then using true value 91,
-92,... till full sample.
-
-Rolling prediction using VAR
-```{r}
-# number rolling prediction per forecasting time frame
-for(i in c(1,3,6,12))
-  {
-  assign(paste0("numprediction", i), sum(!is.na(data2[, paste0("rwPred", i, "_JPUS")])))
-  }
-
-## Estimate the rolling window forecast
-for(j in c("UK", "JP", "CH")) 
-  {
-    for(i in c(1,3,6,12))
-    {
-    lags <- VARselect(data2[, endogenous], lag.max = 7,
-          type = "none", exogen = data_exogenous) 
-    
-    min_lag <- min(lags$selection)
-
-    ## one lag the best
-    model <- lineVar(data2[, endogenous], 1, 
-                     lag = min_lag,
-                     include = "none", 
-                     model = "VAR", I = "level",
-                     estim = "ML", LRinclude = "none", 
-                     exogen = data_exogenous)
-            
-    parsed_text1 <- evalue(paste0("numprediction", i))
-    assign(paste0("endRow",i), nrow(data2) +1 - parsed_text1)
-    assign(paste0("pred_model", i), 
-           predict_rolling(model, nroll = parsed_text1, n.ahead = i, 
-                           refit.every = 1))
-    parsed_text2 <- evalue(paste0("pred_model", i))
-    parsed_text3 <- evalue(paste0("endRow", i))
-    if(j == "UK") list_member = 1
-    if(j == "JP") list_member = 2
-    if(j == "CH") list_member = 3
-    data2[parsed_text3:nrow(data2), 
-         paste0("varPred", i, "_", j, "US")] <- parsed_text2$pred[list_member]
-    }
-}
-```
-
 Convert back to xts
 ```{r}
+data2 <- as.data.frame(data2)
 data2 <- as.xts(data2, order.by = index(data))## transform back to xts
 data <- data2
 ```
-
-TO DO: Would be nice to calculate the degrees of freedom in order to understand how reliable the model is.
-
-Check at variance decomposition of the VAR to see whether the series present hgih endogeneity in the sense that the vector moving average model implied by the VAR modle suggests a high degree of spillovers from one variable to the next.
-
-```{r}
-plot(vars::fevd(model, ortho = T))
-```
-
-Endogeneity can be well ruled out in the series for the UKUS dollar and JPUS foreign exchange rates. This does not hold strictly for the CHUS foreign exchange rate that seems to be well infulenced by the UKUS forex evolution.
 
 Clean working space
 ```{r}
@@ -493,7 +411,7 @@ for ( iLag in c(1, 3, 6, 12) )
   for( country in c("CH", "JP", "UK") )
   {
     par(mfrow = c(3,1))
-    for( method in c("rw", "str", "var") )
+    for( method in c("rw", "str", "OLS") )
     {
       error <- tail(data[, paste0("EX_", country, "US")],
                           evalue(paste0("numprediction", iLag))

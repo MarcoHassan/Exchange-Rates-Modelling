@@ -1,4 +1,0 @@
-this is lag: 3
-Country: UK
-[1] "For partition 1 the optimal split is at M3_USUK 25% [i.e. -0.013837]"
-[1] "For partition 2 the optimal split is at TB_USUK 37.5% [i.e. -0.033545]"

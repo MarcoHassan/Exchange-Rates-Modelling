@@ -73,12 +73,12 @@ suspectFrequency <- function(x)
   p = periodogram(x, plot = F) ## short lag determinant
   dd = data.frame(freq=p$freq, spec=p$spec)
   order = dd[order(-dd$spec),]
-  top = head(order, 1)
+  top = head(order, 2)
   
   # convert frequency to time periods
   time = round(1/top$f)
   
-  time[1]
+  time[1:2]
 }
 
 #################################################################################
@@ -178,7 +178,7 @@ partitionSpace <- function(dat, grid_level = 16)
                     partitioned_space <- t(sapply(dat, quantile, 
                                                    probs = seq(0,1, 1/grid_level)))
                     
-                    partitioned_space <- partitioned_space[-nrow(partitioned_space), c(-1, -(grid_level+1))]
+                    partitioned_space <- partitioned_space[-(nrow(partitioned_space)), c(-1, -(grid_level+1))]
                     
                     return(partitioned_space)
                   }
@@ -251,11 +251,11 @@ fork <-
         ## Compute the likelihood measure for the model an keep the model just if it imporved compared to the current benchmark model.
         dat <- as.xts(dat, order.by = as.Date(index(dat)), frequency = 12)
         
-        right_res <- arimax(part_right[,ncol(dat)], 
-                            xreg = part_right[,-(ncol(dat))])$residuals
+        right_res <- arimax(part_right[,(ncol(dat))], 
+                            xreg = part_right[,-c((ncol(dat)-1), ncol(dat))])$residuals
         
-        left_res <- arimax(part_left[,ncol(dat)], 
-                           xreg = part_left[,-(ncol(dat))])$residuals
+        left_res <- arimax(part_left[,(ncol(dat))], 
+                           xreg = part_left[,-c((ncol(dat)-1), ncol(dat))])$residuals
         
         # Obtain residuals for the partitioned model:
         if(length(total_residual) == 1)
@@ -287,11 +287,11 @@ fork <-
           
           best_ress <- ress
           
-          right_model <- arimax(part_right[,ncol(dat)], 
-                               xreg = part_right[,-(ncol(dat))])$coef
+          right_model <- arimax(part_right[,(ncol(dat))], 
+                               xreg = part_right[,-c((ncol(dat)-1), ncol(dat))])$coef
           
-          left_model  <- arimax(part_left[,ncol(dat)], 
-                               xreg = part_left[,-(ncol(dat))])$coef
+          left_model  <- arimax(part_left[,(ncol(dat))], 
+                               xreg = part_left[,-c((ncol(dat)-1), ncol(dat))])$coef
           
           best_right <- right_res
           
@@ -331,7 +331,7 @@ bestFit <-
           {
             ## Initiate helper Variable
             empty_model = 0;
-            Log_likelihood = 0
+            Log_likelihood = -Inf
             indx = 1
             mylist <<- list()
             
@@ -390,7 +390,7 @@ GTS <- function(dat, max_Partition = 8)
   
   dat <- as.data.frame(dat)
   
-  global <<- arimax(dat[,ncol(dat)], xreg = dat[,-(ncol(dat))])
+  global <<- arimax(dat[,(ncol(dat))], xreg = dat[,-c((ncol(dat)-1), ncol(dat))])
   
   mPartition = 1
   max_lik1 <<- fork(dat, global)
@@ -598,7 +598,7 @@ prunedTree <- function()
 
 ## Function 15 - createTree
 
-createTree <- function(iterate, plot = F)
+createTree <- function(iterate, plot = F, main = "")
 {
   if(iterate == 1) return(NULL)
   
@@ -747,9 +747,9 @@ createTree <- function(iterate, plot = F)
     
     tree <- party(nodels, data = max_lik1$input_data)
     
-    if(plot == T)
+    if(plot == T) 
     {
-      plot(tree)
+      plot(tree, main, font.main=4, cex = 2)
     }
     
     return("NOT NULL")
@@ -778,7 +778,7 @@ createTree <- function(iterate, plot = F)
     
     if(plot == T)
     {
-      plot(tree)
+      plot(tree, main, font.main=4, cex = 2)
     }
     
     return("NOT NULL")
@@ -795,11 +795,11 @@ GTSEstimate <- function(new_data)
 {
   if(is.null(condition))
     {
-      model <- arimax(xshort[, ncol(xshort)], 
-                       xreg = xshort[, -ncol(xshort)])
+      model <- arimax(xshort[, (ncol(xshort))], 
+                       xreg = xshort[,-c((ncol(xshort)-1), ncol(xshort))])
       
-      return(new_data %*% model$coef)
-      }
+      return(new_data[, -ncol(new_data)] %*% model$coef)
+  }
   
   ## Check in which branch the observation falls [Condition 1]
   if(new_data[, (prova$nodes[1][[1]]$split$varid+1)] >
@@ -817,7 +817,7 @@ GTSEstimate <- function(new_data)
   {
     ## If it is return the forcasted value with the parametric model 
     ## at the end node
-    return(new_data %*% prova$model[next_node_id][[1]])
+    return(new_data[, -ncol(new_data)] %*% prova$model[next_node_id][[1]])
   } 
   
   ## If it is not iterate the process above from [Condition 1]
@@ -838,7 +838,7 @@ GTSEstimate <- function(new_data)
     {
       ## If it is return the forcasted value with the parametric model at 
       ## the end node
-      return(new_data %*% prova$model[next_node_id][[1]])
+      return(new_data[, -ncol(new_data)] %*% prova$model[next_node_id][[1]])
     } 
   }
 }

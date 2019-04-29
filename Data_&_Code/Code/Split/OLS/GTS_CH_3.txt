@@ -1,0 +1,166 @@
+[1] "For partition 1 the optimal split is at time 56.25% [i.e. 82.000000]"
+[1] "For partition 2 the optimal split is at CPI_USCH 50% [i.e. -0.022026]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at time 50% [i.e. 74.000000]"
+[1] "For partition 1 the optimal split is at time 56.25% [i.e. 84.000000]"
+[1] "For partition 2 the optimal split is at CPI_USCH 50% [i.e. -0.016434]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at time 56.25% [i.e. 85.000000]"
+[1] "For partition 2 the optimal split is at CPI_USCH 50% [i.e. -0.016434]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at time 56.25% [i.e. 86.000000]"
+[1] "For partition 2 the optimal split is at CPI_USCH 50% [i.e. -0.014124]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at time 56.25% [i.e. 87.000000]"
+[1] "For partition 2 the optimal split is at CPI_USCH 50% [i.e. -0.014124]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at time 56.25% [i.e. 88.000000]"
+[1] "For partition 2 the optimal split is at CPI_USCH 50% [i.e. -0.014124]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at time 56.25% [i.e. 89.000000]"
+[1] "For partition 2 the optimal split is at CPI_USCH 50% [i.e. -0.010220]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at time 43.75% [i.e. 72.000000]"
+[1] "For partition 2 the optimal split is at M3_USCH 50% [i.e. 0.007679]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at time 50% [i.e. 82.000000]"
+[1] "For partition 1 the optimal split is at time 43.75% [i.e. 74.000000]"
+[1] "For partition 2 the optimal split is at M3_USCH 50% [i.e. 0.007679]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at time 43.75% [i.e. 75.000000]"
+[1] "For partition 2 the optimal split is at TB_USCH 50% [i.e. 0.035115]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at time 50% [i.e. 85.000000]"
+[1] "For partition 1 the optimal split is at time 50% [i.e. 86.000000]"
+[1] "For partition 1 the optimal split is at time 50% [i.e. 87.000000]"
+[1] "For partition 1 the optimal split is at time 50% [i.e. 88.000000]"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at time 50% [i.e. 82.000000]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at time 50% [i.e. 82.000000]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at time 50% [i.e. 82.000000]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at time 50% [i.e. 87.000000]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.039028]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006801]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.039028]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006801]"
+[1] "For partition 2 the optimal split is at time 50% [i.e. 93.000000]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006801]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.046777]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.046777]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.046777]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.046777]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.039028]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.033181]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.039028]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at time 37.5% [i.e. 85.000000]"
+[1] "For partition 2 the optimal split is at M3_USCH 50% [i.e. 0.005732]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.007199]"
+[1] "For partition 2 the optimal split is at TB_USCH 50% [i.e. -0.037197]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.007199]"
+[1] "For partition 2 the optimal split is at TB_USCH 50% [i.e. -0.037197]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006801]"
+[1] "For partition 2 the optimal split is at T_USCH 50% [i.e. -0.017883]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at T_USCH 50% [i.e. -0.017883]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.010193]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. -0.010193]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006625]"
+[1] "For partition 2 the optimal split is at CPI_USCH 50% [i.e. 0.023162]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006686]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. 0.000016]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006801]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. 0.000016]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.007199]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. 0.007504]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.007199]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. 0.007504]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006801]"
+[1] "For partition 2 the optimal split is at M3_USCH 50% [i.e. -0.016308]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.006801]"
+[1] "For partition 2 the optimal split is at UN_USCH 50% [i.e. 0.005591]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.007199]"
+[1] "For partition 2 the optimal split is at M3_USCH 50% [i.e. -0.016078]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USCH 56.25% [i.e. 0.007199]"
+[1] "For partition 2 the optimal split is at M3_USCH 50% [i.e. -0.016078]"
+
+[1] "Highest Infromation Criteria is at Partition 2"

@@ -1,0 +1,139 @@
+[1] "For partition 1 the optimal split is at time 31.25% [i.e. 46.000000]"
+[1] "For partition 2 the optimal split is at TB_USUK 43.75% [i.e. -0.100417]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at time 31.25% [i.e. 47.000000]"
+[1] "For partition 2 the optimal split is at TB_USUK 43.75% [i.e. -0.100417]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at time 31.25% [i.e. 48.000000]"
+[1] "For partition 2 the optimal split is at TB_USUK 43.75% [i.e. -0.081353]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at time 37.5% [i.e. 58.000000]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.013020]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at time 37.5% [i.e. 59.000000]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.013020]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at time 37.5% [i.e. 60.000000]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. 0.004459]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 37.5% [i.e. -0.129438]"
+[1] "For partition 2 the optimal split is at M3_USUK 50% [i.e. 0.007273]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 37.5% [i.e. -0.122835]"
+[1] "For partition 2 the optimal split is at TB_USUK 56.25% [i.e. 0.237303]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 37.5% [i.e. -0.122835]"
+[1] "For partition 2 the optimal split is at TB_USUK 56.25% [i.e. 0.233202]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 37.5% [i.e. -0.129438]"
+[1] "For partition 2 the optimal split is at time 50% [i.e. 78.500000]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 43.75% [i.e. -0.061715]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. 0.213482]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 43.75% [i.e. -0.061715]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. 0.213482]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 37.5% [i.e. -0.122835]"
+[1] "For partition 2 the optimal split is at UN_USUK 56.25% [i.e. -0.011300]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 43.75% [i.e. -0.061715]"
+[1] "For partition 2 the optimal split is at UN_USUK 50% [i.e. -0.024621]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at TB_USUK 43.75% [i.e. -0.065228]"
+[1] "For partition 2 the optimal split is at UN_USUK 50% [i.e. -0.017417]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at TB_USUK 43.75% [i.e. -0.079087]"
+[1] "For partition 2 the optimal split is at UN_USUK 50% [i.e. -0.015632]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at TB_USUK 43.75% [i.e. -0.082487]"
+[1] "For partition 2 the optimal split is at UN_USUK 50% [i.e. -0.015320]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at TB_USUK 43.75% [i.e. -0.082487]"
+[1] "For partition 2 the optimal split is at UN_USUK 50% [i.e. -0.015320]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at UN_USUK 43.75% [i.e. -0.019115]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.072158]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at UN_USUK 43.75% [i.e. -0.019115]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.072158]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at UN_USUK 43.75% [i.e. -0.019202]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.079087]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at UN_USUK 43.75% [i.e. -0.019202]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.065228]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 56.25% [i.e. 0.055833]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.299702]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 56.25% [i.e. 0.055833]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.299702]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 56.25% [i.e. 0.049580]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.306177]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 56.25% [i.e. 0.049580]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.306177]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 56.25% [i.e. 0.049580]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.306177]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 56.25% [i.e. 0.039724]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.306177]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 56.25% [i.e. 0.039724]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.306177]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 56.25% [i.e. 0.039724]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.293228]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at TB_USUK 56.25% [i.e. 0.049580]"
+[1] "For partition 2 the optimal split is at T_USUK 50% [i.e. -0.033110]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. 0.017944]"
+[1] "For partition 1 the optimal split is at TB_USUK 56.25% [i.e. 0.049580]"
+[1] "For partition 2 the optimal split is at TB_USUK 50% [i.e. -0.286973]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. -0.007732]"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. -0.018309]"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. -0.007732]"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. -0.018309]"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. -0.018309]"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. -0.007732]"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. 0.016650]"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. 0.016650]"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. 0.016650]"
+[1] "For partition 1 the optimal split is at TB_USUK 50% [i.e. 0.016650]"

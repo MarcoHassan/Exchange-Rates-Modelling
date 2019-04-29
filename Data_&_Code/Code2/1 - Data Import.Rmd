@@ -1,0 +1,347 @@
+---
+title: "Master thesis code - FX rates. A nonlinear evaluation"
+output:  rmarkdown::github_document
+---
+
+Libraries used
+```{r}
+## Data collection library
+
+library(quantmod) ##same principle as Quandl, not limited by the amount of API calls though and connect to multiple daset providers. In this study we will mainly query the FRED database and extract data by referring to their API.
+
+## Import self defined functions
+source("0 - functions.R")
+```
+
+Specify a function to clean the environment and do it
+```{r}
+clean <- function() {
+  ENV <- globalenv()
+  ll <- ls(envir = ENV)
+  ll <- ll[!(ll %in% c("data", "clean", "import", "write", "evalue", "acf_plots",
+                       "adfTest", "seasonality", "suspectFrequency", "spa"))]
+  rm(list = ll, envir = ENV)
+}
+```
+
+===============
+Data Collection
+===============
+
+###########
+FX - rates
+###########
+
+Download foreign exchange rates
+```{r}
+Symbols <- c("EXUSUK", "EXJPUS", "EXSZUS")
+
+FX <-  get_Symbols(Symbols)
+
+## Invert the USUK rate to UKUS to keep it consistent with the other series
+FX[[1]] <- 1/FX[[1]]
+
+FX <- do.call(merge, FX)
+
+colnames(FX)[] <- c("EX_UKUS", "EX_JPUS", "EX_CHUS")
+
+## notice like that all of the evaluation will be performed compared to the usa. if you want to make smaller bilateral comparison you need to download the other forex.
+```
+
+###
+GDP
+###
+
+GDP is an aggregated statistic that is published on a quarterly basis. You can use monthly proxies. Electricity consumption? Industrial production? <-> this is normalized to 100. Is that good?
+
+Unemployment not good. Does not capture the size of an economy. Here it will be important but it will be nonetheless incorporated throught the constant.
+```{r}
+## use industrial production? 
+## use unemployment rate. This approach preferred
+Symbols <- c("LRUN64TTUSM156N", "LRUN64TTJPM156N", "LMUNRRTTCHM156N", "LMUNRRTTGBM156N") #F not seasonally adjusted.
+
+UNply <- get_Symbols(Symbols)
+
+UNply <- do.call(merge, UNply) ## notice the unemployment series for UK starts just in the 90s.
+
+colnames(UNply) <- c("UN_US", "UN_JP", "UN_CH", "UN_UK")
+```
+
+
+################
+Short term bills
+################
+
+Treasury bills for capturing short term attractiveness of investments
+```{r}
+Symbols <- c("TB3MS","INTGSTJPM193N","TBDRUKM")
+ ## 3 months bill rate usa; secondary market.
+ ## bill for japan; explaination not clear. check at it again to clearly understand what it is precisely.
+ ## treasury bill for uk
+
+bills <- get_Symbols(Symbols)
+
+bills<- do.call(merge, bills) 
+
+colnames(bills) <- c("TB_US", "TB_JP", "TB_UK") ## Treasury bills
+
+## above not available for switzerland. use interbank rate for it.
+```
+
+Use interbank for CH
+```{r}
+Symbols <- c("IR3TIB01CHM156N","IR3TIB01USM156N") #,"IR3TIB01GBM156N", "IR3TIB01JPM156N")
+
+LIBOR <- get_Symbols(Symbols)
+
+LIBOR <- do.call(merge, LIBOR) 
+
+colnames(LIBOR) <- c("TBL_US", "TBL_CH") 
+
+```
+
+
+#############
+Monetary base
+#############
+
+Problem you are taking differentials for all of the above measures. The values should consequently be consistent and comparable. Use M3 or M1 for all; these should be similarly defined.
+```{r}
+Symbols <- c("MYAGM3USM052N", "MYAGM3JPM189N", "MABMM301GBM189N", "MABMM301CHM189N") #us, jp, uk, not seasonally adjusted. 
+
+M3 <- get_Symbols(Symbols)
+
+M3 <- do.call(merge, M3)
+
+colnames(M3) <- c("M3_US", "M3_JP", "M3_UK", "M3_CH")
+
+## all the values in national currency. Will need to transform them at a later period using FX-rate and then take the logarithm.
+
+```
+
+Extract M1
+```{r}
+Symbols <- c("M1NS", "MANMM101JPM189N", "MANMM101GBM189N", "MANMM101CHM189N") 
+
+M1 <- get_Symbols(Symbols)
+
+M1 <- do.call(merge, M1)
+
+colnames(M1) <- c("M1_US", "M1_JP", "M1_UK", "M1_CH")
+
+
+## all the values in national currency. Will need to transform them at a later period using FX-rate and then take the logarithm.
+```
+
+###
+CPI
+###
+
+```{r}
+## all not seasonally adjusted, all with basis 2015
+Symbols <- c('CHECPIALLMINMEI', 'JPNCPIALLMINMEI', 'GBRCPIALLMINMEI', 'USACPIALLMINMEI')
+
+CPI <- get_Symbols(Symbols)
+
+CPI <- do.call(merge, CPI)
+
+colnames(CPI) <- c("CPI_CH", "CPI_JP", "CPI_UK", "CPI_US")
+  
+## Important difference, lapply applies a function over a list, do.call calls a function with a list of arguments.
+
+## CHECPIALLMINMEI ## switzerland from FRED; harmonised index; basis 2015
+## JPNCPIALLMINMEI ## japan; basis 2015
+## GBRCPIALLMINMEI ## uk; basis 2015
+## USACPIALLMINMEI ## usa, basis 2015
+
+## good all with the same basis
+```
+
+##############
+Trade balances
+##############
+
+```{r}
+## Current accounts are available just on quartal level. Two options use current accounts and hold it fix for the entire quartal.
+
+## Option two; chosen option, find a proxy for the current account balance.
+
+Symbols <- c("XTNTVA01CHM664N", "XTNTVA01JPM664N", "XTNTVA01USM664N", "XTNTVA01GBM664N")
+ ## net trade. monthly not seasonally adjusted. broad proxy for current account balance.
+
+Trade <- get_Symbols(Symbols)
+
+Trade <- do.call(merge, Trade)
+
+colnames(Trade) <- c("T_CH", "T_JP", "T_US", "T_UK") 
+
+## check at the currency. All in national currency! Convert them. 
+```
+
+
+###########################
+Merge all of the statistics
+###########################
+
+```{r}
+data <- merge.xts(FX, bills, LIBOR, CPI, M1, M3, Trade, UNply) ##dagli anni '90 al 2005 hai tutte le statistiche.
+
+
+
+data <- data["1986-09-01/2006-02-01"] ## extract a complete dataset without NA; notice if you run the analysis with M1 you have complete data until 2013.
+
+## with M3 1990-01-01/2006-02-01
+
+length(data[,1]) ## 194 observations per ts
+
+## Transform all the variables in USD currency
+
+#UK statistics are poor. For the other countries you can run the analysis back to the '70s. For UK because of M3 and especially unemployment rate the comparison is much more limited.
+```
+
+Clean Enivronment
+```{r}
+clean()
+```
+
+
+
+###################
+Data transformation
+###################
+
+Transform M1, M3 and Trade balance sheets in USD. Compute cumulative Trade balance sheet.
+Transform also the interest rate in USD interest rate. Assume FX-rate martingale. Otherwise you would have to download the forward interest rate. 
+```{r}
+series <- c("M1", "M3", "TB", "T")
+
+for(j in series){
+                  country <- c("JP", "CH", "UK")
+                  for (i in country)
+                  {
+                  if(paste0(j, "_", i) == "TB_CH")
+                    data[, "TBL_CH"] <-  data$TBL_CH / data$TBL_US
+                  
+                  else
+                       data[,paste0(j, "_", i)] <- 
+                                                    evalue(paste0("data$", j, 
+                                                                  "_", i)
+                                                           ) /
+                                                    evalue(paste0("data$EX_", i, "US")
+                                                           )
+                  }
+}
+
+clean()
+  
+##Explaination of the code above; a loop in a loop to paste the code the right way and convert all of the variables into USD values. This will facilitate the comparison and the times series analysis at a later step.
+```
+
+Transform Trade to cumulative trade variable
+```{r}
+#country <- c("JP", "CH", "UK", "US")
+
+#for(j in country){
+#    total = 0
+#    for(i in 1:length(data$T_CH)){
+#      total = total + as.numeric(data[i, paste0("T_", j)])
+#      data[i, paste0("T_", j)] <- total
+#    }
+#}
+
+#clean()
+```
+
+Logarithm transformation
+```{r}
+series <- c("M1", "M3", "EX")
+country <- c("JP", "CH", "UK", "US")
+for(j in series)
+{
+  for(i in country)
+  {
+    if(j != "EX")
+      {
+      data[, paste0(j, "_", i)] <- log(data[, paste0(j, "_", i)])
+      }
+    else
+      {
+      if (i != "US")
+        {
+        data[, paste0(j, "_", i, "US")] <- log(data[, paste0(j, "_", i,"US")]) 
+        }
+      }
+  }
+}
+  
+
+clean()
+```
+
+
+###################################
+Create independent variables series
+###################################
+
+To do that we have to create new series. Convert to data.frame to make this possible vectorizing.
+```{r}
+data2 <- as.data.frame(data)
+```
+
+The series to be created
+
+(i) log(M1_US/M1_Foreign)
+
+(ii) log(M3_US/M3_Foreign)
+
+(iii) UN_US - UN_Foreign
+
+(iv)  CPI_US - CPI_Foreign
+
+(v) Cumulative Trade differential
+```{r}
+## as the series are already in log. just take the difference
+series <- c("TB", "M3", "UN", "M1", "CPI", "T")
+for(i in series){
+  country <-  c("CH", "JP", "UK") 
+  for(j in country){
+    
+    if((i == "TB") & (j == "CH")) 
+     data2[, paste0(i, "_US",  j)] <- data2$TBL_US - data2$TBL_CH
+    else
+    data2[, paste0(i, "_US",  j)] <- 
+      data2[,paste0(i,"_US")] - data2[,paste0(i, "_", j)]
+  }
+} 
+```
+
+Normalize the trade differential initial value to one for computational precision.
+```{r}
+for ( iCountry in c("CH", "JP", "UK") )
+{
+  data2[, paste0("T_US",  iCountry)] <- data2[, paste0("T_US",  iCountry)] /
+                                        data2[1, paste0("T_US",  iCountry)]
+}
+## this step is advisable to avoid swamping because of the very high values of the trade balance sheet differentials
+
+## Important you normalized with a negative number and accordingly the coefficient of the subsequent regression will be of inverted sign.
+```
+
+
+Convert back to xts
+```{r}
+data <- xts(data2, order.by=index(data))
+
+## clean workspace
+clean()
+```
+
+Keep just the series of interes
+```{r}
+data <- cbind(data[,29:ncol(data)], data[,1:3])
+```
+
+Write the data
+```{r}
+write(data, "rawdata.csv")
+```

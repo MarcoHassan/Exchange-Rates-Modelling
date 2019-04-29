@@ -1,0 +1,184 @@
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.026483]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.026483]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 56.25% [i.e. -0.000401]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009400]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.025525]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009400]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.025525]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009400]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.025525]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.024566]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.024566]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.008621]"
+[1] "For partition 2 the optimal split is at T_USJP 56.25% [i.e. -0.000401]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.008621]"
+[1] "For partition 2 the optimal split is at T_USJP 56.25% [i.e. -0.000401]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 43.75% [i.e. -0.052810]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009400]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.022730]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009400]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.018861]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.016829]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.008212]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.016829]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 56.25% [i.e. 0.004333]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 37.5% [i.e. -0.009152]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.016829]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at T_USJP 68.75% [i.e. 0.062711]"
+[1] "For partition 2 the optimal split is at M3_USJP 43.75% [i.e. -0.001610]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at T_USJP 68.75% [i.e. 0.062711]"
+[1] "For partition 2 the optimal split is at M3_USJP 43.75% [i.e. -0.001610]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at T_USJP 68.75% [i.e. 0.062711]"
+[1] "For partition 2 the optimal split is at M3_USJP 43.75% [i.e. -0.001610]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at T_USJP 68.75% [i.e. 0.062711]"
+[1] "For partition 2 the optimal split is at M3_USJP 43.75% [i.e. -0.001610]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at T_USJP 68.75% [i.e. 0.065495]"
+[1] "For partition 2 the optimal split is at M3_USJP 43.75% [i.e. -0.000833]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at T_USJP 68.75% [i.e. 0.062711]"
+[1] "For partition 2 the optimal split is at M3_USJP 43.75% [i.e. -0.001610]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USJP 43.75% [i.e. -0.004718]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.018861]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at UN_USJP 31.25% [i.e. -0.184144]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.012521]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 43.75% [i.e. -0.004718]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.012521]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at T_USJP 68.75% [i.e. 0.065495]"
+[1] "For partition 2 the optimal split is at M3_USJP 43.75% [i.e. -0.000833]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USJP 43.75% [i.e. -0.004718]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.018861]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at UN_USJP 31.25% [i.e. -0.184144]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.012521]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at T_USJP 68.75% [i.e. 0.062711]"
+[1] "For partition 2 the optimal split is at M3_USJP 43.75% [i.e. 0.000429]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at T_USJP 68.75% [i.e. 0.062357]"
+[1] "For partition 2 the optimal split is at M3_USJP 43.75% [i.e. 0.000663]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at UN_USJP 31.25% [i.e. -0.165081]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.012858]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at UN_USJP 31.25% [i.e. -0.165081]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.008550]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at UN_USJP 31.25% [i.e. -0.165081]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.008550]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at T_USJP 68.75% [i.e. 0.062357]"
+[1] "For partition 2 the optimal split is at M3_USJP 43.75% [i.e. 0.000663]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USJP 43.75% [i.e. -0.003582]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.017400]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at M3_USJP 43.75% [i.e. -0.001844]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.019431]"
+
+[1] "Highest Infromation Criteria is at Partition 2"
+[1] "For partition 1 the optimal split is at UN_USJP 31.25% [i.e. -0.157200]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.008887]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at UN_USJP 31.25% [i.e. -0.157200]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.008887]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at UN_USJP 31.25% [i.e. -0.154605]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.008550]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USJP 68.75% [i.e. 0.019267]"
+[1] "For partition 2 the optimal split is at time 50% [i.e. 113.000000]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USJP 68.75% [i.e. 0.019267]"
+[1] "For partition 2 the optimal split is at time 50% [i.e. 114.000000]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at M3_USJP 68.75% [i.e. 0.019267]"
+[1] "For partition 2 the optimal split is at UN_USJP 56.25% [i.e. 0.031294]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at UN_USJP 31.25% [i.e. -0.157200]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.008887]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
+[1] "For partition 1 the optimal split is at UN_USJP 31.25% [i.e. -0.157200]"
+[1] "For partition 2 the optimal split is at T_USJP 50% [i.e. -0.008887]"
+
+[1] "Highest Infromation Criteria is at Partition 1"
