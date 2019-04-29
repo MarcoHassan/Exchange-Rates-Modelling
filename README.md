@@ -46,7 +46,11 @@ Step 2: Compute statistics for different distance measures from the realizations
 Step 3: Perform an analysis of the predictive power using the Diebold Mariano test
 
 
-#### In levels, with cointegration analysis and VECM
+#### Stationary multivariate fit with cointegration analysis and VECM
 
-![image](https://user-images.githubusercontent.com/42472072/54478942-b4252f80-4820-11e9-8b5f-d67a502dac88.png)
+![image](https://user-images.githubusercontent.com/42472072/56908020-c80db380-6aa5-11e9-8083-1ed3bb31e837.png)
+
+#### Stationary GTS OLS fit
+
+![image](https://user-images.githubusercontent.com/42472072/56907768-474eb780-6aa5-11e9-84fa-66c62f3d3f56.png)
 
