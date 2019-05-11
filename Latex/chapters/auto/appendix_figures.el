@@ -1,8 +1,9 @@
 (TeX-add-style-hook
- "dataset"
+ "appendix_figures"
  (lambda ()
    (LaTeX-add-labels
-    "sec:dataset"
-    "eq:seasonal adjustment"))
+    "fig:CH"
+    "fig:JP"
+    "fig:UK"))
  :latex)
 

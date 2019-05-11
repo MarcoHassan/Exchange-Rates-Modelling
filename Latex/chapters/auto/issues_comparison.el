@@ -1,8 +1,7 @@
 (TeX-add-style-hook
- "dataset"
+ "issues_comparison"
  (lambda ()
    (LaTeX-add-labels
-    "sec:dataset"
-    "eq:seasonal adjustment"))
+    "results"))
  :latex)
 

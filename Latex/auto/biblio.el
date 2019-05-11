@@ -28,6 +28,25 @@
     "DickeyFuller"
     "QuinnHannan"
     "Schwarz"
-    "Akaike"))
+    "Akaike"
+    "KuglerKrager"
+    "Lucas"
+    "Hsieh"
+    "Chinn"
+    "TaylorTaylor"
+    "FrenkelGalliGiovannini"
+    "Lyons"
+    "SarnoTaylor"
+    "EngleHamilton"
+    "BreimanFriedman"
+    "AudrinoBuhlmann"
+    "Hamilton"
+    "SETAR_Tong"
+    "Breiman"
+    "Cavanough"
+    "Mcquarrie"
+    "Nerlove"
+    "Saxonhouse"
+    "Puhani"))
  :bibtex)
 

@@ -1,14 +1,10 @@
 (TeX-add-style-hook
- "results"
+ "appendix_results"
  (lambda ()
    (LaTeX-add-labels
-    "sec:results"
     "table:MAEunivariate"
-    "tab:Co-Integration"
+    "tab:Cointegration"
     "table:MAEmultivariate"
-    "subfig:gdp"
-    "subfig:un"
-    "fig:macro"
     "table:GTS-OLS fit"))
  :latex)
 
