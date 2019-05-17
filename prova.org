@@ -38,7 +38,11 @@ Step 3: ARIMAX
 **** In detrended and seasonally adjusted series
 
 #+BEGIN_SRC latex :exports results
-\latex
+  \latex
 #+END_SRC
 
 
+
+#+BEGIN_LaTeX
+   \LaTeX
+#+END_LaTeX
