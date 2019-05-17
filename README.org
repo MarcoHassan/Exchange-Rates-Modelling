@@ -2,7 +2,8 @@
 #+TITLE: Exchange-Rates-Modelling
 #+AUTHOR: Marco Hassan
 
-This repository contains my R and \latex code for my master thesis. 
+This repository contains my R and LATEX code for my master thesis in
+line with the idea of /Reproducible Research/.
 
 The idea was to analyze the foreign exchange disconnect puzzle
 claiming a weak relation among macroeconomic fundamentals and
@@ -91,7 +92,33 @@ For each step of the thesis a R markdown was written.
    structured model.
 
 
-o
+*  Notes
+
+Coding the generalized tree structure model was a valuable exercise
+given the complexity of the underlying algorithm and the need to
+partition at each step the data set at each terminal node, combining
+the local parametric residuals of the partition with the residuals of
+each other terminal node and to compare the result with all of the
+other possible partitions in the partition space.
+
+After heaving debugging and testing the code is functioning although
+surely not efficient. Functions 9-15 fully implement the algorithm
+outlined by Audrino & Bühlmann. 
+
+At the moment the code is functional
+just for the data set created in this repository. It can be though
+easily generalized to ask for a parametric model as argument together
+with the exogenous and endogenous variables. 
+
+Moreover, if you will ever have time and interest it will be a good
+exercise to start to profile and optimize the code. You can compare
+the results of your model to the one of [[https://cran.r-project.org/web/packages/party/party.pdf][party]] that should achieve a
+similar task to the one developed here. Due to the vague explanation
+of the package workings when fitting the model via likelihood, I
+preferred to implement the code by myself as a valuable learning experience.
+
+
+
 
 
 
