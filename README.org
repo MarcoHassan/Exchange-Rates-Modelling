@@ -2,8 +2,8 @@
 #+TITLE: Exchange-Rates-Modelling
 #+AUTHOR: Marco Hassan
 
-This repository contains my R and LATEX code for my master thesis in
-line with the idea of /Reproducible Research/.
+This repository contains my R code for my master thesis in
+line with the idea of /Reproducible Research/. 
 
 The idea was to analyze the foreign exchange disconnect puzzle
 claiming a weak relation among macroeconomic fundamentals and
