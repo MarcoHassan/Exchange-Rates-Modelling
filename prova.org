@@ -2,47 +2,99 @@
 #+TITLE: Exchange-Rates-Modelling
 #+AUTHOR: Marco Hassan
 
-*Work in progress..*
+This repository contains my R and \latex code for my master thesis. 
 
-Download the data using quantmod. Multiple data provider: OECD, FED, SNB, BJP etc...
+The idea was to analyze the foreign exchange disconnect puzzle
+claiming a weak relation among macroeconomic fundamentals and
+FX-rates. Given the small sample used by the reference paper Meese and
+Rogoff (1983a) and Meese and Rogoff (1983b) that
+documented the phenomena I decided to further investigate the puzzle
+collecting data for a 20 years period and to contribute to the
+literature by testing the performance of univariate and multivariate
+models. Moreover, on the top of it I assessed the performance of the
+generalized tree structured model of Audrino and Bühlmann (2001)
+similar to the CART models.
 
-** Data cleaning:
+** Abstract
 
-Step 1: detrend the data series.
-
-Step 2: check the seasonality frequency using FFT
-
-Step 3: remove seasonality
-
-Step 4: Run unit root tests
-
-Step 5: Perform structural break tests
-
-** Linear Modelling:
-
-Step 1: Random Walk forecasting with multiple lags.
-
-Step 2: VAR 
-    
-      2.1 Lag estimation via information criteria and likelihood ratio tests.
-      
-      2.2 Model estimation via maximum likelihood. 
-      
-      2.3 Variance decomposition of the implied impulse response and the within implied vector moving average model in order to check
-      for endogeneity in the series.
-
-Step 3: ARIMAX
-
-** Out of Sample Performance:
-
-**** In detrended and seasonally adjusted series
-
-#+BEGIN_SRC latex :exports results
-  \latex
-#+END_SRC
+#+BEGIN_QUOTE
+  This study reports an estimation of the out-of-sample performance of
+  univariate, multivariate, and non-linear parametric monetary models
+  contributing to the analysis of the Meese Rogoff paradox for the
+  empirical CHF/USD, GBP/USD and JPY/USD series. 20 years of monthly
+  observations and five models are analysed.  In line with the
+  academic literature I find a random walk model to be the best
+  univariate model to capture the unit root behaviour of FX-rates and
+  to forecast the latter out-of-sample.  Nonetheless, in contrast with
+  the general academic literature I do not find multivariate models
+  to underperform a random walk model when forecasting FX-rates out of
+  sample. Rather, I find that a vector error correction model
+  representing the cointegration evidence among macroeconomics
+  fundamentals and FX-rates to marginally outperform a random walk model
+  for all the country series and at all estimation lags. Finally, the
+  considereable out of sample performance of the generalized
+  structured model points to non linear macroeconomic effects in line with
+  the stable relation properties of the co-integration analysis suggesting
+  a sluggish adjustment process to the stable lung run equilibria rather than
+  a gradual adjustment as implied in the error correction model.
+#+END_QUOTE
 
 
+** Code
 
-#+BEGIN_LaTeX
-   \LaTeX
-#+END_LaTeX
+The code is divided in chapters. 
+
+For each step of the thesis a R markdown was written.
+
+ - *0 - functions:* contains globally specified functions that are going
+   to be leveraged throughout the various scripts.
+
+ - *1 - Data Import:* leverages quantmod =API= to connect to the
+   St. Louis FRED databases and download the macroeconomic series of
+   interest.
+
+ - *2 - Data Cleaning:* here the series are treated and checked for
+   structural breaks, mean stationarity and variance
+   stationarity. Moreover the series are de-seasonalized according to
+   spectral peaks and a parametric Fourier estimation leveraging the
+   classical trigonometric functions.
+
+ - *2.1  Cointegration Test:* given the evidence for integrated series
+   of order 1, resulting from script 2, co-integration is tested in
+   the series according to the Johansen Eigenvalue test statistic.
+
+ - *3 - Stationary Linear Modeling:* fit two univariate models
+   (structural OLS & Transfer Function Models) to the treated
+   stationary series.
+
+ - *3.1 Levels Linear Modeling:* fit a vector error correction model
+   and a VAR in difference.
+
+ - *4. Linear Fit Comparison:* plot the out-of-sample performance of
+   the univariate. Moreover, it computes the
+   bootstrapped p-values for the underlying superior predictability
+   test among the models necessary to derive a model confidence set as
+   in Hansen (2011).
+
+ - *4.1 Common Trend Plot and Linear Fit:* repeats *4*, for the
+   multivariate models also decomposing the co-integration relation
+   extracting the common trends as in Gonzalo and Grange(1995).
+
+ -  *5 - Generalized Tree Structured Model:* Fit the generalized tree
+   structured threshold model of Audrino and Bühlmann to the
+   analysis with local structural OLS fit without inclusion of lagged terms.
+
+ -  *5.1  GTS VAR:* Analogous to *5* for a multivariate local
+   parametric fit.
+
+ - *6 - GTS Comparison:* Analogous to *4* for the generalized tree
+   structured model.
+
+
+o
+
+
+
+
+
+
