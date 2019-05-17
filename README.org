@@ -7,13 +7,13 @@ line with the idea of /Reproducible Research/.
 
 The idea was to analyze the foreign exchange disconnect puzzle
 claiming a weak relation among macroeconomic fundamentals and
-FX-rates. Given the small sample used by the reference paper Meese and
-Rogoff (1983a) and Meese and Rogoff (1983b) that
+FX-rates. Given the small sample used by the reference papers [[https://scholar.google.it/scholar?hl=it&as_sdt=0%252C5&q=meese+rogoff+1983&btnG=&oq=meese][Meese
+and Rogoff (1983a & 1983b)]] that
 documented the phenomena I decided to further investigate the puzzle
 collecting data for a 20 years period and to contribute to the
 literature by testing the performance of univariate and multivariate
 models. Moreover, on the top of it I assessed the performance of the
-generalized tree structured model of Audrino and Bühlmann (2001)
+generalized tree structured model of [[https://www.alexandria.unisg.ch/32631/][Audrino and Bühlmann (2001)]]
 similar to the CART models.
 
 ** Abstract
