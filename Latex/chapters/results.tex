@@ -8,20 +8,20 @@ The results for the univariate model fit are presented in table
 in section \ref{sub:univariate} a Wald test assessing the empirical
 evidence for a restricted structural model is computed. I find that
 the joint Null of the Frenkel-Bilson model cannot be rejected on a 1\%
-confidence level for the simple OLS modeling of FX-rates.  We
+confidence level for the simple OLS modeling of FX-rates. I
 proceeded therefore to estimate the out of sample performance for the
 OLS applying both the most general structural model and the
 Frenkel-Bilson model.
 
 For the transfer function model described in \ref{eq:transfer} the
-rate of decay, the persistence term and the dead lag were estimated at
+rate of decay, the persistence terms and the dead lag were estimated at
 each model estimation in the rolling forecast. The optimal lags for
 the terms above where selected minimizing the Akaike information
-criteria (See Akaike (1998, \cite{Akaike}). I found a compelling
-evidence for modeling the differentiated series with one term in the
-nominator capturing the effect of unexpected shifts in the independent
-variables and two terms in the denominator capturing the general high
-persistence of FX-rates movements through time.
+criteria (See Akaike (1998, \cite{Akaike}). I find a compelling
+evidence for modeling the series with one or two terms in the
+nominator capturing the effect and of the unpatterned spikes resulting
+from exogenous variables and two terms in the denominator capturing
+the general auto-regressive persistent nature of FX-rates through time.
 
 The results of table \ref{table:MAEunivariate} confirm the one of the
 general literature where an OLS model vastly under-performs a random
@@ -29,7 +29,7 @@ walk in the out of sample forecast of FX-rate at all tested lags.
 
 \begin{table}[!ht] % ! -> to insert at the bottom of a page.
   \centering
-  \caption[MAE \textendash \ Univariate Models]{Mean Absolute Error \textendash \ Univariate Models
+  \caption[MAE \textendash \ Univariate Models]{Mean Absolute Error \textendash \ Univariate Models \\
            Equal Predictive Ability p-value in Parenthesis}
   \begin{tabular}{llccc} % tells how you want the columns aligned.
     \toprule
@@ -103,7 +103,7 @@ empirical literature suggests the presence of a unit root in the
 FX-rates. This was further confirmed by augmented Dickey-Fuller tests
 (Dickey and Fuller (1979, \cite{DickeyFuller})) applied to the
 FX-rates and macroeconomics variables at the moment of detrending the
-series. There a statistically significant presence of unit roots could
+series. There; a statistically significant presence of unit roots could
 be found in the series in level.  Dickey-Fuller tests were estimated
 once again after differentiating the series. All of the series but the
 US-JP interest rates differential and the US-UK unemployment rate
@@ -138,8 +138,8 @@ confidence level.
 Given the five series of macroeconomic fundamentals it is possible
 that the two co-integration relations might exist just among such
 variables and that a long term relation between the macroeconomic
-fundamentals and the FX-rate for the three different series does not
-exists. In order to test such a hypothesis I decided to first run
+fundamentals and the FX-rate for the three different country series does not
+exists. In order to test such a hypothesis I decided to run
 Johansen tests verifying for co-integration between the FX-rate and the
 single macroeconomic variables. I then iterated the process by
 gradually adding macroeconomic variables until the estimation of a
@@ -291,7 +291,7 @@ generalized tree structured model in combination with a structural OLS
 fit without inclusion of lagged terms. Subsequently a word is
 given to the results of the generalized tree structured model applied
 in combination with the multivariate models discussed in section
-\ref{sec:part2}.
+\ref{sub:multivariate}.
 
 \subsubsection{Full Sample Optimal Partitions}
 
@@ -317,7 +317,7 @@ unemployment crises of the 1990s and the sluggish economic growth
 where Switzerland ranked last among the European countries in terms of
 GDP growth as evidenced by Puhani (2003, \cite{Puhani}).
 
-\begin{figure}[h!]\vspace{2mm}
+\begin{figure}[htp]\vspace{2mm}
   \centering
   \caption[GDP and Unemployment level]{\textit{Cumulative GDP growth
       since 1990 and Unemployment level. The dotted line represents
@@ -334,7 +334,8 @@ GDP growth as evidenced by Puhani (2003, \cite{Puhani}).
     \caption{Percentage of working force unemployment for United States, Japan and
       Switzerland between 1990 and 2007.}
   \end{subfigure}
-\vspace{2mm}\end{figure}
+  \vspace{0mm}
+\end{figure}
 
 All of that further strengthens the generalized tree structured model
 that well managed to endogenously identify such important economic
@@ -392,10 +393,10 @@ An interesting aspect to notice in all of the mentioned cases is how
 the macroeconomic variables chosen for partitioning the data set space
 are the ones that proved to be co-integrated with the FX-rate series
 according to the Johansen eigenvalue trace test statistic. To further
-investigate such an aspect the estimated parameters for the tree
-terminal nodes model fit were further inspected.
+investigate such an aspect the estimated parameters at
+terminal nodes of the tree were further inspected.
 
-In general some key relations holds. For instance in UK case, when the
+In general some key relations hold. For instance in UK case, when the
 interest rates differential is below the median value, and therefore
 the tree in the left branch, the foreign exchange rate differentials
 are estimated to be lower \textendash \ due to the
@@ -413,7 +414,7 @@ structured model are in general consistent with the monetary
 macroeconomic theory. Moreover, the interesting finding of parametric
 estimations that fits the reversal properties of the stable long run
 relation among macroeconomic fundamentals and the FX-rates documented
-in the previous section are a further important result of the
+in the previous section is a further important result of the
 generalized tree structured model that is worth to consider.
 
 \subsubsection{Rolling Forecast Optimal Partitions}
@@ -458,12 +459,12 @@ monetary mass in the Swiss case, reaching as high as 66,7\%, and for
 the Japanese case, where the monetary mass is selected to be an
 optimal variable for partitioning the space in 73\% of the cases. This
 confirms the importance of the monetary mass, further stressing how
-the difference in the monetary mass growth differentials well signal
+the difference in the monetary mass growth differentials well signals
 distinguished moments of the economies calling for a differentiated
 parametric fit and differentiated macroeconomic fundamentals influence.
 Nonetheless, the result seems not to be generally valid but rather
-dependent of the characteristics two economies analyzed. The analysis
-of the GBP/USD yield a different picture, with the monetary mass
+dependent of the characteristics of economies analyzed. The analysis
+of the GBP/USD yields a different picture, with the monetary mass
 growth rate usage scoring as low as 2\% in comparison with a usage
 rate of 100\% for the interest rate difference, which interestingly
 was the UK-series showing the highest statistical significance for
@@ -541,9 +542,9 @@ model and a vector auto-regressive model fit in the final nodes of the
 tree.
 
 Given the high number of parameters in such multivariate models the
-criteria for further partitioning the tree was adjusted to 80+
+criteria for further partitioning the tree was adjusted to 80
 observations. The generalized tree structured model could not go
-beyond one threshold variable and two partitions for the model due to
+beyond one threshold variable and two end nodes for the model due to
 the higher stopping criteria. Moreover, the out-of-sample performance
 deteriorated sensibly in comparison to the not partitioned
 multivariate models suggesting over fitting issues. The conclusion was
@@ -559,51 +560,6 @@ therefore for conclusive remarks about the performance of the models
 leaving it as an interesting opportunity for research for the years to
 come.
 
-\section{Criticalities}
-
-The results outlined presented in the study underline the strong
-evidence for a long run stable relation among macroeconomic
-fundamentals and FX-rates.
-
-The promising results from the generalized tree structured model
-further suggest the importance of capturing the stochastic process of
-FX-rates by incorporating different regimes based on the underlying
-macroeconomic situation. This result, together with the estimation of
-parameters in line with the reversal property that guarantees the long
-term stable relation among macroeconomic fundamentals and FX-rates
-might suggest how the adjustment process to the stable long run
-equilibrium is rather unstable through time and requires therefore a
-sluggish adjustment process as the one of alternating regime rather
-than a gradual, periodic, adjustment as the one modeled by the
-vector error correction model.
-
-Despite, the above achievements some structural flows remain in the
-analysis. Starting, with a theoretical notice, it should be mentioned
-how all of the four currencies analyzed are considered to be safe haven
-currencies in the broad academic literature. This, implies that
-important movements for the series might be affected by important
-political events as documented by Ranaldo and S{\"o}derlind (2010,
-\cite{RanaldoSoderlind}) rather then by macroeconomic fundamental
-movements leading to a worsen performance of the structural monetary
-fit. Interesting would be in this sense to analyze the results for
-other less liquid FX-rates series and observe whether the results are
-in line with the one presented in the analysis as well as in the
-benchmark papers.
-
-Moreover, some general issues remain with the macroeconomic proxies
-used in the analysis. Figure \ref{fig:macro} shows how the
-unemployment rate and the gross domestic product growth are generally
-negatively correlated supporting the validity of proxy of choice,
-nonetheless, the possibility of further supporting the results by
-leveraging a linear interpolation of the GDP level or the crude oil
-consumption level subsist. 
-
-Finally, albeit the generalized tree structured model well managed to
-significantly outperform a random walk model, it should be further
-stressed the different information set leveraged by the model
-suggesting caution in claiming a claiming the superiority of the
-generalized tree structured model for modeling FX-rates
-out-of-sample.
 
 
 

@@ -1,44 +1,86 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-The reported results generally confirmed the conclusions presented by
-Meese and Rogoff (1983a and 1983b, \cite{MeeseRogoffa, MeeseRogoffb}).
-None of the four models analyzed could improve with statistical
-significance the out of sample performance of a simple random walk
-model without drift when forecasting foreign exchange rates. Moreover,
-I found evidence for a statistically significant underperformance of
-OLS models compared to a random walk model.
+This thesis proposed a revaluation of the exchange rate disconnect
+international finance puzzle, claiming a weak realtion between
+macroeconomic fundamentals and FX-rates.
 
-When looking at the point estimation of out of sample error statistics
-I observed a mixed evidence for the vector autoregressive models and
-the transfer function models. Both models could sporadically yield
-more accurate results compared to the random walk model but generally
-underperformed the latter.
+Given the small sample of use in the papers of Meese and Rogoff (1983a
+and 1983b, \cite{MeeseRogoffa, MeeseRogoffb}) \textendash \ the reference in the
+academic literature \textendash \ I created a data set qualitatively comparable to
+the one of the benchmark papers encompassing roughly three times as
+many observations. Based on the latter, a re-estimation of univariate
+and multivariate models in analogy to the benchmark papers was proposed.
+
+The reported results generally confirm the conclusions presented by
+Meese and Rogoff (1983a and 1983b, \cite{MeeseRogoffa, MeeseRogoffb}).
+None of the four univariate and multivariate models analyzed could
+improve with statistical significance the out of sample performance of
+a simple random walk model without a drift when forecasting foreign
+exchange rates. Moreover, I found evidence for a statistically
+significant underperformance of the OLS model without inclusion of
+lagged terms in comparison to a random walk model.
+
+When looking at the point estimation of the out of sample error
+statistics I observed a mixed evidence for the vector autoregressive
+model and the transfer function model. Both models could sporadically
+yield more accurate results compared to the random walk model but
+generally underperformed the latter.
 
 Given the evidence for cointegration among macroeconomic variables and
 FX-rates I estimated a vector error correction model which displayed
-promising results, outperforming a random walk model when looking at
-out of sample forecasting error statistics. These results were
+promising results by outperforming a random walk model when looking at
+the out of sample forecasting error statistics. These results were
 consistent among all estimation lags and country series. Nonetheless
-they did not display enough evidence for rejecting the Null of equal
-predictability with a random walk model based on the interval
+the results did not display enough evidence for rejecting the Null of
+equal predictability with a random walk model based on the interval
 estimation through the model confidence test of Hansen (2011,
-\cite{HansenMCS}).
+\cite{HansenMCS}). Moreover, it is interesting to notice that the
+results presented contrast with the two reference papers testing for
+co-integration among macroeconomic fundamentals and FX-rates, namely
+Baillie Selover (1987, \cite{BaillieSelover}) and Meese and Rose
+(1991, \cite{MeeseRose}). Both of the papers reported no evidence for
+co-integration among the series for the period 1974-1987 and therefore
+did not proceed with an error correction modeling. This opens the
+discussion of possible causes for the changed evidence. Given the
+papers' use of the two step Engle and Granger approach (1987,
+\cite{EngleGranger}),combining a first OLS estimation with an
+augmented dickey fuller test on the residuals, the source of the
+difference might not lie in a small sample bias. Rather, it is
+possible that the longer period analyzed in the thesis is more robust
+to major political events in comparison to the sample period used by
+the papers, where for instance the crude oil crises of the 1970s might
+have disrupted the long term macro-FX relation.
 
-Therefore, I can conclude that our study does support the strength of
-a random walk model in comparison to univariate models for FX-rates
-estimation. It is also generally sound model for capturing the unit
-root behaviour observed in the FX-rates movements. Nonetheless, our
-study vastly contrasted with the results of Meese and Rogoff papers
-when analyzing multivariate models. The latter models were able to
-well capture the movements of FX-rates through a parametric model
-based on macroeconomic fundamentals suggesting an estimation failure
-due to a small sample bias in the results reported by Meese and Rogoff
-(1983a and 1983b, \cite{MeeseRogoffa, MeeseRogoffb}). Moreover the
-cointegration between macroeconomic fundamentals and FX-rates suggests
-that a stable long run relation between the two exists.
+If the vector error correction model could not display a
+statistically significant performance increase in comparison to the
+random walk model, the generalized tree structured model did. In line
+with Hisieh (1989, \cite{Hisieh}), Domowitz and Hakkio (1985,
+\cite{DomowitzHakkio}) and Diebold and Pauly (1988,
+\cite{DieboldPauly}), who documented important non-linearities in the
+mean of FX-rates movements, and in line with Kugler and Kr{\"a}ger
+(1993, \cite{KuglerKrager}) and Engle and Hamilton (1989,
+\cite{EngleHamilton}) that documented the statistically significant
+presence of regime shifts in the data generating process of FX-rates,
+the pruned tree obtained by the generalized tree structured model
+suggest the importance of modeling thresholds and regime shifts for
+capturing FX-rates dynamics.
 
-Based on our results I reject the claim of weak relation among
+The obtained regimes suggest the presence of different regions with
+different FX-rates changes dynamics.  Moreover, the interesting fact
+that threshold variables coincide with the co-integrated macroeconomic
+series together with local parametric estimates in line with stable
+long run relation among macroeconmic fundamentals and FX-rates further
+strengthen the centrality of treating macroeconomic and FX-rates
+series together.  Finally, the sensible improve in the out of sample
+performance of the generalized tree structured threshold model points
+to an adjustment to the long term stable equilibria among
+macroeconomic series and FX-rates occurring through sharp adjustments,
+identifiable with the different regimes, rather than through a stable,
+gradual, adjustment such as the one proposed by the vector error
+correction model.
+
+Based on these results I reject the claim of weak relation among
 macroeconomic variables and foreign exchange rates and I claim that
 the macroeconomic fundamentals should be considered as a primary
 determining factor driving the foreign exchange rates movements at
@@ -49,8 +91,8 @@ models is explained by the long memory displayed by foreign exchange
 series that is visibile by analyzing autocorrelation plots for the
 series in virtually all time periods.  In contrast to it, the
 comparable performance of macroeconomic models is explained by the
-long run relation and correlation among foreign exchange and
-macroeconomic variables and FX-rates. This is a remarkable achievement
-that leads us to claim for an underlying relation between fundamentals
+long run the sole relation and correlation among foreign exchange
+rates and macroeconomic variables. This is a remarkable achievement
+that leads me to claim for an underlying relation between fundamentals
 and FX-rates rejecting the exchange rate disconnect puzzle for the
 studied period.

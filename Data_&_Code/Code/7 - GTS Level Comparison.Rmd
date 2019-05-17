@@ -17,13 +17,19 @@ library(xts)
 ## To check at partition splits
 library(readr)
 library(stringr)
+
+## To get latex tables
+library(xtable)
+
+## For performing model confidence set
+library(MCS)
 ```
 
 ===========
 Import Data
 ===========
 ```{r}
-path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Data_&_Code/Written\ Data/stationary_GTSVAR_pred.csv"
+path <- "/Users/Marco Hassan/Exchange-Rates-Modelling/Data_&_Code/Written\ Data/time_stationary_GTS_pred.csv"
 
 data <- read.csv(path)
 
@@ -38,13 +44,13 @@ for(jCountry in c("CH", "JP", "UK"))
   print(plot(tail(data[,paste0("EX_", jCountry, "US")], 50), ylab="Rates", 
      main="Linear Estimators - 1 Lag Out of Sample",
      grid.col = NA, col = 1))
-  print(lines(data[,paste0("rwPred1_", jCountry, "US")],col= 2, lwd = 2))
-  print(lines(data[,paste0("strPred1_", jCountry, "US")], col = "orange", lwd = 2))
-  print(lines(data[,paste0("GTS_VARPred1_", jCountry, "US")], col = "violet", lwd = 2))
-  print(addLegend("bottomleft", on=1, 
-            legend.names = c("Original", "RW", "ARIMAX", "VAR", "VECM", "GTS"), 
+  print(lines(data[,paste0("rwPred1_", jCountry, "US")],col= "red", lwd = 2))
+  print(lines(data[,paste0("OLSPred1_", jCountry, "US")], col = "orange", lwd = 2))
+  print(lines(data[,paste0("GTSPred1_", jCountry, "US")], col = "salmon", lwd = 2))
+  print(addLegend("topleft", on=1, 
+            legend.names = c("Original", "RW", "OLS", "GTS"), 
             lty=c(1, 1), lwd=c(2, 1),
-            col=c(1, 2, "orange", "yellow", "salmon", "violet"))) 
+            col=c(1, 2, "orange", "salmon"))) 
 }
 
 ```
@@ -105,17 +111,17 @@ assign(paste0("numprediction", iLag), sum(
 }
 
 RMSE <- matrix(NA,4,3, 
-               dimnames = list( c("rw", "str", "OLS", "GTS"),
+               dimnames = list( c("rw", "var", "vecm", "GTS"),
                c("CH", "JP", "UK") )
                )
 
 MAE <- matrix(NA,4,3, 
-               dimnames = list( c("rw", "str", "OLS", "GTS"),
+               dimnames = list( c("rw", "var", "vecm", "GTS"),
                c("CH", "JP", "UK") )
                )
 
 DAC <- matrix(NA,4,3, 
-               dimnames = list( c("rw", "str", "OLS", "GTS"),
+               dimnames = list( c("rw", "vecm", "vecm", "GTS"),
                c("CH", "JP", "UK") )
                )
 ```
@@ -130,7 +136,7 @@ errorFun <-
               jCol = 1
               for( country in c("CH", "JP", "UK") )
               {
-                for( method in c("rw", "str", "OLS", "GTS_VAR") )
+                for( method in c("rw", "str", "OLS", "GTS") )
                 {
                   iRow = iRow + 1
                   
@@ -162,16 +168,16 @@ errorFun <-
               }
               
               print(paste("RMSE", LAG))
-              print(RMSE)
-              cat("\n")
+              RMSE <- xtable(RMSE, digits = c(0,4,4,4))
+              #print(RMSE)
               
-              print(paste("MAE", LAG))    
+              print(paste("MAE", LAG))
+              MAE <- xtable(MAE, digits = c(0,4,4,4))
               print(MAE)
-              cat("\n")
               
-              print(paste("DAC", LAG))    
-              print(DAC)
-              cat("\n")
+              print(paste("DAC", LAG))
+              DAC <- xtable(DAC, digits = c(0,4,4,4))
+              #print(DAC)
             }
 ```
 
@@ -188,34 +194,36 @@ Model Confidence set
 Model Confidence set
 ```{r}
 #Create u a matrix with all different univariate predictions: each column, one model prediction
-u <- na.trim(cbind(data$rwPred1_UKUS, data$OLSPred1_UKUS, data$GTS_VARPred1_UKUS))
+u <- na.trim(cbind(data$rwPred1_JPUS, data$varPred1_JPUS, data$vecmPred1_JPUS, data$GTSPred1_JPUS))
 
 n<-dim(u)[1]
-perf<-matrix(NA,n,3)
+perf<-matrix(NA,n,4)
 
 ## RECALL TO CHANGE ALSO HERE THE COUNTRY WHEN ADAPTING AND DERIVING P-VALUES.
-for (j in 1:3)
+for (j in 1:4)
 {
-  perf[,j]<- abs(data$EX_UKUS-u[,j]) #MAE 
-  #perf[,j] <- abs(data$EX_UKUS-u[,j])**2 #MSE
+  perf[,j]<- abs(data$EX_JPUS-u[,j]) #MAE 
+  #perf[,j] <- abs(data$EX_JPUS-u[,j])**2 #MSE
 }
+
+protto <- MCSprocedure(perf, alpha = 0.05, B = 1000, statistic = "TR", verbose = T)
 
 #colMeans(perf) ## Perf is a matrix containing for each column the loss function of one forecasting method.
   
-for (k in 1:3)
-{
-  print( paste("Benchmark model", colnames(u[,k]))	)
-  d<-rep(0,1000)
-  s<-1
-  for (i in 1:10) ## iterate 10 times with spa 100 bootstrapped values each. Total = 1000.
-  { 
-     e<-spa(per=perf,column_benchmark_model=k,
-            num_predmodels=3,number_predictions=n,q=0.25,iter=100,periodogram=T)
-     d[s:(s+99)]<-e$stat.boos
-     s<-s+100
-  }
-  print(mean((d>e$stat))) ## fraction 
-}
+#for (k in 1:4)
+#{
+#  print( paste("Benchmark model", colnames(u[,k]))	)
+#  d<-rep(0,5000)
+#  s<-1
+#  for (i in 1:500) ## iterate 10 times with spa 100 bootstrapped values each. Total = 1000.
+#  { 
+#     e<-spa(per=perf,column_benchmark_model=k,
+#            num_predmodels=4,number_predictions=n,q=0.25,iter=100,periodogram=T)
+#     d[s:(s+99)]<-e$stat.boos
+#     s<-s+100
+#  }
+#  print(mean((d>e$stat))) ## fraction 
+#}
 ```
 
 =============================
@@ -223,14 +231,15 @@ Analysis of Partitioned Space
 =============================
 
 ```{r}
-for(country in c("CH", "JP", "UK"))
+partition_points <- colnames(partitioned_space)
+for(country in c("UK"))
 {
   message(paste("\n\nFor country", country, "the optimal splits are at:\n"))
   for( LAG in c("1", "3", "6", "12") )
   {
         message(paste("\nFor lag", LAG, "the optimal splits are at:\n"))
     
-        prova <- read_file(paste0("Split/VAR/GTSVAR_", country, "_", LAG, ".txt"))
+        prova <- read_file(paste0("Split/OLS/GTS_", country, "_", LAG, ".txt"))
         
         patt <- "(?=Highest).*(?<=[:digit:])"
         
@@ -252,11 +261,24 @@ for(country in c("CH", "JP", "UK"))
               ## Extract variable
               patt <- paste0("(?=", method, ").*(?=%)")
               
-              splitVar <- str_detect(first_part[[1]], pattern = patt)
+              splitVar <- str_extract_all(first_part[[1]], pattern = patt)
               
-              if(sum(splitVar) == 0)next
-              cat(paste("Method", method, "splits:\n"))
-              print(sum(splitVar))
+              splitVar <- unlist(splitVar)
+              
+              splitVar2 <- str_detect(first_part[[1]], pattern = patt)
+              
+              if(sum(splitVar2) == 0)next
+              message(paste("Method", method, "splits total:\n"))
+              print(sum(splitVar2))
+              
+              brek_pnts <- paste0("\\D", as.character(seq(0,100, (1/16)*100)))
+              
+              for(brek in brek_pnts)
+              {
+                if(sum(str_detect(splitVar, brek)) == 0)next
+                cat(paste("Break", brek, "number:\n"))
+                print(sum(str_detect(splitVar, brek)))
+              }
             }
         }
   }

@@ -6,32 +6,31 @@
 %
 Many approaches tried to model FX-rates since the start of a
 free-floating system after Bretton Woods in the 1970s. Monetary
-models, linking macroeconomics variables to FX-rates were the first to
+models, linking macroeconomics variables to FX-rates, were the first to
 emerge and due to their compelling theoretical intuition soon became
 the reference in the field. Nonetheless, the enthusiasm for such
 elegant models was diminished by two seminal works. Meese and Rogoff
 (1983a, \cite{MeeseRogoffa}) and Meese and Rogoff (1983b,
-\cite{MeeseRogoffb}) demonstrated how none of the different monetary
+\cite{MeeseRogoffb}) demonstrated how no one of the different monetary
 models could beat a random walk without a drift in modeling FX-rates
-out of sample. After the evidence was presented the opinion
-divided %%% Cite papers!!
-into four distinct diverging groups. Some authors, such as Kugler and
-Kr{\"a}ger (1993, \cite{KuglerKrager}), argued for a sample issue and
-confined the problem to the specific historical period, other authors,
-such as Lucas (1976, \cite{Lucas}), Engle and Hamilton (1989,
-\cite{EngleHamilton}), Hsieh (1992, \cite{Hsieh}) and Chinn (1991,
-\cite{Chinn}), argued for the limit of the linear models to approach
-monetary models, other authors argued for the fail of monetary models
-and their underlying PPP assumptions documented in Taylor and Taylor
-(2004, \cite{TaylorTaylor}) and, finally, a last current of authors
-such as Frankel, Galli, and Giovannini (1996,
-\cite{FrenkelGalliGiovannini}), Lyons (2001, \cite{Lyons}) and Sarno
-and Taylor (2001, \cite{SarnoTaylor}) started to approach the issue in
-an innovative way turning towards micro-based models that aim to
-capture the complexity of market information asymmetries and investors
-heterogeneity.  \footnote{See Balliu and King (2005,
-  \cite{BalliuKing}) for a general survey of FX-rates modeling
-  in time.}
+out of sample. After the evidence was presented the opinion divided
+into four distinct diverging groups. A first group, represented by
+papers as Kugler and Kr{\"a}ger (1993, \cite{KuglerKrager}), argued
+for a sample issue and confined the problem to the specific historical
+period, another group, represented by Lucas (1976, \cite{Lucas}),
+Engle and Hamilton (1989, \cite{EngleHamilton}), Hsieh (1992,
+\cite{Hsieh}) and Chinn (1991, \cite{Chinn}), argued for the limit of
+the linear models to approach monetary models.  A third group, argued
+for the fail of monetary models and their underlying PPP assumptions
+documented in Taylor and Taylor (2004, \cite{TaylorTaylor}) and,
+finally, a last group of authors such as Frankel, Galli, and
+Giovannini (1996, \cite{FrenkelGalliGiovannini}), Lyons (2001,
+\cite{Lyons}) and Sarno and Taylor (2001, \cite{SarnoTaylor}) started
+to approach the issue in an innovative way turning towards micro-based
+models that aim to capture the complexity of market information
+asymmetries and investors heterogeneity.  \footnote{See Balliu and
+  King (2005, \cite{BalliuKing}) for a general survey of FX-rates
+  modeling in time.}
 
 
 % Second Part - What we do in a nutshell
@@ -43,18 +42,23 @@ the small sample of use and the lack of a co-integration analysis
 later formalized by Granger and Engle (1987,
 \cite{EngleGranger}). Moreover, given the focus of the academic
 literature on understanding the non-linear relation between
-macroeconomics fundamentals and FX-rates by inferring alternating
+macroeconomics fundamentals and FX-rates by leveraging alternating
 conditional expectation optimal transformations introduced by Breiman
-and Friedman (1985, \cite{BreimanFriedman}) and through the markov
-switching models introduced by Hamilton (1989, \cite{Hamilton}), I
-question whether a simple parametric model such as the generalized
-tree structured model introduced by Audrino and B{\"u}hlmann (2001,
-\cite{AudrinoBuhlmann}) allowing to capture both time dependent
-structural breaks in the series such as the dot com bubble or the
-Japanese bank crises of the 1990s as well as policy regime changes
-identifiable with the current state of macroeconomics fundamentals
-might be beneficial for the analysis of FX-rates modeling.
-
+and Friedman (1985, \cite{BreimanFriedman}) and markov switching
+models introduced by Hamilton (1989, \cite{Hamilton}), I question
+whether an easy-to-interpret parametric model as the generalized tree
+structured model introduced by Audrino and B{\"u}hlmann (2001,
+\cite{AudrinoBuhlmann}) might be beneficial for the analysis of
+FX-rates modeling. The idea is that the generalized tree structured
+model well manages to model regime switches, as in the case of the
+parametric markov switching model, having the advantage of selecting
+triggering variables for the structural changes as opposed to the
+markov switching models where regimes are triggered by an,
+unobservable, state variable following a first-order Markov
+chain process. Furthermore, the higher interpretability of the results of the
+generalized tree structured model in comparison to the non-parametric
+ones of alternating conditional expectation models suggest to leverage
+the model for capturing non-linearities in FX-rates dynamics.
 
 %Third Part - Motivation. Why is it important? Who cares?
 % 
@@ -64,7 +68,7 @@ might be beneficial for the analysis of FX-rates modeling.
 This methodological study stands therefore as a revision of the out of
 sample failure of foreign exchange rates testing whether
 macroeconomics variables are indeed incapable of explaining FX-rates
-movements. This is achieved firstly by fitting the parametric models
+movements. This is achieved firstly by fitting five parametric models
 to a comprehensive self collected data set enlarged in size compared
 to the one used so far in the academic literature. Secondly, by
 applying an innovative estimation technique that allows to explore the
@@ -77,7 +81,8 @@ frequency on a data set ranging from 1986 to 2006. This period allows
 for a consistent estimation of all of the necessary parameters given
 the chosen models. Moreover, it avoids modeling the most recent
 financial crises where structural breaks are present in the series
-according to the preliminary CUSUM test applied on the times series.\\
+according to the preliminary CUSUM test applied to the times series.
+
 As in Meese and Rogoff (1983a and 1983b,
 \cite{MeeseRogoffa,MeeseRogoffb}) I explore the out of sample
 forecasting performance of foreign exchange rates for three major
@@ -108,41 +113,44 @@ generalized tree structure model of Audrino and B{\"u}hlmann (2001,
 \cite{AudrinoBuhlmann}).
 
 %Fifth Part - Main Findings
-If the results are in line with the seminal papers of Meese and Rogoff
-in the case of univariate models, the picture resulting from a
+If, in the case of univariate models, the results are in line with the
+seminal papers of Meese and Rogoff, the picture resulting from a
 multivariate fit contradicts the results of the reference papers. I do
-not find enough evidence to support the claim of an underperformance
+not find enough evidence to support the claim for an underperformance
 of multivariate linear models in comparison to a simple random walk
 model. Moreover, I find a strong evidence for co-integration among
 macroeconomic series and FX-rates for all of the analyzed country
 series. This suggests a long term stable relation between the
 fundamentals and the FX-rates rejecting the claim of Meese and Rogoff
-about a weak relation between the two. Consistently with the last
-claim, I do find that a vector error correction model representation
-of the co-integration relation between macroeconomic series and
-FX-rates outperforms the out-of-sample forecast of FX-rates at all
-lags and for all of the country series. Finally, the applied
-generalized tree structure model parametric evaluation statistically
-outperforms all of the presented linear models for all country series
-analyzed suggesting the importance of modeling non-linear terms in
-modeling FX-rates and furthter contributing to the controversial debate of
-the necessity of modeling non linear terms for the monetary modeling
-of FX-rate series. An important breakthrough is moreover to notice
-how both of the analyses results are consistent. Both underline
-the special importance of modeling a long term stable
-relation between macroeconomics monetary mass and foreign exchange
-rates either trough a vector error correction model or a regime shift
-strengthening the hypothesis that a link between monetary
-models and FX-rates does indeed exist at monthly lag frequency given a
-long enough sample period that allows for a reliable multivariate
-endogenous model estimation as well the possibility to capture
-important nonlinearities in the macroeconomics fundamentals influence
-of FX-rates.
+of a weak relation between the two. Consistently with the last claim,
+I do find that a vector error correction model representation of the
+co-integration relation between macroeconomic series and FX-rates
+outperforms the out-of-sample forecast of FX-rates at all lags and for
+all of the country series. Finally, the applied generalized tree
+structure model parametric evaluation statistically outperforms all of
+the presented linear models for all country series suggesting
+the importance of modeling non-linear terms and furthter contributing
+to the controversial debate of non-linear FX-rate modeling.
+
+An important breakthrough is to notice how, due to the reversal
+properties observed in the local parametric estimation of the
+generalized tree structured model, both the multivariate and
+non-linear results are consistent. Both models underline the
+importance of modeling a long term stable relation between
+macroeconomics monetary mass and foreign exchange rates either through
+a vector error correction model or regime shifts. Hence, given a long
+enough sample period that allows for a reliable multivariate model
+estimation as well the possibility to capture important nonlinearities
+in the macroeconomics fundamentals influence of FX-rates, the
+hypothesis of a link between monetary models and FX-rates is confirmed
+at monthly lag frequency.
 
 %Seventh part - This paper is organized as follows
-The paper continues as follows. Section 2 outlines the methodological
+The thesis continues as follows. Section 2 outlines the methodological
 approach and describes the techniques used for the empirical analysis
 and the out-of-sample forecast. Section 3 continues by introducing the
 data set used and the chosen proxies to capture the macroeconomic
 fundamentals of interest, Section 4 reports the main results of the
-empirical analysis and Section 5 concludes the findings.
+empirical analysis. Finally, Section 5 dicusses both theoretical as
+well as practical limits of the study and Section 6 concludes the
+findings.

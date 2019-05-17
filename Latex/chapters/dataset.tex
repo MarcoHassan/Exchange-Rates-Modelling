@@ -10,8 +10,8 @@ FX-rates series are analyzed, namely the JPN/USD rate, the GBP/USD
 rate and the CHF/USD rate.  With respect to the independent variables
 of the structural model, I decided to work with the 3-months treasury
 bills to capture the short term interest rates differentials. The only
-exception were of CH series where I worked with the 3-month US-CH
-LIBOR spread due to missing reported publicly available data for the
+exception is the CH series where I worked with the 3-month US-CH LIBOR
+spread due to missing reported publicly available data for the
 seasonally unadjusted short term treasury rates at monthly lag.  \\
 For measuring money mass differentials, I worked with the M1 and M3
 measures testing the both given the important difference among the two
@@ -21,24 +21,25 @@ proceeded to report the results obtained through such measure in the
 paper. \\ For measuring the inflation rate differentials important for
 the Dorbusch model I worked with consumer price indices and for
 measuring the trade balance I worked with the net trade amount for
-goods as a proxy for the current account balance.  The trade balance
-is indeed just a rough approximation given the fraction of traded
-goods in comparison to the total amount of trade that includes
-services and monetary transfers. Nonetheless I preferred such measure
+goods as a proxy for the current account balance.  The value of traded
+goods is indeed just a rough approximation given the fraction of this
+value in comparison to the value of the total amount of trade that
+includes services and monetary transfers. Nonetheless I preferred such
+measure
 from an interpolation of the quarterly published current account balances. \\
 Finally, I worked with the unemployment rate to capture the output
-differential of the economies as such variable reflects
-well the fluctuations in output levels, i.e. the quantitiy of
-interest, leaving the constant term in equation \ref{eq:structural} to
-capture the other information present in the output measure such as
-the size of the economies.
+differential of the economies as such variable reflects well the
+fluctuations in output levels, i.e. the quantitiy of interest, leaving
+the constant term in equation \ref{eq:structural} to capture the other
+information present in the output measure such as the size of the
+economies.
 
-As in our reference papers I decided not to work with seasonal time
-series in order to avoid the possible bias introduced by different
-seasonal adjustments to the structural parameters documented in Sims
-(1973a and 1973b, \cite{Simsa, Simsb}).  Henceforth I decided to
-approach our model validation by fitting the models on seasonal
-adjusted and detrended time series.
+As in our reference papers I decided not to work with seasonal
+adjusted time series in order to avoid the possible bias introduced by
+different seasonal adjustments to the structural parameters documented
+in Sims (1973a and 1973b, \cite{Simsa, Simsb}).  Henceforth I decided
+to approach the model validation by transforming the series into
+seasonal adjusted and detrended time series.
 
 With respect to the time series adjustments I proceeded by detrending
 the series exploring three different possibilities. Firstly,
@@ -49,14 +50,13 @@ effective due to the quadratic behaviour displayed by the series. This
 approach was therefore applied to all of the series.  The obtained
 mean stationary series were consequently inspected for the presence of
 seasonality. This was done using spectral peaks derived from the
-fast-Fourier transform and the correspondigly power density to detect
-seasonality in accordance with Nerlove (1964, \cite{Nerlove}). The two
-most common seasonalities in the stationary times series were
-subsequently captured by modeling fourier terms, where the number of
-fourier terms was chosen based on the standard Akaike criteria of
-\ref{eq:AICc}. New seasonal adjusted times series were finally
-computed by factoring the modeled seasonality out thorough the
-following form:
+fast-Fourier transform and the resulting power density in accordance
+with Nerlove (1964, \cite{Nerlove}). The two most common seasonalities
+in the stationary times series were subsequently captured by modeling
+fourier terms, where the number of fourier terms was chosen based on
+the standard Akaike criteria of equation \ref{eq:AICc}. New seasonal adjusted
+times series were finally computed by factoring the modeled
+seasonality out thorough the following form:
 
 \begin{equation} \label{eq:seasonal adjustment}
   y^{adjusted} = y^{unadjusted} - \sum_{k=1}^K [ \alpha_k \sin(\frac{2 \pi kt}{m}) + \beta_k \cos(\frac{2 \pi kt}{m}) ] - \sum_{j=1}^J [ \alpha_j \sin(\frac{2 \pi jt}{m}) + \beta_j \cos(\frac{2 \pi jt}{m}) ]

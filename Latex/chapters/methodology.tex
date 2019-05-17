@@ -14,7 +14,7 @@ models discussed in the introductory session is of the following form:
 
 where $s$ represents the logarithm of the indirect quote of FX-rates,
 i.e. the foreign exchange value of a dollar unit, $m-m^{*}$ represents
-the logarithm of the U.S. and foreign country money mass supply ratio,
+the logarithm of the U.S. and foreign country monetary mass supply ratio,
 $y-y^{*}$ represents the logarithm of the U.S. and foreign GDP level
 ratio, $r-r^{*}$ represents the short term U.S./foreign country
 interest rate differential, $\pi - \pi^{*}$ represents the
@@ -31,7 +31,7 @@ that allows for a sluggish price adjustment behaviour and predicts
 FX-overshooting assumes $\beta_{5} = 0$. Finally the Hooper-Morton
 model poses no restrictions on the coefficients of equation
 \ref{eq:structural}. Such a structural model is consequently estimated
-on four different parametric models of interest, which will be
+on five different parametric models of interest, which will be
 discussed next.
 
 \subsection{Univariate Models}
@@ -59,27 +59,29 @@ variable through the following general formula
   Y_{t} = \mu + \frac{(\omega_{0}+\omega_{1}B^{1}+\dots+\omega_{s}B^{s})}{1-\delta_{1}B^{1}-\dots-\delta_{r}B^{r}}X_{t-b} + \varepsilon_{t}
 \end{equation}
 
-where $X$ represent a matrix of exogenous terms, $\mu$ the optional
-term modeling the mean of the series and $\varepsilon$ the
-non-captured variation in the series. Moreover the above ratio
-represents the transform function of the regressors matrix and is
-especially characterized by the order of the denominator and
+where $B$ represent the classical backshift operator, $X$ a matrix of
+exogenous terms, $\mu$ the optional terms modeling the mean of the
+series and $\varepsilon$ the non-captured variation in the
+series. Moreover the above ratio represents the transform function of
+the regressors matrix and is especially characterized by the order of
+the denominator and
 nominator terms. \\
-$r$, the order of the denominator term, expresses the rate of the
-decay pattern, where a higher term indicates a slower decay.  $s$, the
+$R$, the order of the denominator term, expresses the rate of the
+decay pattern, where a higher term indicates a slower decay.  $S$, the
 order of the nominator term, expresses the persistence of so called
-unpatterned spikes, that is the persistence of effects that are not
-captured in the decay pattern.  Finally, the $b$ term in the matrix of
-input represents the dead time, that is the time it takes for the
-dependent variable to react to some changes in the input matrix. This
-is of primary importance as it might very well be that some shift in
-macroeconomic fundamentals just begins to display effects after a
-certain amount of time when
+unpatterned spikes, that is the persistence of exogenous effects that
+are not captured in the auto-regressive decay pattern. Finally, the
+$b$ term in the matrix of input represents the dead time, that is the
+time it takes for the dependent variable to react to some changes in
+the input matrix. This is of primary importance as it might very well
+be that some shift in macroeconomic fundamentals just begins to
+display effects after a certain amount of time when
 the economic agents begin to perceive the change.\\
-Due to the flexible nature of the latter model, I believe that it is
-better suited and preferable to capture the true nature of distributed
-lags present in the structural model of equation \ref{eq:structural}
-in comparison with the smoothed autoregressive model, applied by Meese
+Due to the flexible nature of the latter model and the possibility to
+capture exogenous regressive terms, I question whether such a model is
+better suited to capture the true nature of distributed lags present
+in the structural model of equation \ref{eq:structural} in comparison
+to the exponentially smoothed auto-regressive model, applied by Meese
 and Rogoff, with the arbitrarily chosen smoothing term of 0.95 (See
 Meese and Rogoff (1983a pp. 7, \cite{MeeseRogoffa})).
 
@@ -95,11 +97,12 @@ of the structural model of equation \ref{eq:structural}.
 While some variables as the monetary mass and the output gap are
 commonly treated as exogenous variables in the underlying monetary
 models the practice suggests that such macroeconomic variables might
-very well be influenced by the movements of FX-rates. On the top of it
-other variables such as short-term interest rates differentials are
-treated as endogenous even in the underlying monetary models and
-therefore require a different estimation compared to the one outlined
-in the previous section.
+very well be influenced by the movements of FX-rates. This is
+especially true for smaller economies as the Swiss case of 2014
+showed. On the top of this, other variables such as short-term interest
+rates differentials are treated as endogenous even in the underlying
+monetary models and therefore require a different estimation compared
+to the one outlined in the previous section.
 
 To obviate the above issues Meese and Rogoff (1983a and 1983b,
 \cite{MeeseRogoffa, MeeseRogoffb}) analyzed the structural model of
@@ -115,12 +118,12 @@ where $y$ is a vector containing the endogenous variables of interest,
 $\Phi_0$ is a vector of constants, $\Phi_1, \dots , \Phi_n$ are
 matrices describing the effect of lagged endogenous variables on the
 levels of the current variables and $\varepsilon$ captures the
-equations specific error term.  The resulting model will capture the
+equation's specific error term.  The resulting model will capture the
 endogeneity present in the monetary structural model allowing for a
 consistent OLS estimation as far as the error terms in the equations
 are uncorrelated.
 
-Despite the described vector autoregressive model manages well to
+Despite the described vector autoregressive model well manages to
 model the endogeneity of macroeconomic variables I question whether
 the restricted form of it could yield more efficient and more reliable
 estimates capturing the FX-rates and the monetary models
@@ -132,7 +135,7 @@ well known evidence of non stationary macroeconomics times series
 is underlined by the evidence of Phillips (1986, \cite{Phillips}) that
 set down the theoretical fundamentals showing how parameter estimates
 of cointegrated series do not converge in probability and do not
-converge to any non-degenerate distribution in the asymptotic case if
+converge to any non-degenerate distribution in the asymptotic case in
 the case of a misspecified OLS estimate as potentially is equation
 \ref{eq:VAR}.
 
@@ -155,7 +158,7 @@ in the unrestricted vector autoregressive model of \ref{eq:VAR}.
 \subsection{Generalized Tree Structured Model}
 \label{sub:GTS}
 
-This section further discuss a final methodology allowing to
+This section further discuss the final methodology allowing to
 endogenously determine the optimal partitioned space for capturing the
 non-linear structure present in the series. As outlined by Audrino and
 B{\"u}hlmann, while the general idea of generalized tree structureed
@@ -167,25 +170,25 @@ structured model reselbles SETAR and CART models as it aims at
 deriving the set of threshold variables that best capture the
 different regimes in the time series and modeling those by local
 parametric models. Nonetheless it differs from the two in the way in
-which the partitioned space, and therefore the threshold splits are
+which the partitioned space, and therefore the threshold splits, are
 derived as well as in how the final parametric model is
 fitted.\\
 While the SETAR models are autoregressive self-exciting models, and
 therefore search for the best partition by determining the relation
-between a lagged autoregressive variable and the theshold variable,
+between a lagged auto-regressive variable and the theshold variable,
 the generalized tree structure models are more general in the sense
 that the partition space may be identified based on any external
-factors independently whether it fits in the parametric model or
-not. Additionally the parametric model is not restricted to be an
-autoregressive model but is rather limited by the only restriction of
-being a fully specified parametric model such that a likelihood
-estimation is possible. In this regard the generalized tree structure
-model resembles more the previously mentioned CART models with the
-difference that while CART models estimation technique leverages the
-minimization of the squared sum of residuals, the generalized tree
-structured models leverages likelihood estimation being therefore
-applicable to deterministic models such as GARCH models and better
-suited for modeling not-normal distributed error terms.
+factors independently whether they fit the parametric model or
+not. Additionally, in the generalized tree structured model, the local
+parametric model is not restricted to be an auto-regressive model but
+is rather limited by the only restriction of being a fully specified
+parametric model such that a likelihood estimation is possible. In
+this regard the generalized tree structure model resembles more the
+previously mentioned CART models with the difference that, while CART
+models estimation technique leverages the minimization of the squared
+sum of residuals, the generalized tree structured models leverages
+likelihood estimation being therefore better suited for modeling
+not-normal, fat-tail distributed error terms.
 
 An exact definition of the generalized tree structured
 model might be found in Audrino and B{\"u}hlmann (2001,
@@ -195,9 +198,9 @@ steps.\\
 \setlength{\leftskip}{1cm}
 \setlength{\rightskip}{1cm}
 
-\textit{Step 1:} Estimate the global parametric model by the maximum
-likelihood method over the entire data set space $\mathcal{D}$ with
-the optimization technique of choice.
+\textit{Step 1:} Estimate the global parametric model over the entire
+data set space $\mathcal{D}$ through the maximum likelihood method
+with the optimization technique of choice.
 
 \textit{Step 2:} Define a set of observable variables $\mathcal{S}$
 that might help to proxy regimes changes or structural breaks in the
@@ -205,7 +208,7 @@ underlying parameteric model.
 
 \textit{Step 3:} For each variable $s_j \in \mathcal{S}$
 get threshold values $\overline{s}_{j,m}$, where $m$ corresponds to
-the mth quantile of the empirical distribution of the variable $s_j$.
+the $mth$ quantile of the empirical distribution of the variable $s_j$.
 Usually the $m$ are selected to be the $1/n, \ n = 1, 2, ..., 16$
 empirical quantiles. Finally partition the overall data set space into
 overlapping
@@ -220,20 +223,25 @@ $\mathcal{P}_{j,m}^{left} := \mathcal{P}_{j,m} \setminus
 $\mathcal{P}_{j,m}$ sets. Define the optimal partitioned data set by
 the $\mathcal{P}_{j,m}^{optimal}$ maximizing the overall maximum likelihood in
 sample and note the optimal threshold variable $\overline{s}_j^{optimal}$. You
-will have have obtained a new partitioned space where
+will have have obtained a new partitioned space with
 $\mathcal{D} = \mathcal{P}_{j,m}^{optimal, right} \cup \
-\mathcal{P}_{j,m}^{optimal, left}$
+\mathcal{P}_{j,m}^{optimal, left}$.
 
 \textit{Step 5:} Grow the tree. This means to treat each of the
 partitioned data sets in the terminal nodes of the tree as the
 original data set $\mathcal{D}$ and to iterate \textit{Step 2-4}. The
-next partitioned space is then selected by choosing the best
-performing partitioned space among the terminal nodes optimal
-partitioned spaces. Subsequentially the tree continues to grow until
-the resulting partitioned space contains too little observations for a
+next optimal threshold variable is then selected by choosing the
+partition displaying the highest likelihood among the selected
+terminal nodes optimal partitions.\footnote{Notice, that the likelihood is
+computed aggregating the residuals resulting from partitioned terminal
+node data set \textit{and} the residuals of the other non-partitioned
+terminal node data set.}
+
+\textit{Step 6:} Continue to grow the tree until the
+resulting partitioned space contains too little observations for a
 reliable estimation of the parametric model of interest.
 
-\textit{Step 6:} Prune the tree. This means to reduce the dimension of
+\textit{Step 7:} Prune the tree. This means to reduce the dimension of
 the tree and the number of the partitions $\mathcal{P}$ according to
 some information criteria. The information criteria should guard
 against over-fitting and guarantee that a binary partition is added
@@ -253,21 +261,23 @@ parametric models. The first is the OLS structural model of
 specified by \ref{eq:VAR} and the final model is the vector error
 correction model of equation \ref{eq:VECM}. Where, the latter two
 models are selected especially due to their increased out of sample
-performance in comparison to univariate models. Due to the different
-parameter size of the models I decided to modify the stopping criteria
-for the univariate and multivariate models. While the stopping
-criteria for univariate models will be a partitioned data set
-encompassing less than 40 observations the threshold for the
-multivariate models was set at 70 and 80 observations respectively to
-allow a sufficient number of observations for the parametric fit and
-allow for a robustness check of the model by checking at the varying
-performance in the stopping criteria.
+performance in comparison to univariate models discussed in section
+\ref{sec:results}.
 
-Moreover, for the set of observable variables over which to search for
+Due to the different parameter size of the models I
+decided to modify the stopping criteria for the univariate and
+multivariate models. While the stopping criteria for univariate models
+will be a partitioned data set encompassing less than 40 observations
+the threshold for the multivariate models was set respectively at 70 and 80
+observations both to allow a larger number of observations
+for the parametric fit and to allow for a robustness check of the model
+by checking at the varying performance in the stopping criteria.
+
+Moreover, for the set of observable variables $[\mathcal{S}]$ over which to search for
 the optimal partition I decided to include all of the macroeconomics
 fundamentals differentials outlined in the structural model described
-in \ref{sub:structural} adding a time variable that should be able to
-capture general structural breaks in time important to model for the
+in \ref{sub:structural} adding a time variable allowing to
+capture general structural breaks in time important for the
 sample data set of choice.
 
 Finally the AICc information criteria discussed by Cavanough (1997,
@@ -288,9 +298,9 @@ small sample over-fitting issue discussed in Mcquarrie (1998,
 \label{sub:forecast}
 The five described models are validated by looking at their ability to
 forecast FX-rates out of sample in comparison to a random walk model
-without drift. In this sense the 234 observations sample is split in a
+without drift. In this sense the 234 observations sample is splitted in a
 training and a validation sample. Three fourth of the total
-observations are training the four models while the remaining fourth
+observations are training the five models while the remaining fourth
 of the observations is used for the out of sample validation.
 
 In comparison to Meese and Rogoff (1983b, \cite{MeeseRogoffb}) I do
@@ -355,7 +365,7 @@ results given Westerfield (1977, \cite{Westerfield}) that analyzed the
 empirical exchange rates distribution finding evidence for FX-rates
 non-normal stable-Paretian distributions with infinite variance.\\
 Opposed to Meese and Rogoff (1983a and 1983b, \cite{MeeseRogoffa,
-  MeeseRogoffb}) I decided to further explore the point estimators of
+  MeeseRogoffb}) I decided to further analyze the point estimators of
 the above mentioned statistics by computing a model confidence set
 (MCS) as described in Hansen et al. (2011, \cite{HansenMCS}).  The
 idea of the latter consists of a procedure yielding a model set,
@@ -368,7 +378,8 @@ the equal performance of the models, $\epsilon_m$ is applied, the
 poorly performing models are discarded, and the general problem
 reiterated until $\delta_m$ is accepted
 for all of the surviving models.\\
-In this paper I decided to make use of superior predictive ability
+In this paper I decided to make use of the superior predictive ability
 test of Hansen (2005, \cite{HansenSPA}) and to obtain p-values for the
-equal predictive hypothesis of models according to a bootstrap
-implementation outlined by Hansen et al. (2011, \cite{HansenMCS}).
+equal predictive hypothesis across the models according to a bootstrap
+implementation of the superior predictive ability test as outlined by
+Hansen et al. (2011, \cite{HansenMCS}).

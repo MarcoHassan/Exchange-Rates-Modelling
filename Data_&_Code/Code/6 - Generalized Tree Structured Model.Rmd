@@ -130,7 +130,7 @@ Run the GTS
 
 Create Tree
 ```{r}
-for(country in c("CH", "JP", "UK"))
+for(country in c("CH"))
 {
   data3 <- data[,get(paste0("interest", country))]
   data3 <-  data3[,c(1:(ncol(data3)-2), ncol(data3), ncol(data3)-1)]
@@ -156,9 +156,11 @@ for(country in c("CH", "JP", "UK"))
   opt_partition <- str_extract(opt_partition, "[:digit:]")
   
   ## Save structure and results in a formatted way.
+  png(paste0(country, "test.png"))
   createTree(iterate = max_Partition, plot = T, 
              main = paste0(country, "- Generalized Tree Structure - Full Sample\n",
                            "Optimal Partition = ", opt_partition)) ## to plot without pruning
+  dev.off()
 }
 
 ```
@@ -213,7 +215,7 @@ st <- three_fourth;
 
 Rolling Prediction OLS
 ```{r}
-for( LAG in c(6, 12) ) 
+for( LAG in c(12) ) 
 {
   for( country in c("UK") )
   {  

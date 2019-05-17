@@ -24,6 +24,72 @@ clean <- function() {
 }
 ```
 
+=========
+GDP Plots
+=========
+
+```{r}
+Symbols <- c("MKTGDPUSA646NWDB", "MKTGDPJPA646NWDB", "MKTGDPCHA646NWDB") ##"EXUSUK", "EXJPUS", "EXSZUS")
+
+GDP <-  get_Symbols(Symbols)
+
+GDP <- do.call(merge, GDP)
+
+colnames(GDP)[] <- c("US", "JP", "CH")
+
+GDP <- GDP["1990-01-01/2007-01-01"]
+
+GDP2 <- as.data.frame(GDP)
+
+for(iRow in 2:nrow(GDP2)){
+  for(jCol in 1:ncol(GDP2))
+  GDP[iRow, jCol] <- (GDP2[iRow, jCol] - GDP2[1, jCol])/GDP2[1, jCol]
+}
+
+GDP <- GDP[-1,]
+
+Symbols_UN <- c("LRUN64TTJPM156N", "LMUNRRTTCHM156N", "LMUNRRTTGBM156N") ##"EXUSUK", "EXJPUS", "EXSZUS")##"MKTGDPUSA646NWDB", "MKTGDPJPA646NWDB", "MKTGDPCHA646NWDB")
+
+UN <-  get_Symbols(Symbols_UN)
+
+UN <- do.call(merge, UN)
+
+colnames(UN)[] <- c("US", "JP", "CH")
+
+UN <- UN["1990-01-01/2007-01-01"]
+
+## notice like that all of the evaluation will be performed compared to the usa. if you want to make smaller bilateral comparison you need to download the other forex.
+plot(GDP$US,
+     main="GDP Cumulative Growth Rate since 1990",
+     grid.col = NA, lwd = 2, ylim = c(0, 1.5))
+lines(GDP$JP, main = "Japan", lwd = 0.5, col = "orange")
+lines(GDP$CH, main = "Switzerland", lwd = 0.5, col = "red")
+addLegend("topleft", on=1, 
+            legend.names = c("USA", "JP", "CH"), 
+            lty=c(1, 1), lwd=c(2, 1),
+            col=c("black", "orange", "red"))
+addEventLines(xts("", as.Date(c("1998-10-01"))), lty = 2, lwd = 0.5, col = "orange")
+png("GDP.png")
+addEventLines(xts("", as.Date(c("1997-02-01"))), lty = 2, lwd = 0.5, col = "red")
+dev.off()
+
+## Plot Unenployment
+plot(UN$US,
+     main="UN Rate since 1990", lwd = 2, grid.col = NA, ylim = c(-0.7, 10))
+lines(UN$JP, main = "Japan", lwd = 0.5, col = "orange")
+lines(UN$CH, main = "Switzerland", lwd = 0.5, col = "red")
+addLegend("topright", on=1, 
+            legend.names = c("USA", "JP", "CH"), 
+            lty=c(1, 1), lwd=c(2, 1),
+            col=c("black", "orange", "red"))
+addEventLines(xts("", as.Date(c("1998-10-01"))), lty = 2, lwd = 0.5, col = "orange")
+png("Unenployment.png")
+addEventLines(xts("", as.Date(c("1997-02-01"))), lty = 2, lwd = 0.5, col = "red")
+dev.off()
+```
+
+
+
 ===============
 Data Collection
 ===============
