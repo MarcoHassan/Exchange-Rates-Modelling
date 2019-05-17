@@ -37,8 +37,7 @@ Step 3: ARIMAX
 
 **** In detrended and seasonally adjusted series
 
-#+BEGIN_SRC latex
-
+#+BEGIN_SRC latex :exports results
 \begin{table}[!h] % 
   \centering
     \caption[MAE \textendash \ GTS Model]{Mean Absolute Error \textendash \ Generalized Tree Structure Model}
@@ -72,5 +71,41 @@ Step 3: ARIMAX
   \label{table:GTS-OLS fit}
   \vspace{1em}  
 \end{table}
-
 #+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\begin{table}[!h] % 
+  \centering
+    \caption[MAE \textendash \ GTS Model]{Mean Absolute Error \textendash \ Generalized Tree Structure Model}
+  \begin{tabular}{llccc} % tells how you want the columns aligned.
+    \toprule
+    \multicolumn{5}{c}{Multivariate Models}                      \\
+    \cmidrule(r){1-5}
+    Lag                           &   Model                                     &Switzerland  & Japan     & United Kingdom\\
+    \midrule
+    \multirow{4}{*}{MAE 1}        & \multicolumn{1}{l}{Random Walk}             &   0.0193  & 0.0168  & 0.0162 \\  
+                                  & \multicolumn{1}{l}{VAR}                     &   0.0183  & 0.0186  & 0.0160 \\ 
+                                  & \multicolumn{1}{l}{VECM}                    &   0.0176  & 0.0174  & 0.0153 \\
+                                  & \multicolumn{1}{l}{GTS-OLS}                 &   0.0082  & 0.0084  & 0.0101 \\    
+    \\
+    \multirow{4}{*}{MAE 3}        & \multicolumn{1}{l}{Random Walk}             &   0.0390  & 0.0330  & 0.0291 \\ 
+                                  & \multicolumn{1}{l}{VAR}                     &   0.0394  & 0.0333  & 0.0292 \\
+                                  & \multicolumn{1}{l}{VECM}                    &   0.0376  & 0.0328  & 0.0320 \\
+                                  & \multicolumn{1}{l}{GTS-OLS}                 &   0.0089  & 0.0081  & 0.0096 \\
+    \\
+    \multirow{4}{*}{MAE 6}        & \multicolumn{1}{l}{Random Walk}             &   0.0580  & 0.0495  & 0.0439 \\
+                                  & \multicolumn{1}{l}{VAR}                     &   0.0578  & 0.0488  & 0.0418 \\
+                                  & \multicolumn{1}{l}{VECM}                    &   0.0580  & 0.0483  & 0.0434 \\
+                                  & \multicolumn{1}{l}{GTS-OLS}                 &   0.0075  & 0.0080  & 0.0099 \\    
+     \\
+    \multirow{4}{*}{MAE 12}       & \multicolumn{1}{l}{Random Walk}             &   0.0964  & 0.0584  & 0.0753 \\
+                                  & \multicolumn{1}{l}{VAR}                     &   0.0974  & 0.0603  & 0.0763 \\
+                                  & \multicolumn{1}{l}{VECM}                    &   0.0881  & 0.0542  & 0.0731 \\
+                                  & \multicolumn{1}{l}{GTS-OLS}                 &   0.0078  & 0.0088  & 0.0095 \\    
+    \bottomrule
+  \end{tabular}
+  \label{table:GTS-OLS fit}
+  \vspace{1em}  
+\end{table}
+#+END_EXPORT
