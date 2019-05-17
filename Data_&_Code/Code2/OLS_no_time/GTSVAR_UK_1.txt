@@ -1,1 +1,0 @@
-[1] "For partition 1 the optimal split is at M3_USUK 50% [i.e. 0.002545]"
