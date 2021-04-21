@@ -13,7 +13,7 @@ documented the phenomena I decided to further investigate the puzzle
 collecting data for a 20 years period and to contribute to the
 literature by testing the performance of univariate and multivariate
 models. Moreover, on the top of it I assessed the performance of the
-generalized tree structured model of [[https://www.alexandria.unisg.ch/32631/][Audrino and Bühlmann (2001)]]
+generalized tree structured model of [[https://www.alexandria.unisg.ch/32631/][Audrino and BÃ¼hlmann (2001)]]
 similar to the CART models.
 
 ** Abstract
@@ -82,7 +82,7 @@ For each step of the thesis a R markdown was written.
    extracting the common trends as in Gonzalo and Grange(1995).
 
  -  *5 - Generalized Tree Structured Model:* Fit the generalized tree
-   structured threshold model of Audrino and Bühlmann to the
+   structured threshold model of Audrino and BÃ¼hlmann to the
    analysis with local structural OLS fit without inclusion of lagged terms.
 
  -  *5.1  GTS VAR:* Analogous to *5* for a multivariate local
@@ -101,9 +101,9 @@ the local parametric residuals of the partition with the residuals of
 each other terminal node and to compare the result with all of the
 other possible partitions in the partition space.
 
-After heaving debugging and testing the code is functioning although
+After heavy debugging and testing the code is functioning although
 surely not efficient. Functions 9-15 fully implement the algorithm
-outlined by Audrino & Bühlmann. 
+outlined by Audrino & BÃ¼hlmann. 
 
 At the moment the code is functional
 just for the data set created in this repository. It can be though
